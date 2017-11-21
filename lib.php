@@ -25,7 +25,7 @@
  * Moodle is performing actions across all modules.
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -471,5 +471,25 @@ function adaptivequiz_extend_navigation(navigation_node $navref, stdClass $cours
  * @param navigation_node $adaptivequiznode adaptivequiz administration node
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode=null) {
-    // TODO Delete this function and its docblock, or implement it.
+    global $PAGE, $CFG;
+
+    // We want to add these new nodes after the Edit settings node, and before the
+    // Locally assigned roles node. Of course, both of those are controlled by capabilities.
+    $keys = $adaptivequiznode->get_children_key_list();
+    $beforekey = null;
+    $i = array_search('modedit', $keys);
+    if ($i === false and array_key_exists(0, $keys)) {
+        $beforekey = $keys[0];
+    } else if (array_key_exists($i + 1, $keys)) {
+        $beforekey = $keys[$i + 1];
+    }
+
+    // Edit Quiz button
+    if (has_capability('mod/adaptivequiz:manage', $PAGE->cm->context)) {
+        $node = navigation_node::create(get_string('editquiz', 'adaptivequiz'),
+                new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id)),
+                navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_edit',
+                new pix_icon('t/edit', ''));
+        $adaptivequiznode->add_node($node, $beforekey);
+    }
 }

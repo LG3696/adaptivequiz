@@ -15,22 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * Displays a page to edit an adaptive quiz.
  *
  * @package    mod_adaptivequiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 
-$plugin->component = 'mod_adaptivequiz';
-$plugin->version = 2017111901;
-$plugin->release = 'v0.0';
-$plugin->requires = 2014051200;
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->cron = 0;
-$plugin->dependencies = array();
+$PAGE->set_pagelayout('incourse');
+echo $OUTPUT->header();
+
+echo $OUTPUT->footer();

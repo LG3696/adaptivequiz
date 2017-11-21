@@ -18,7 +18,7 @@
  * Prints a particular adaptive quiz
  *
  * @package    mod_adaptivequiz
- * @copyright  2017 Luca Gladiator <l.g5@gmx.de>
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

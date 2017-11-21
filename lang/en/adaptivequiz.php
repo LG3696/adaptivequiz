@@ -22,7 +22,7 @@
  * if you like, and it can span multiple lines.
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,5 +38,6 @@ $string['adaptivequizfieldset'] = 'Custom example fieldset';
 $string['adaptivequizname'] = 'Adaptive Quiz name';
 $string['adaptivequizname_help'] = 'This is the content of the help tooltip associated with the adaptivequizname field. Markdown syntax is supported.';
 $string['adaptivequiz'] = 'Adaptive Quiz';
+$string['editquiz'] = 'Edit quiz';
 $string['pluginadministration'] = 'Adaptive Quiz administration';
 $string['pluginname'] = 'Adaptive Quiz';
