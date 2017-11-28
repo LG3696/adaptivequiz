@@ -33,12 +33,12 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="adaptivequiz_qinstance" COMMENT="A question instance. Stores its father block, points attainable (grade) and the slot of this instance. Stores wether it is a block. If its a block, question holds its blockid, otherwise it holds its questionid.">
+    <TABLE NAME="adaptivequiz_qinstance" COMMENT="A question instance. Stores its father block, points attainable (grade) and the slot of this instance. Stores its type. type 0 := question, type 1 := block. blockelement contains the questionid if this instance is of the type question, and a blockid if it is a block.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="blockid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="relating blockid"/>
-        <FIELD NAME="question" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="isquestion" TYPE="binary" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="blockelement" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 := question 1:= block"/>
         <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="the grade of this block / question"/>
         <FIELD NAME="slot" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="postition of this element"/>
       </FIELDS>
