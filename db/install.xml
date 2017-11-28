@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/adaptivequiz/db" VERSION="20171123" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
+<XMLDB PATH="mod/adaptivequiz/db" VERSION="20171128" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -24,10 +24,10 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="adaptivequiz_block" COMMENT="is a adaptive block. stores if the block is the main block.">
+    <TABLE NAME="adaptivequiz_block" COMMENT="is a adaptive block. stores the name of the block">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="ismain" TYPE="binary" NOTNULL="true" SEQUENCE="false" COMMENT="wether or not this block is the main block"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
