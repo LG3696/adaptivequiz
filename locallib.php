@@ -21,11 +21,13 @@
  * logic, should go here. Never include this file from your lib.php!
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 
 /*
  * Does something really useful with the passed things
