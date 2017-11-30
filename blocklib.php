@@ -102,7 +102,7 @@ class block {
         $children = $DB->get_records('adaptivequiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
 
         $this->children = array_map(function($id) {
-                                        return block_element::load($id);
+                                        return block_element::load($id->id);
                                     },
                                     array_values($children));
     }
@@ -218,16 +218,20 @@ class block_element {
      */
     public static function load($blockelementid) {
         global $DB;
-
+        
         $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', MUST_EXIST);
+        
         $element = null;
-        if ($questioninstance->type === 0) {
-            $element = $DB->get_record('question', array('id' => $questioninstance->question), MUST_EXIST);
+        if ($questioninstance->type == 0) {
+            $element = $DB->get_record('question', array('id' => $questioninstance->blockelement), '*', MUST_EXIST);
         }
-        else if ($questioninstance->type === 1) {
-            $element = block::load($questioninstance->question);
+        else if ($questioninstance->type == 1) {
+            $element = block::load($questioninstance->blockelement);
         }
-        return new block_element($blockelementid, $questioninstance->type, $element);
+        else {
+            return null;
+        }
+        return new block_element($blockelementid, (int)$questioninstance->type, $element);
     }
 
     /**

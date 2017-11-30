@@ -24,8 +24,19 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/question/editlib.php');
+
+$quizid = required_param('qid', PARAM_INT);
+$blockid = required_param('bid', PARAM_INT);
+
+$block = block::load($blockid);
 
 $PAGE->set_pagelayout('incourse');
+
+$output = $PAGE->get_renderer('mod_adaptivequiz');
+
 echo $OUTPUT->header();
+
+echo $output->edit_page($block);
 
 echo $OUTPUT->footer();

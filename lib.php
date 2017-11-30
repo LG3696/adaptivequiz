@@ -471,7 +471,9 @@ function adaptivequiz_extend_navigation(navigation_node $navref, stdClass $cours
  * @param navigation_node $adaptivequiznode adaptivequiz administration node
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode=null) {
-    global $PAGE, $CFG;
+    global $PAGE, $CFG, $DB;
+    
+    require_once($CFG->dirroot . '/question/editlib.php');
 
     // We want to add these new nodes after the Edit settings node, and before the
     // Locally assigned roles node. Of course, both of those are controlled by capabilities.
@@ -483,11 +485,13 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
     } else if (array_key_exists($i + 1, $keys)) {
         $beforekey = $keys[$i + 1];
     }
+    //get the id of the main block.
+    list($module, $cm) = get_module_from_cmid($PAGE->cm->id);
 
     // Edit Quiz button
     if (has_capability('mod/adaptivequiz:manage', $PAGE->cm->context)) {
         $node = navigation_node::create(get_string('editquiz', 'adaptivequiz'),
-                new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id)),
+                new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id, 'qid' => $module->id, 'bid' => $module->mainblock)),
                 navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_edit',
                 new pix_icon('t/edit', ''));
         $adaptivequiznode->add_node($node, $beforekey);
