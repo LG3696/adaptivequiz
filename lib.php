@@ -74,8 +74,11 @@ function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_
 
     $adaptivequiz->timecreated = time();
 
-    // You may have to add extra stuff in here.
+    $mainblock = new stdClass();
+    $mainblock->name = $adaptivequiz->name;
+    $mainblockid = $DB->insert_record('adaptivequiz_block', $mainblock);
 
+    $adaptivequiz->mainblock = $mainblockid;
     $adaptivequiz->id = $DB->insert_record('adaptivequiz', $adaptivequiz);
 
     adaptivequiz_grade_item_update($adaptivequiz);
