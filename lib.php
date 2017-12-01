@@ -475,7 +475,7 @@ function adaptivequiz_extend_navigation(navigation_node $navref, stdClass $cours
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode=null) {
     global $PAGE, $CFG, $DB;
-    
+
     require_once($CFG->dirroot . '/question/editlib.php');
 
     // We want to add these new nodes after the Edit settings node, and before the

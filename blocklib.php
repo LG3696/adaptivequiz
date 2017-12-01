@@ -152,6 +152,22 @@ class block {
     }
 
     /**
+     * Moves one element from an old slot to a new one. Used to reorder the parts of the block.
+     * @param int $oldslot the number of the old slot.
+     * @param int $newslot the number of the slot, that the element should be moved to.
+     * @return boolean whether the reordering was successfull.
+     */
+    public function move($oldslot, $newslot) {
+        global $DB;
+
+        $this->load_children();
+
+        //TODO: check if allowed -> return false if not
+
+        //TODO: otherwise update the DB
+    }
+
+    /**
      * Returns the children block.
      *
      * @return array an array of {@link block_element}, which represents the children of this block.
@@ -193,6 +209,8 @@ class block_element {
     protected $id = 0;
     /** @var int the type of the block_element: 0 = question, 1 = block. */
     protected $type = 0;
+    /** @var int the id of the element referenced. */
+    protected $elementid = 0;
     /** @var object the {@link block} or question, this element refers to. */
     protected $element = null;
 
@@ -204,9 +222,10 @@ class block_element {
      * @param int $type the type of this block_element.
      * @param object $element the element referenced by this block.
      */
-    public function __construct($id, $type, $element) {
+    public function __construct($id, $type, $elementid, $element) {
         $this->id = $id;
         $this->type = $type;
+        $this->elementid = $elementid;
         $this->element = $element;
     }
 
@@ -218,9 +237,9 @@ class block_element {
      */
     public static function load($blockelementid) {
         global $DB;
-        
+
         $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', MUST_EXIST);
-        
+
         $element = null;
         if ($questioninstance->type == 0) {
             $element = $DB->get_record('question', array('id' => $questioninstance->blockelement), '*', MUST_EXIST);
@@ -231,7 +250,7 @@ class block_element {
         else {
             return null;
         }
-        return new block_element($blockelementid, (int)$questioninstance->type, $element);
+        return new block_element($blockelementid, (int)$questioninstance->type, (int)$questioninstance->blockelement, $element);
     }
 
     /**
