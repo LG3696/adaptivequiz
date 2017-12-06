@@ -29,16 +29,15 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 
- //TODO: adaptivequiz_has_attempts($id)
  /**
   * Get the main block of the quiz.
-  * 
+  *
   * @param int $quizid the id of the quiz.
   * @return block the main block of the quiz.
   */
  function get_main_block($quizid) {
      global $DB;
-     
+
      $quiz = $DB->get_record('adaptivequiz', array('id' => $id), MUST_EXIST);
      return block::load($quiz->mainblock);
  }

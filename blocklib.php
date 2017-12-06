@@ -110,16 +110,16 @@ class block {
     /**
      * Adds a new question to the block.
      *
-     * @param object $question the question to be added.
+     * @param int $questionid the id of the question to be added.
      */
-    public function add_question($question) {
+    public function add_question($questionid) {
         global $DB;
 
         $this->load_children();
 
         $qinstance = new stdClass();
         $qinstance->blockid = $this->id;
-        $qinstance->blockelement = $question->id;
+        $qinstance->blockelement = $questionid;
         $qinstance->type = 0;
         $qinstance->grade = 0; //TODO: ???
         $qinstance->slot = count($this->children);

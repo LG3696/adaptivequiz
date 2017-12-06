@@ -28,8 +28,15 @@ require_once($CFG->dirroot . '/question/editlib.php');
 
 $quizid = required_param('qid', PARAM_INT);
 $blockid = required_param('bid', PARAM_INT);
+$addquestion = optional_param('addquestion', 0, PARAM_INT);
+
+$pageurl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => $blockid));
 
 $block = block::load($blockid);
+
+if ($addquestion) {
+    $block->add_question($addquestion);
+}
 
 $PAGE->set_pagelayout('incourse');
 
@@ -37,6 +44,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-echo $output->edit_page($block);
+echo $output->edit_page($block, $pageurl);
 
 echo $OUTPUT->footer();
