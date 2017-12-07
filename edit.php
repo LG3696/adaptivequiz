@@ -29,13 +29,35 @@ require_once($CFG->dirroot . '/question/editlib.php');
 $quizid = required_param('qid', PARAM_INT);
 $blockid = required_param('bid', PARAM_INT);
 $addquestion = optional_param('addquestion', 0, PARAM_INT);
+$addblock = optional_param('addblock', 0, PARAM_INT);
+$done = optional_param('done', 0, PARAM_INT);
+$remove = optional_param('remove', 0, PARAM_INT);
 
 $pageurl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => $blockid));
 
-$block = block::load($blockid);
+$block = block::load($quizid, $blockid);
+
+if ($done) {
+    $name = required_param('blockname', PARAM_ALPHANUMEXT);
+    $block->set_name($name);
+    //TODO: better next url (parent block or main view)
+    $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => 1));
+    redirect($nexturl);
+}
 
 if ($addquestion) {
     $block->add_question($addquestion);
+}
+
+if ($addblock) {
+    $newblock = block::create($quizid, get_string('blockname', 'adaptivequiz'));
+    $block->add_subblock($newblock);
+    $newblockurl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => $newblock->get_id()));
+    redirect($newblockurl);
+}
+
+if ($remove) {
+    $block->remove_child($remove);
 }
 
 $PAGE->set_pagelayout('incourse');
@@ -44,6 +66,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-echo $output->edit_page($block, $pageurl);
+echo $output->edit_page($block, $pageurl, $quizid);
 
 echo $OUTPUT->footer();
