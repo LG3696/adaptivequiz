@@ -51,6 +51,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $addmenu = $this->add_menu($pageurl);
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
+
+        $output .= $this->question_chooser();
+        $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
         return $output;
     }
 
@@ -179,5 +182,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $menu->prioritise = true;
         return html_writer::tag('span', $this->render($menu),
             array('class' => 'add-menu-outer'));
+    }
+
+    public function question_chooser() {
+        $container = html_writer::div(print_choose_qtype_to_add_form(array(), null, false), '',
+            array('id' => 'qtypechoicecontainer'));
+        return html_writer::div($container, 'createnewquestion');
     }
 }
