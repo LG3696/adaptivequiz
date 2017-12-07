@@ -39,6 +39,8 @@ defined('MOODLE_INTERNAL') || die();
 class block {
     /** @var int the id of the block. */
     protected $id = 0;
+    /** @var int the id of the quiz, this block belongs to. */
+    protected $quizid;
     /** @var string the name of the block. */
     protected $name = '';
     /** @var array of {@link block_element}, that are contained in this block. */
@@ -49,11 +51,13 @@ class block {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block.
+     * @param int $quizid the id of the quiz, this block belongs to.
      * @param string $name the name of the block.
      * @param array $children an array of block_element representing the parts of this block.
      */
-    public function __construct($id, $name, $children) {
+    public function __construct($id, $quizid, $name, $children) {
         $this->id = $id;
+        $this->quizid = $quizid;
         $this->name = $name;
         $this->children = $children;
     }
@@ -61,31 +65,33 @@ class block {
     /**
      * Static function to get a block object from a block id.
      *
+     * @param int $quizid the id of the quiz, this block belongs to.
      * @param int $blockid the block id.
      * @return block the new block object.
      */
-    public static function load($blockid) {
+    public static function load($quizid, $blockid) {
         global $DB;
 
         $block = $DB->get_record('adaptivequiz_block', array('id' => $blockid), '*', MUST_EXIST);
 
-        return new block($blockid, $block->name, null);
+        return new block($blockid, $quizid, $block->name, null);
     }
 
     /**
      * Static function to create a new block in the database.
      *
+     * @param int $quizid the quiz this block belongs to.
      * @param string $name the name of the block.
      * @return block the new block object.
      */
-    public static function create($name) {
+    public static function create($quizid, $name) {
         global $DB;
 
         $block = new stdClass();
         $block->name = $name;
         $blockid = $DB->insert_record('adaptivequiz_block', $block);
 
-        return new block($blockid, $block->name, null);
+        return new block($blockid, $quizid, $block->name, null);
     }
 
     /**
@@ -101,8 +107,9 @@ class block {
 
         $children = $DB->get_records('adaptivequiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
 
+        $qid = $this->quizid;
         $this->children = array_map(function($id) {
-                                        return block_element::load($id->id);
+                                        return block_element::load($qid, $id->id);
                                     },
                                     array_values($children));
     }
@@ -126,7 +133,7 @@ class block {
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->children, block_element::load($id));
+        array_push($this->children, block_element::load($this->quizid, $id));
     }
 
     /**
@@ -148,7 +155,7 @@ class block {
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->children, block_element::load($id));
+        array_push($this->children, block_element::load($this->quizid, $id));
     }
 
     /**
@@ -165,6 +172,20 @@ class block {
         //TODO: check if allowed -> return false if not
 
         //TODO: otherwise update the DB
+    }
+    
+    /**
+     * Removes the child with the give adaptivequiz_qinstance id.
+     * 
+     * @param int $id the id of the child to remove.
+     */
+    public function remove_child($id) {
+        global $DB;
+        
+        $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
+        
+        // necessary because now the loaded children information is outdated.
+        $this->children = null;
     }
 
     /**
@@ -185,6 +206,21 @@ class block {
     public function get_name() {
         return $this->name;
     }
+    
+    /**
+     * Sets the name of the block.
+     * @param string $name new name of the block.
+     */
+    public function set_name($name) {
+        global $DB;
+        
+        $this->name = $name;
+        
+        $record = new stdClass();
+        $record->id = $this->id;
+        $record->name = $name;
+        $DB->update_record('adaptivequiz_block', $record);
+    }
 
     /**
      * Returns the id of the block.
@@ -193,6 +229,15 @@ class block {
      */
     public function get_id() {
         return $this->id;
+    }
+    
+    /**
+     * Returns the quiz id of the block.
+     *
+     * @return int the id of the quiz, this block belongs to.
+     */
+    public function get_quizid() {
+        return $this->quiz_id;
     }
 }
 
@@ -219,11 +264,13 @@ class block_element {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block_elem.
+     * @param int $quizid the quiz this reference belongs to.
      * @param int $type the type of this block_element.
      * @param object $element the element referenced by this block.
      */
-    public function __construct($id, $type, $elementid, $element) {
+    public function __construct($id, $quizid, $type, $elementid, $element) {
         $this->id = $id;
+        $this->quizid = $quizid;
         $this->type = $type;
         $this->elementid = $elementid;
         $this->element = $element;
@@ -232,10 +279,11 @@ class block_element {
     /**
      * Static function to get a block_element object from a its id.
      *
+     * @param int $quizid the quiz this reference belongs to.
      * @param int $blockelementid the blockelement id.
      * @return block the new block object.
      */
-    public static function load($blockelementid) {
+    public static function load($quizid, $blockelementid) {
         global $DB;
 
         $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', MUST_EXIST);
@@ -245,12 +293,12 @@ class block_element {
             $element = $DB->get_record('question', array('id' => $questioninstance->blockelement), '*', MUST_EXIST);
         }
         else if ($questioninstance->type == 1) {
-            $element = block::load($questioninstance->blockelement);
+            $element = block::load($quizid, $questioninstance->blockelement);
         }
         else {
             return null;
         }
-        return new block_element($blockelementid, (int)$questioninstance->type, (int)$questioninstance->blockelement, $element);
+        return new block_element($blockelementid, $quizid, (int)$questioninstance->type, (int)$questioninstance->blockelement, $element);
     }
 
     /**
@@ -271,6 +319,20 @@ class block_element {
         return $this->type === 1;
     }
 
+    /**
+     * Returns the name of the element.
+     * 
+     * @return string The name of the element.
+     */
+    public function get_name() {
+        if ($this->is_question()) {
+            return $this->element->name;
+        }
+        if ($this->is_block()) {
+            return $this->element->get_name();
+        }
+    }
+    
 
     /**
      * Return the element.
@@ -279,5 +341,63 @@ class block_element {
      */
     public function get_element() {
         return $this->element;
+    }
+    
+    /**
+     * Checks whether the element can be edited.
+     * 
+     * @return bool True if it may be edited, false otherwise.
+     */
+    public function may_edit() {
+        if ($this->is_question()) {
+            $question = $this->element;
+            return !empty($question->id) &&
+            (question_has_capability_on($question, 'edit', $question->category) ||
+                question_has_capability_on($question, 'move', $question->category));
+        }
+        if ($this->is_block()) {
+            return true;
+        }
+    }
+    
+    /**
+     * Checks whether the element can be viewed.
+     *
+     * @return bool True if it may be viewed, false otherwise.
+     */
+    public function may_view() {
+        if ($this->is_question()) {
+            $question = $this->element;
+            return !empty($question->id) &&
+            question_has_capability_on($question, 'view', $question->category);
+        }
+        if ($this->is_block()) {
+            return true;
+        }
+    }
+    
+    /**
+     * Get a URL for the edit page of this element.
+     *
+     * @return \moodle_url the edit URL of the element.
+     */
+    public function get_edit_url() {
+        if ($this->is_question()) {
+            $questionparams = array('id' => $this->element->id);
+            return new moodle_url("$CFG->wwwroot/question/question.php", $questionparams);
+        }
+        if ($this->is_block()) {
+            $blockparams = array('qid' => $this->element->get_quizid(), 'bid' => $this->element->get_id());
+            return new moodle_url('edit.php', $blockparams);
+        }
+    }
+    
+    /**
+     * Returns the id of the qinstance database row.
+     * 
+     * @return int the row id.
+     */
+    public function get_id() {
+        return $this->id;
     }
 }
