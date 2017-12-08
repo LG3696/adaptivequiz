@@ -58,18 +58,18 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $addmenu = $this->add_menu($pageurl);
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
-		
+
         $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'));
         $output .= html_writer::end_tag('form');
-		
-        $output .= $this->question_chooser();
+
+        $output .= $this->question_chooser($pageurl);
         $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
         return $output;
     }
 
     /**
      * Render one element of a block.
-     * 
+     *
      * @param block_element $blockelem An element of a block.
      * @param \moodle_url $pageurl The URL of the page.
      * @param int $quizid The ID of the quiz.
@@ -80,11 +80,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $element_html = '';
         $edit_html = '';
         $cmid = 1;
-        
+
         /*if ($blockelem->is_question()) {
             $element_html = $blockelem->get_name();
             $edit_html = $this->question_edit_button($blockelem->get_element(), $pageurl, $cmid);
-            
+
         }
         else if ($blockelem->is_block()) {
             $element_html = $blockelem->get_name();
@@ -101,7 +101,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
     /**
      * Outputs the edit button HTML for an element.
-     * 
+     *
      * @param block_element $element the element to get the button for.
      * @param \moodle_url $returnurl the URL of the page.
      * @param int $cmid the ID of the course.
@@ -139,30 +139,30 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />' .
                 '</a>';
             return '';
-        } 
+        }
         else {
             return '';
         }
     }
-    
+
     /**
      * Outputs the remove button HTML for an element.
-     * 
+     *
      * @param block_element $element the element to get the button for.
      * @return string HTML to output.
      */
     public function element_remove_button($element, $pageurl) {
         $url = new \moodle_url($pageurl, array('sesskey' => sesskey(), 'remove' => $element->get_id()));
         $strdelete = get_string('delete');
-        
+
         $image = $this->pix_icon('t/delete', $strdelete);
         return $this->action_link($url, $image, null, array('title' => $strdelete,
             'class' => 'cm-edit-action editing_delete', 'data-action' => 'delete'));
     }
-        
+
     /**
      * Outputs the add menu HTML.
-     * 
+     *
      * @param \moodle_url $pageurl The URL of the page.
      * @return string HTML to output.
      */
@@ -178,8 +178,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             'cmid' => 3, //TODO
             'category' => 2,//TODO
             'appendqnumstring' => 'addquestion');
-        
-        //Button to add a question. 
+
+        //Button to add a question.
         $addaquestion = new \action_menu_link_secondary(
             new \moodle_url('/question/addquestion.php', $params),
             new \pix_icon('t/add', get_string('addaquestion', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
@@ -195,21 +195,26 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank'));
         $menu->add($questionbank);
         $menu->prioritise = true;
-        
+
         //Button to add a block.
         $addblockurl = new \moodle_url($pageurl, array('addblock' => 1));
-        $addablock = new \action_menu_link_secondary($addblockurl, 
+        $addablock = new \action_menu_link_secondary($addblockurl,
             new \pix_icon('t/add', get_string('addablock', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
             get_string('addablock', 'adaptivequiz'),
             array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank'));
         $menu->add($addablock);
-        
+
         return html_writer::tag('span', $this->render($menu),
             array('class' => 'add-menu-outer'));
     }
 
-    public function question_chooser() {
-        $container = html_writer::div(print_choose_qtype_to_add_form(array(), null, false), '',
+    /**
+     * Renders the HTML for the question type chooser dialogue.
+     *
+     * @return string the HTML of the dialogue.
+     */
+    public function question_chooser(\moodle_url $returnurl) {
+        $container = html_writer::div(print_choose_qtype_to_add_form(array('returnurl' => $returnurl->out_as_local_url(), 'appendqnumstring' => 'addquestion', 'category' => 2/*TODO*/), null, false), '',
             array('id' => 'qtypechoicecontainer'));
         return html_writer::div($container, 'createnewquestion');
     }
