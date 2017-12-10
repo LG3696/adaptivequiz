@@ -51,7 +51,7 @@ if ($done) {
     $name = required_param('blockname', PARAM_TEXT);
     $block->set_name($name);
     if ($parentid = $block->get_parentid()) {
-        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => 1));
+        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $parentid));
     }
     else {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));

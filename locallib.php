@@ -38,6 +38,6 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  function get_main_block($quizid) {
      global $DB;
 
-     $quiz = $DB->get_record('adaptivequiz', array('id' => $id), MUST_EXIST);
+     $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
      return block::load($quizid, $quiz->mainblock);
  }

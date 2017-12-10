@@ -27,7 +27,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
 /**
  * A class encapsulating a block and the questions it contains, and making the
  * information available to scripts like view.php.
@@ -246,7 +245,38 @@ class block {
      * @return bool|int the the id of the parent block or false.
      */
     public function get_parentid() {
-        //TODO
+        $mainblock = get_main_block($this->quizid);
+
+        //if this is the main block, there is no parent block.
+        if ($this->id == $mainblock->get_id()) {
+            return false;
+        }
+        else {
+            //top down search in the block-tree to find the parent.
+            return $mainblock->search_parent($this->id)->get_id();
+        }
+        return false;
+    }
+
+    /**
+     * Finds the parent of a block.
+     * @param int $childid the id of the child to find the parent for.
+     *
+     * @return bool|block the parent block or fals, if the parent can not be found.
+     */
+    protected function search_parent($childid) {
+        $this->load_children();
+        foreach ($this->children as $element) {
+            if ($element->is_block()) {
+                $block = $element->get_element();
+                if ($block->get_id() == $childid) {
+                    return $this;
+                }
+                if ($parent = $block->search_parent($childid)) {
+                    return $parent;
+                }
+            }
+        }
         return false;
     }
 }
