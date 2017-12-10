@@ -488,13 +488,11 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
     } else if (array_key_exists($i + 1, $keys)) {
         $beforekey = $keys[$i + 1];
     }
-    //get the id of the main block.
-    list($module, $cm) = get_module_from_cmid($PAGE->cm->id);
 
     // Edit Quiz button
     if (has_capability('mod/adaptivequiz:manage', $PAGE->cm->context)) {
         $node = navigation_node::create(get_string('editquiz', 'adaptivequiz'),
-                new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id, 'qid' => $module->id, 'bid' => $module->mainblock)),
+                new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id)),
                 navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_edit',
                 new pix_icon('t/edit', ''));
         $adaptivequiznode->add_node($node, $beforekey);

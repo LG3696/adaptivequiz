@@ -173,17 +173,17 @@ class block {
 
         //TODO: otherwise update the DB
     }
-    
+
     /**
      * Removes the child with the give adaptivequiz_qinstance id.
-     * 
+     *
      * @param int $id the id of the child to remove.
      */
     public function remove_child($id) {
         global $DB;
-        
+
         $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
-        
+
         // necessary because now the loaded children information is outdated.
         $this->children = null;
     }
@@ -206,16 +206,16 @@ class block {
     public function get_name() {
         return $this->name;
     }
-    
+
     /**
      * Sets the name of the block.
      * @param string $name new name of the block.
      */
     public function set_name($name) {
         global $DB;
-        
+
         $this->name = $name;
-        
+
         $record = new stdClass();
         $record->id = $this->id;
         $record->name = $name;
@@ -230,7 +230,7 @@ class block {
     public function get_id() {
         return $this->id;
     }
-    
+
     /**
      * Returns the quiz id of the block.
      *
@@ -238,6 +238,16 @@ class block {
      */
     public function get_quizid() {
         return $this->quiz_id;
+    }
+
+    /**
+     * Returns the id of the parent block or false, if this block has no parent block.
+     *
+     * @return bool|int the the id of the parent block or false.
+     */
+    public function get_parentid() {
+        //TODO
+        return false;
     }
 }
 
@@ -321,7 +331,7 @@ class block_element {
 
     /**
      * Returns the name of the element.
-     * 
+     *
      * @return string The name of the element.
      */
     public function get_name() {
@@ -332,7 +342,7 @@ class block_element {
             return $this->element->get_name();
         }
     }
-    
+
 
     /**
      * Return the element.
@@ -342,10 +352,10 @@ class block_element {
     public function get_element() {
         return $this->element;
     }
-    
+
     /**
      * Checks whether the element can be edited.
-     * 
+     *
      * @return bool True if it may be edited, false otherwise.
      */
     public function may_edit() {
@@ -359,7 +369,7 @@ class block_element {
             return true;
         }
     }
-    
+
     /**
      * Checks whether the element can be viewed.
      *
@@ -375,26 +385,29 @@ class block_element {
             return true;
         }
     }
-    
+
     /**
      * Get a URL for the edit page of this element.
      *
+     * @param array $params paramters to use for the url.
+     *
      * @return \moodle_url the edit URL of the element.
      */
-    public function get_edit_url() {
+    public function get_edit_url(array $params) {
         if ($this->is_question()) {
-            $questionparams = array('id' => $this->element->id);
+            $questionparams = array_merge($params, array('id' => $this->element->id));
             return new moodle_url("$CFG->wwwroot/question/question.php", $questionparams);
         }
         if ($this->is_block()) {
-            $blockparams = array('qid' => $this->element->get_quizid(), 'bid' => $this->element->get_id());
+            $blockparams = array_merge($params, array('bid' => $this->element->get_id()));
+            unset($blockparams['returnurl']);
             return new moodle_url('edit.php', $blockparams);
         }
     }
-    
+
     /**
      * Returns the id of the qinstance database row.
-     * 
+     *
      * @return int the row id.
      */
     public function get_id() {

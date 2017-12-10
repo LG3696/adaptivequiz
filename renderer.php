@@ -38,13 +38,14 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block $blockobj object containing all the block information.
      * @param \moodle_url $pageurl The URL of the page.
      * @param int $quizid The ID of the quiz.
+     * @param array $pagevars the variables from {@link question_edit_setup()}.
      * @return string HTML to output.
      */
-    public function edit_page(block $blockobj, $pageurl, $quizid) {
+    public function edit_page(block $blockobj, \moodle_url $pageurl, $quizid, array $pagevars) {
         $output = '';
         //TODO Page title.
         $output .= html_writer::start_tag('form', array('action' => $pageurl->out()));
-        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'qid', 'value' => $quizid));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $blockobj->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'done', 'value' => 1));
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $blockobj->get_name()));
@@ -53,16 +54,19 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $children = $blockobj->get_children();
         foreach($children as $child) {
-            $output .= $this->block_elem($child, $pageurl, $quizid);
+            $output .= $this->block_elem($child, $pageurl, $pageurl->get_param('cmid'));
         }
-        $addmenu = $this->add_menu($pageurl);
+
+        $category = question_get_category_id_from_pagevars($pagevars);
+
+        $addmenu = $this->add_menu($pageurl, $category);
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
 
         $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'));
         $output .= html_writer::end_tag('form');
 
-        $output .= $this->question_chooser($pageurl);
+        $output .= $this->question_chooser($pageurl, $category);
         $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
         return $output;
     }
@@ -72,27 +76,14 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      *
      * @param block_element $blockelem An element of a block.
      * @param \moodle_url $pageurl The URL of the page.
-     * @param int $quizid The ID of the quiz.
+     * @param int $cmid the course module id of the quiz.
      * @return string HTML to display this element.
      */
-    public function block_elem(block_element $blockelem, $pageurl, $quizid) {
+    public function block_elem(block_element $blockelem, $pageurl, $cmid) {
         //Description of the element.
         $element_html = '';
         $edit_html = '';
-        $cmid = 1;
 
-        /*if ($blockelem->is_question()) {
-            $element_html = $blockelem->get_name();
-            $edit_html = $this->question_edit_button($blockelem->get_element(), $pageurl, $cmid);
-
-        }
-        else if ($blockelem->is_block()) {
-            $element_html = $blockelem->get_name();
-            $edit_html = $this->block_edit_button($blockelem->get_element(), $pageurl, $cmid, $quizid);
-        }
-        else {
-            $element_html = 'This elementtype is not supported.';
-        }*/
         $element_html = $blockelem->get_name();
         $edit_html = $this->element_edit_button($blockelem, $pageurl, $cmid);
         $remove_html = $this->element_remove_button($blockelem, $pageurl);
@@ -132,9 +123,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             if ($returnurl instanceof moodle_url) {
                 $returnurl = $returnurl->out_as_local_url(false);
             }
-            $elementparams = array('returnurl' => $returnurl, 'cmid' => $cmid);
-            $elementurl = $element->get_edit_url();
-            $elementurl->params($elementparams);
+            $elementparams = array('cmid' => $cmid, 'returnurl' => $returnurl);
+            $elementurl = $element->get_edit_url($elementparams);
             return '<a title="' . $action . '" href="' . $elementurl->out() . '" class="elementeditbutton"><img src="' .
                 $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />' .
                 '</a>';
@@ -164,9 +154,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Outputs the add menu HTML.
      *
      * @param \moodle_url $pageurl The URL of the page.
+     * @param int $category the id of the category for new questions.
+     *
      * @return string HTML to output.
      */
-    protected function add_menu(\moodle_url $pageurl) {
+    protected function add_menu(\moodle_url $pageurl, $category) {
         $menu = new \action_menu();
         $menu->set_alignment(\action_menu::TL, \action_menu::TL);
         $trigger = html_writer::tag('span', get_string('add', 'adaptivequiz'));
@@ -175,8 +167,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         // Make sure no-wrap is set so that we don't get a squashed menu.
         $menu->set_nowrap_on_items(true);
         $params = array('returnurl' => $pageurl->out_as_local_url(false),
-            'cmid' => 3, //TODO
-            'category' => 2,//TODO
+            'category' => $category,
             'appendqnumstring' => 'addquestion');
 
         //Button to add a question.
@@ -211,10 +202,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Renders the HTML for the question type chooser dialogue.
      *
+     * @param \moodle_url $returnurl the url to return to after creating the question.
+     * @param int $category the id of the category for the question.
      * @return string the HTML of the dialogue.
      */
-    public function question_chooser(\moodle_url $returnurl) {
-        $container = html_writer::div(print_choose_qtype_to_add_form(array('returnurl' => $returnurl->out_as_local_url(), 'appendqnumstring' => 'addquestion', 'category' => 2/*TODO*/), null, false), '',
+    public function question_chooser(\moodle_url $returnurl, $category) {
+        $container = html_writer::div(print_choose_qtype_to_add_form(array('returnurl' => $returnurl->out_as_local_url(false), 'cmid' => $returnurl->get_param('cmid'), 'appendqnumstring' => 'addquestion', 'category' => $category), null, false), '',
             array('id' => 'qtypechoicecontainer'));
         return html_writer::div($container, 'createnewquestion');
     }

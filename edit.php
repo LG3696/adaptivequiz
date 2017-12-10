@@ -26,22 +26,36 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
-$quizid = required_param('qid', PARAM_INT);
-$blockid = required_param('bid', PARAM_INT);
+$blockid = optional_param('bid', 0, PARAM_INT);
 $addquestion = optional_param('addquestion', 0, PARAM_INT);
 $addblock = optional_param('addblock', 0, PARAM_INT);
 $done = optional_param('done', 0, PARAM_INT);
 $remove = optional_param('remove', 0, PARAM_INT);
 
-$pageurl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => $blockid));
+list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
+    question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
+
+// if no block id was passed, we default to editing the main block of the quiz.
+if (!$blockid) {
+    $blockid = $quiz->mainblock;
+}
+
+$thispageurl->param('bid', $blockid);
+$quizid = $quiz->id;
+
+$PAGE->set_url($thispageurl);
 
 $block = block::load($quizid, $blockid);
 
 if ($done) {
-    $name = required_param('blockname', PARAM_ALPHANUMEXT);
+    $name = required_param('blockname', PARAM_TEXT);
     $block->set_name($name);
-    //TODO: better next url (parent block or main view)
-    $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => 1));
+    if ($parentid = $block->get_parentid()) {
+        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => 1));
+    }
+    else {
+        $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
+    }
     redirect($nexturl);
 }
 
@@ -52,7 +66,7 @@ if ($addquestion) {
 if ($addblock) {
     $newblock = block::create($quizid, get_string('blockname', 'adaptivequiz'));
     $block->add_subblock($newblock);
-    $newblockurl = new moodle_url('/mod/adaptivequiz/edit.php', array('qid' => $quizid, 'bid' => $newblock->get_id()));
+    $newblockurl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
     redirect($newblockurl);
 }
 
@@ -66,6 +80,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-echo $output->edit_page($block, $pageurl, $quizid);
+echo $output->edit_page($block, $thispageurl, $quizid, $pagevars);
 
 echo $OUTPUT->footer();
