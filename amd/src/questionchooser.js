@@ -84,7 +84,7 @@ define(['jquery'], function($) {
 			var dialogue = this.container.one('.alloptions');
 
 			// Detect window resizes (most browsers)
-	        thisevent = $(window).on('resize', function() {
+	        var thisevent = $(window).on('resize', function() {
 	            this.center_dialogue(dialogue);
 	        }, this);
 	        this.listenevents.push(thisevent);
