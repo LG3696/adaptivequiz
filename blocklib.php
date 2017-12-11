@@ -174,6 +174,15 @@ class block {
     }
 
     /**
+     * Checks whether this is the main block of the quiz.
+     *
+     * @return bool true if this is the main block of the quiz.
+     */
+    public function is_main_block() {
+        $mainblock = get_main_block($this->quizid);
+        return $this->id == $mainblock->get_id();
+    }
+    /**
      * Removes the child with the give adaptivequiz_qinstance id.
      *
      * @param int $id the id of the child to remove.
@@ -245,10 +254,8 @@ class block {
      * @return bool|int the the id of the parent block or false.
      */
     public function get_parentid() {
-        $mainblock = get_main_block($this->quizid);
-
         //if this is the main block, there is no parent block.
-        if ($this->id == $mainblock->get_id()) {
+        if ($this->is_main_block()) {
             return false;
         }
         else {
