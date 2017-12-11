@@ -43,7 +43,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function edit_page(block $blockobj, \moodle_url $pageurl, $quizid, array $pagevars) {
         $output = '';
-        //TODO Page title.
+        
         $output .= html_writer::start_tag('form', array('action' => $pageurl->out()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $blockobj->get_id()));

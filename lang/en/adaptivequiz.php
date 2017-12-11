@@ -44,6 +44,7 @@ $string['addaquestion'] = 'a new question';
 $string['blockname'] = 'block name';
 $string['done'] = 'Done';
 $string['editingblock'] = 'Editing block:';
+$string['editingblockx'] = 'Editing block: {$a}';
 $string['editquiz'] = 'Edit quiz';
 $string['pluginadministration'] = 'Adaptive Quiz administration';
 $string['pluginname'] = 'Adaptive Quiz';
