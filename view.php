@@ -24,6 +24,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... adaptivequiz instance ID - it should be named as the first character of the module.
@@ -50,6 +51,7 @@ $event->add_record_snapshot('course', $PAGE->course);
 $event->add_record_snapshot($PAGE->cm->modname, $adaptivequiz);
 $event->trigger();
 
+$block = block::load($adaptivequiz->id, $adaptivequiz->mainblock);
 // Print the page header.
 
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
@@ -72,7 +74,7 @@ if ($adaptivequiz->intro) {
 }
 
 // Replace the following lines with you own code.
-echo $OUTPUT->heading('Yay! It works!');
+echo $OUTPUT->heading($block->get_name());
 
 // Finish the page.
 echo $OUTPUT->footer();

@@ -77,7 +77,7 @@ if ($remove) {
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
 
-$output = $PAGE->get_renderer('mod_adaptivequiz');
+$output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 
 echo $OUTPUT->header();
 

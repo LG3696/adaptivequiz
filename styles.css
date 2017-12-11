@@ -1,0 +1,11 @@
+#block-children-list {
+	list-style: none;
+}
+
+.element-remove-button {
+	padding-left: 10px;
+}
+
+.element-edit-button {
+	padding-left: 10px;
+}
