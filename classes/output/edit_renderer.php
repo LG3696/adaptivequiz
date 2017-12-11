@@ -39,7 +39,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Render the edit page
      *
-     * @param block $blockobj object containing all the block information.
+     * @param \block $blockobj object containing all the block information.
      * @param \moodle_url $pageurl The URL of the page.
      * @param int $quizid The ID of the quiz.
      * @param array $pagevars the variables from {@link question_edit_setup()}.
@@ -47,7 +47,7 @@ class edit_renderer extends \plugin_renderer_base {
      */
     public function edit_page(\block $blockobj, \moodle_url $pageurl, $quizid, array $pagevars) {
         $output = '';
-        
+
         $output .= html_writer::start_tag('form', array('action' => $pageurl->out()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $blockobj->get_id()));
@@ -78,7 +78,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Render one element of a block.
      *
-     * @param block_element $blockelem An element of a block.
+     * @param \block_element $blockelem An element of a block.
      * @param \moodle_url $pageurl The URL of the page.
      * @param int $cmid the course module id of the quiz.
      * @return string HTML to display this element.
@@ -97,7 +97,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Outputs the edit button HTML for an element.
      *
-     * @param block_element $element the element to get the button for.
+     * @param \block_element $element the element to get the button for.
      * @param \moodle_url $returnurl the URL of the page.
      * @param int $cmid the ID of the course.
      * @return string HTML to output.
@@ -124,7 +124,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         // Build the icon.
         if ($action) {
-            if ($returnurl instanceof moodle_url) {
+            if ($returnurl instanceof \moodle_url) {
                 $returnurl = $returnurl->out_as_local_url(false);
             }
             $elementparams = array('cmid' => $cmid, 'returnurl' => $returnurl);
@@ -142,7 +142,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Outputs the remove button HTML for an element.
      *
-     * @param block_element $element the element to get the button for.
+     * @param \block_element $element the element to get the button for.
      * @return string HTML to output.
      */
     public function element_remove_button($element, $pageurl) {
