@@ -228,10 +228,6 @@ class block {
         $record->id = $this->id;
         $record->name = $name;
         $DB->update_record('adaptivequiz_block', $record);
-        if ($this->is_main_block()) {
-            $record->id = $this->quizid;
-            $DB->update_record('adaptivequiz', $record);
-        }
     }
 
     /**
