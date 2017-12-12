@@ -65,7 +65,7 @@ class attempt {
 	protected $userid;
 	
 	/** @var int attempt */
- 	protected $attempt;
+ 	protected $attemptcounter;
 	
 // 	/** @var float the sum of the grades. */
 // 	protected $sumgrades;
@@ -86,12 +86,12 @@ class attempt {
 	 * 
 	 * 
 	 */
-	public function __construct($id, $qubaid, $quizid, $userid, $attempt) {
+	public function __construct($id, $qubaid, $quizid, $userid, $attemptcounter) {
 		$this->id = $id;
 		$this->quba = $qubaid;
 		$this->quizid = $quizid;
 		$this->userid = $userid;
-		$this->attempt = $attempt;
+		$this->attempt = $attemptcounter;
 	}
 	
 	
@@ -114,17 +114,16 @@ class attempt {
 	 * @param int $qubaid the question_usages_by_activity id this attempt belongs to.
 	 * @param int $quizid the id of the quiz this attempt belongs to.
 	 * @param int $userid the id of the user this attempt belongs to.
-	 * @param int $attempt the number of this attempt.
 	 * @return attempt the new attempt object.
 	 */
-	public static function create($qubaid, $quizid, $userid, $attempt) {
+	public static function create($qubaid, $quizid, $userid) {
 		global $DB;
 	
 		$attempt = new stdClass();
 		$attempt->uniqueid = $qubaid;
 		$attempt->quiz = $quizid;
 		$attempt->userid = $userid;
-		$attempt->attempt = $attempt;
+		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array($quiz=>$quizid, $userid=>$userid)) + 1;
 		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attempt);
 	
 		return new attempt($attemptid, $qubaid, $quizid, $userid, $attempt);
