@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the renderer for the adaptive quiz module.
+ * Defines the edit renderer for the adaptive quiz module.
  *
  * @package    mod_adaptivequiz
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>

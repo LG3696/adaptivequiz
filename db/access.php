@@ -40,7 +40,7 @@
  * The variable name for the capability definitions array is $capabilities
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -48,6 +48,7 @@ defined('MOODLE_INTERNAL') || die();
 
 // Modify capabilities as needed and remove this comment.
 $capabilities = array(
+    // Ability to add a new quiz to the course.
     'mod/adaptivequiz:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
@@ -59,6 +60,8 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
 
+    // Ability to see that the quiz exists, and the basic information
+    // about it, for example the start date and time limit.
     'mod/adaptivequiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -77,6 +80,7 @@ $capabilities = array(
         )
     ),
 
+    // Edit the quiz settings, add and remove questions.
     'mod/adaptivequiz:manage' => array(
         'captype' => 'write', // Only just a write.
         'contextlevel' => CONTEXT_MODULE,
@@ -87,8 +91,31 @@ $capabilities = array(
         )
     ),
 
+    // Preview the quiz.
     'mod/adaptivequiz:preview' => array(
         'captype' => 'write', // Only just a write.
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+    
+    // Ability to do the quiz as a 'student'.
+    'mod/adaptivequiz:attempt' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW
+        )
+    ),
+    
+    // View the quiz reports.
+    'mod/adaptivequiz:viewreports' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'teacher' => CAP_ALLOW,

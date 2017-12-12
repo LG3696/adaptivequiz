@@ -182,6 +182,25 @@ class block {
         $mainblock = get_main_block($this->quizid);
         return $this->id == $mainblock->get_id();
     }
+    
+    /**
+     * Checks whether the block or subblock has any questions.
+     * 
+     * @return bool true if there are questions in this block.
+     */
+    public function has_questions() {
+        $this->load_children();
+        foreach ($this->children as $element) {
+            if ($element->is_question()) {
+                return true;
+            }
+            else if ($element->is_block() && $element->get_element()->has_questions()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /**
      * Removes the child with the give adaptivequiz_qinstance id.
      *

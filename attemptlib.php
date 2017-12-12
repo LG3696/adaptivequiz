@@ -124,6 +124,7 @@ class attempt {
 		$attempt->quiz = $quizid;
 		$attempt->userid = $userid;
 		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz'=>$quizid, 'userid'=>$userid)) + 1;
+
 		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attempt);
 	
 		return new attempt($attemptid, $qubaid, $quizid, $userid, $attempt);
