@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @copyright  2017 Jan Emrich
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      ??
+ * @since      Moodle 3.1
  */
 class attempt {
 
@@ -59,13 +59,13 @@ class attempt {
 	protected $quba;
 	
 	/** @var int the quiz for this attempt and user. */
-	protected $quiz;
+	protected $quizid;
 	
 	/** @var int the user this attempt belongs to. */
 	protected $userid;
 	
 	/** @var int attempt */
-// 	protected $attempt;
+ 	protected $attempt;
 	
 // 	/** @var float the sum of the grades. */
 // 	protected $sumgrades;
@@ -89,7 +89,7 @@ class attempt {
 	public function __construct($id, $qubaid, $quizid, $userid, $attempt) {
 		$this->id = $id;
 		$this->quba = $qubaid;
-		$this->quiz = $quizid;
+		$this->quizid = $quizid;
 		$this->userid = $userid;
 		$this->attempt = $attempt;
 	}
@@ -104,9 +104,9 @@ class attempt {
 	public static function load($attemptid) {
 		global $DB;
 		
-		$attempt = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
+		$attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
 		
-		return new attempt($attemptid, $attempt->quba, $attempt->quizid, $attempt->userid, $attempt->attempt);
+		return new attempt($attemptid, $attemptrow->quba, $attemptrow->quizid, $attemptrow->userid, $attemptrow->attempt);
 	}
 	
 	/**
@@ -131,6 +131,31 @@ class attempt {
 	}
 	
 	// getters
+	
+	/** @return int the id of this attempt */
+	public function get_attemptid() {
+		return $this->id;
+	}
+	
+	/** @return int the id of the question_usage_by_activity */
+	public function get_quba() {
+		return $this->qubaid;
+	}
+	
+	/** @return int the id of the quiz */
+	public function get_quizid() {
+		return $this->quizid;
+	}
+	
+	/** @return int the id of the user */
+	public function get_userid() {
+		return $this->userid;
+	}
+	//todo:
+	/** @return int count of this attempt */
+	public function get_attempt() {
+		return $this->attempt;
+	}
 	
 	
 	// URL
