@@ -83,8 +83,11 @@ class attempt {
 	// Constructor =============================================================
 	/**
 	 * Constructor assuming we already have the necessary data loaded.
-	 * 
-	 * 
+	 * @param int $id the id of this attempt.
+	 * @param int $qubaid the question_usages_by_activity id this attempt belongs to.
+	 * @param int $quizid the id of the quiz this attempt belongs to.
+	 * @param int $userid the id of the user this attempt belongs to.
+	 * @param int $attemptcounter the number of this attempt.
 	 */
 	public function __construct($id, $qubaid, $quizid, $userid, $attemptcounter) {
 		$this->id = $id;
@@ -120,7 +123,7 @@ class attempt {
 		global $DB;
 	
 		$attempt = new stdClass();
-		$attempt->uniqueid = $qubaid;
+		$attempt->quba = $qubaid;
 		$attempt->quiz = $quizid;
 		$attempt->userid = $userid;
 		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz'=>$quizid, 'userid'=>$userid)) + 1;

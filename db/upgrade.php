@@ -175,7 +175,52 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
 		
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2017121200, 'adaptivequiz');
+        
 	}
+        if ($oldversion < 2017121202) {
+        
+        	// Define field layout to be dropped from adaptivequiz_attempts.
+        	$table = new xmldb_table('adaptivequiz_attempts');
+        	$field = new xmldb_field('layout');
+        
+        	// Conditionally launch drop field layout.
+        	if ($dbman->field_exists($table, $field)) {
+        		$dbman->drop_field($table, $field);
+        	}
+        	
+        	// Define field preview to be dropped from adaptivequiz_attempts.
+        	$table = new xmldb_table('adaptivequiz_attempts');
+        	$field = new xmldb_field('preview');
+        	
+        	// Conditionally launch drop field preview.
+        	if ($dbman->field_exists($table, $field)) {
+        		$dbman->drop_field($table, $field);
+        	}
+        	
+        	// Define key uniqueid (foreign-unique) to be dropped form adaptivequiz_attempts.
+        	$table = new xmldb_table('adaptivequiz_attempts');
+        	$key = new xmldb_key('uniqueid', XMLDB_KEY_FOREIGN_UNIQUE, array('uniqueid'), 'question_usages', array('id'));
+        	
+        	// Launch drop key uniqueid.
+        	$dbman->drop_key($table, $key);
+        	
+        	// Rename field uniqueid on table adaptivequiz_attempts to quba.
+        	$table = new xmldb_table('adaptivequiz_attempts');
+        	$field = new xmldb_field('uniqueid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'attempt');
+        	
+        	// Launch rename field uniqueid.
+        	$dbman->rename_field($table, $field, 'quba');
+        	
+        	// Define key quba (foreign-unique) to be added to adaptivequiz_attempts.
+        	$table = new xmldb_table('adaptivequiz_attempts');
+        	$key = new xmldb_key('quba', XMLDB_KEY_FOREIGN_UNIQUE, array('quba'), 'question_usages', array('id'));
+        	
+        	// Launch add key quba.
+        	$dbman->add_key($table, $key);
+        
+        	// Adaptivequiz savepoint reached.
+        	upgrade_mod_savepoint(true, 2017121202, 'adaptivequiz');
+        }
 
 
     return true;
