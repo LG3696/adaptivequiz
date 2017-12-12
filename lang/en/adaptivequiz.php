@@ -48,4 +48,5 @@ $string['editingblockx'] = 'Editing block: {$a}';
 $string['editquiz'] = 'Edit quiz';
 $string['pluginadministration'] = 'Adaptive Quiz administration';
 $string['pluginname'] = 'Adaptive Quiz';
+$string['preview'] = 'Preview Quiz';
 $string['questionbank'] = 'from question bank';

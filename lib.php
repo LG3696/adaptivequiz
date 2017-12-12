@@ -497,4 +497,14 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
                 new pix_icon('t/edit', ''));
         $adaptivequiznode->add_node($node, $beforekey);
     }
+    
+    // Preview Quiz button
+    if (has_capability('mod/quiz:preview', $PAGE->cm->context)) {
+        $url = new moodle_url('/mod/adaptivequiz/startattempt.php',
+            array('cmid'=>$PAGE->cm->id, 'sesskey'=>sesskey()));
+        $node = navigation_node::create(get_string('preview', 'adaptivequiz'), $url,
+            navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_preview',
+            new pix_icon('i/preview', ''));
+        $adaptivequiznode->add_node($node, $beforekey);
+    }
 }
