@@ -62,6 +62,7 @@ $viewobj = new mod_adaptivequiz_view_object();
 $viewobj->cmid = $id;
 $viewobj->quizhasquestions = $mainblock->has_questions();
 $viewobj->preventmessages = array();
+$viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
 
 if (!$viewobj->quizhasquestions) {
     $viewobj->buttontext = '';

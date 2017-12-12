@@ -35,6 +35,8 @@ $remove = optional_param('remove', 0, PARAM_INT);
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
     question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
 
+require_capability('mod/adaptivequiz:manage', $contexts->lowest());
+
 // if no block id was passed, we default to editing the main block of the quiz.
 if (!$blockid) {
     $blockid = $quiz->mainblock;

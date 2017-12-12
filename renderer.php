@@ -61,13 +61,16 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $url = new \moodle_url('/mod/adaptivequiz/startattempt.php', array('cmid' => $viewobj->cmid));
         if ($viewobj->buttontext) {
             $output .= $this->start_attempt_button($viewobj->buttontext, $url);
+            if ($viewobj->canmanage) {
+                $output .= $this->edit_quiz_button($viewobj);
+            }
         }
         
         return $output;
     }
     
     /**
-     * Generates the view attempt button
+     * Generates the view attempt button.
      *
      * @param string $buttontext the label to display on the button.
      * @param moodle_url $url The URL to POST to in order to start the attempt.
@@ -77,6 +80,19 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
         return $this->render($button);      
+    }
+    
+    /**
+     * Generates the edit quiz button.
+     * 
+     * @return string HTML fragment.
+     */
+    public function edit_quiz_button ($viewobj) {
+        $url = new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $viewobj->cmid));
+        $buttontext = get_string('editquiz', 'adaptivequiz');
+        $button = new single_button($url, $buttontext);
+        $button->class .= ' quizstartbuttondiv';
+        return $this->render($button); 
     }
 }
 
@@ -105,4 +121,6 @@ class mod_adaptivequiz_view_object {
     public $accessmanager;
     /** @var int $cmid the course module id. */
     public $cmid;
+    /** @var bool $canmanage whether the user is authorized to manage the quiz. */
+    public $canmanage;
 }
