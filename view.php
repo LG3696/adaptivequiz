@@ -25,6 +25,8 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/renderer.php');
+
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... adaptivequiz instance ID - it should be named as the first character of the module.
@@ -51,12 +53,47 @@ $event->add_record_snapshot('course', $PAGE->course);
 $event->add_record_snapshot($PAGE->cm->modname, $adaptivequiz);
 $event->trigger();
 
-$block = block::load($adaptivequiz->id, $adaptivequiz->mainblock);
+$context = context_module::instance($id);
+$mainblock = block::load($adaptivequiz->id, $adaptivequiz->mainblock);
+$canpreview = has_capability('mod/adaptivequiz:preview', $context);
+$canattempt = has_capability('mod/adaptivequiz:attempt', $context);
+$viewobj = new mod_adaptivequiz_view_object();
+
+$viewobj->cmid = $id;
+$viewobj->quizhasquestions = $mainblock->has_questions();
+$viewobj->preventmessages = array();
+$viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
+
+if (!$viewobj->quizhasquestions) {
+    $viewobj->buttontext = '';
+} else {
+    if ($unfinished) {
+        if ($canattempt) {
+            $viewobj->buttontext = get_string('continueattemptquiz', 'adaptivequiz');
+        } else if ($canpreview) {
+            $viewobj->buttontext = get_string('continuepreview', 'adaptivequiz');
+        }
+        
+    } else {
+        if ($canattempt) {
+            if ($viewobj->numattempts == 0) {
+                $viewobj->buttontext = get_string('attemptquiznow', 'adaptivequiz');
+            } else {
+                $viewobj->buttontext = get_string('reattemptquiz', 'adaptivequiz');
+            }
+            
+        } else if ($canpreview) {
+            $viewobj->buttontext = get_string('previewquiznow', 'adaptivequiz');
+        }
+    }
+}
+
 // Print the page header.
 
 $PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($adaptivequiz->name));
 $PAGE->set_heading(format_string($course->fullname));
+$output = $PAGE->get_renderer('mod_adaptivequiz');
 
 /*
  * Other things you may want to set - remove if not needed.
@@ -68,13 +105,7 @@ $PAGE->set_heading(format_string($course->fullname));
 // Output starts here.
 echo $OUTPUT->header();
 
-// Conditions to show the intro can change to look for own settings or whatever.
-if ($adaptivequiz->intro) {
-    echo $OUTPUT->box(format_module_intro('adaptivequiz', $adaptivequiz, $cm->id), 'generalbox mod_introbox', 'adaptivequizintro');
-}
-
-// Replace the following lines with you own code.
-echo $OUTPUT->heading($block->get_name());
+echo $output->view_page($adaptivequiz, $context, $viewobj);
 
 // Finish the page.
 echo $OUTPUT->footer();
