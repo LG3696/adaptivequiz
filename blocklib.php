@@ -182,10 +182,10 @@ class block {
         $mainblock = get_main_block($this->quizid);
         return $this->id == $mainblock->get_id();
     }
-    
+
     /**
      * Checks whether the block or subblock has any questions.
-     * 
+     *
      * @return bool true if there are questions in this block.
      */
     public function has_questions() {
@@ -200,7 +200,7 @@ class block {
         }
         return false;
     }
-    
+
     /**
      * Removes the child with the give adaptivequiz_qinstance id.
      *
@@ -278,6 +278,7 @@ class block {
             return false;
         }
         else {
+            $mainblock = get_main_block($this->quizid);
             //top down search in the block-tree to find the parent.
             return $mainblock->search_parent($this->id)->get_id();
         }
