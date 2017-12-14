@@ -166,12 +166,10 @@ class attempt {
 	/**
 	 * Generates the URL to view this attempt.
 	 * 
-	 * @param int $attemptid the id of an attempt.
-	 * 
 	 * @return moodle_url the URL of that attempt.
 	 */
-	public function attempt_url($attemptid) {
-		return new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $attemptid));
+	public function attempt_url() {
+		return new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $this->id));
 	}
 	
 	/**
