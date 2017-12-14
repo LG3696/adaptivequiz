@@ -38,16 +38,15 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Generates the view page
      *
      * @param array $quiz Array containing quiz data
-     * @param int $context The page context ID
      * @param mod_quiz_view_object $viewobj
      */
-    public function view_page($quiz, $context, $viewobj) {
+    public function view_page($quiz, $viewobj) {
         $output = '';
         $output .= $this->heading($quiz->name);
         $output .= $this->view_page_buttons($viewobj);
         return $output;
     }
-    
+
     /**
      * Work out, and render, whatever buttons, and surrounding info, should appear
      * at the end of the review page.
@@ -65,10 +64,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $output .= $this->edit_quiz_button($viewobj);
             }
         }
-        
+
         return $output;
     }
-    
+
     /**
      * Generates the view attempt button.
      *
@@ -79,12 +78,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     public function start_attempt_button ($buttontext, $url) {
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
-        return $this->render($button);      
+        return $this->render($button);
     }
-    
+
     /**
      * Generates the edit quiz button.
-     * 
+     *
      * @return string HTML fragment.
      */
     public function edit_quiz_button ($viewobj) {
@@ -92,7 +91,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $buttontext = get_string('editquiz', 'adaptivequiz');
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
-        return $this->render($button); 
+        return $this->render($button);
     }
 }
 

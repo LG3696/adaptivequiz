@@ -66,7 +66,7 @@ if ($addquestion) {
 }
 
 if ($addblock) {
-    $newblock = block::create($quizid, get_string('blockname', 'adaptivequiz'));
+    $newblock = block::create($adaptivequiz, get_string('blockname', 'adaptivequiz'));
     $block->add_subblock($newblock);
     $newblockurl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
     redirect($newblockurl);
@@ -83,6 +83,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 
 echo $OUTPUT->header();
 
-echo $output->edit_page($block, $thispageurl, $quizid, $pagevars);
+echo $output->edit_page($block, $thispageurl, $pagevars);
 
 echo $OUTPUT->footer();

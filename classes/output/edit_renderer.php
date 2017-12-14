@@ -39,20 +39,19 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Render the edit page
      *
-     * @param \block $blockobj object containing all the block information.
+     * @param \block $block object containing all the block information.
      * @param \moodle_url $pageurl The URL of the page.
-     * @param int $quizid The ID of the quiz.
      * @param array $pagevars the variables from {@link question_edit_setup()}.
      * @return string HTML to output.
      */
-    public function edit_page(\block $blockobj, \moodle_url $pageurl, $quizid, array $pagevars) {
+    public function edit_page(\block $block, \moodle_url $pageurl, array $pagevars) {
         $output = '';
 
         $output .= html_writer::start_tag('form', array('action' => $pageurl->out()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
-        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $blockobj->get_id()));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'done', 'value' => 1));
-        $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $blockobj->get_name()));
+        $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
         $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
 
         if (/*TODO:!$blockobj->is_main_block()*/true) {
@@ -61,7 +60,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
 
-        $children = $blockobj->get_children();
+        $children = $block->get_children();
         foreach($children as $child) {
             $output .= $this->block_elem($child, $pageurl, $pageurl->get_param('cmid'));
         }

@@ -106,7 +106,7 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 // Output starts here.
 echo $OUTPUT->header();
 
-echo $output->view_page($adaptivequiz, $context, $viewobj);
+echo $output->view_page($adaptivequiz, $viewobj);
 
 // Finish the page.
 echo $OUTPUT->footer();
