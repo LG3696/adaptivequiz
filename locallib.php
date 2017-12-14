@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
      $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
      return block::load($quizid, $quiz->mainblock);
  }
- 
+
  /**
   * A class encapsulating a adaptive quiz.
   *
@@ -59,7 +59,7 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  	protected $cmid;
  	/** @var int the id of the main block of this adaptive quiz. */
  	protected $mainblock;
- 	
+
  	// Constructor =============================================================
  	/**
  	 * Constructor assuming we already have the necessary data loaded.
@@ -68,7 +68,7 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  	 * @param int the id of the main block of this adaptive quiz.
  	 */
  	public function __construct($id, $courseid, $mainblock) {
- 	
+
  		$this->id = $id;
  		$this->cmid = $courseid;
  		$this->mainblock = $mainblock;
@@ -82,20 +82,20 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  	 */
  	public static function load($quizid) {
  		global $DB;
- 	
+
  		$quiz = $DB->get_record('adaptivequiz', array('id' => $attemptid), '*', MUST_EXIST);
- 	
+
  		return new adaptivequiz($quiz->id, $quiz->course, $quiz->mainblock);
  	}
- 	
- 	
- 	
+
+
+
  	public function get_context() {
  		//TODO:
  	}
- 	
+
  	public function add_questions_to_quba($quba) {
  		//TODO
  	}
- 	
+
  }
