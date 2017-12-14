@@ -32,7 +32,6 @@ require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
 $cmid = required_param('cmid', PARAM_INT); // Course module id
-$page = optional_param('page', -1, PARAM_INT); // Page to jump to in the attempt.
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -42,7 +41,6 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 }
 
 $adaptivequiz  = adaptivequiz::load($cm->instance);
-
 
 $attempt = attempt::create($adaptivequiz, $USER->id);
 

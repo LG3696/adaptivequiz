@@ -28,6 +28,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/questionlib.php');
+
 /**
  * This class extends the quiz class to hold data about the state of a particular attempt,
  * in addition to the data about the quiz.
@@ -38,7 +40,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class attempt {
 
-	
+
 	/** @var string to identify the in progress state. */
 	//const IN_PROGRESS = 'inprogress';
 	/** @var string to identify the overdue state. */
@@ -47,7 +49,7 @@ class attempt {
 	//const FINISHED    = 'finished';
 	/** @var string to identify the abandoned state. */
 	//const ABANDONED   = 'abandoned';
-	
+
 
 // 	/** @var quiz object containing the quiz settings. */
 // 	protected $quizobj;
@@ -57,71 +59,71 @@ class attempt {
 
 	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
 	protected $qubaid;
-	
+
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
-	
+
 	/** @var int the user this attempt belongs to. */
 	protected $userid;
-	
+
 	/** @var int attempt */
  	protected $attemptcounter;
-	
+
 // 	/** @var float the sum of the grades. */
 // 	protected $sumgrades;
-	
+
 // 	/** @var int time of starting this attempt. */
 // 	protected $timestart;
-	
+
 // 	/** @var int time of finishing this attempt. */
 // 	protected $timefinish;
-	
+
 // 	/** @var int time of last modification of this attempt. */
 // 	protected $timemodified;
-	
-	
+
+
 	// Constructor =============================================================
 	/**
 	 * Constructor assuming we already have the necessary data loaded.
 	 * @param int $id the id of this attempt.
 	 * @param int $qubaid the question_usages_by_activity id this attempt belongs to.
-	 * @param quiz $quiz the quiz this attempt belongs to.
+	 * @param adaptivequiz $quiz the quiz this attempt belongs to.
 	 * @param int $userid the id of the user this attempt belongs to.
 	 * @param int $attemptcounter the number of this attempt.
 	 */
-	public function __construct($id, $qubaid, $quiz, $userid, $attemptcounter) {
+	public function __construct($id, $qubaid, adaptivequiz $quiz, $userid, $attemptcounter) {
 		$this->id = $id;
 		$this->qubaid = $qubaid;
 		$this->quiz = $quiz;
 		$this->userid = $userid;
 		$this->attempt = $attemptcounter;
 	}
-	
-	
+
+
 	/**
 	 * Static function to get a attempt object from a attempt id.
-	 * 
+	 *
 	 * @param int $attemptid the id of this attempt.
 	 * @return attempt the new attempt object.
 	 */
 	public static function load($attemptid) {
 		global $DB;
-		
+
 		$attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
-		
+
 		$quiz = adaptivequiz::load($attemptrow->quizid);
 		return new attempt($attemptid, $attemptrow->quba, $quiz, $attemptrow->userid, $attemptrow->attempt);
 	}
-	
+
 	/**
 	 * Static function to create a new attempt in the database.
 	 * @param adaptivequiz $quiz the quiz this attempt belongs to.
 	 * @param int $userid the id of the user this attempt belongs to.
 	 * @return attempt the new attempt object.
 	 */
-	public static function create($quiz, $userid) {
+	public static function create(adaptivequiz $quiz, $userid) {
 		global $DB;
-	
+
 		$attempt = new stdClass();
 		$attempt->quba = attempt::create_quba($quiz);
 		$attempt->quiz = $quiz->get_id();
@@ -129,27 +131,27 @@ class attempt {
 		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
 		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attempt);
-	
-		return new attempt($attemptid, $attempt->quba, $quiz->get_id(), $userid, $attempt->attempt);
+
+		return new attempt($attemptid, $attempt->quba, $quiz, $userid, $attempt->attempt);
 	}
-	
+
 	// getters
-	
+
 	/** @return int the id of this attempt. */
 	public function get_attemptid() {
 		return $this->id;
 	}
-	
+
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
 		return question_engine::load_questions_usage_by_activity($this->qubaid);
 	}
-	
+
 	/** @return adaptivequiz the quiz this attempt belongs to. */
 	public function get_quiz() {
 		return $this->quiz;
 	}
-	
+
 	/** @return int the id of the user. */
 	public function get_userid() {
 		return $this->userid;
@@ -159,24 +161,24 @@ class attempt {
 	public function get_attempt() {
 		return $this->attempt;
 	}
-	
-	
+
+
 	// URL
-	
+
 	/**
 	 * Generates the URL to view this attempt.
-	 * 
+	 *
 	 * @return moodle_url the URL of that attempt.
 	 */
 	public function attempt_url() {
 		return new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $this->id));
 	}
-	
+
 	/**
 	 * Creates a new question usage for this attempt.
-	 * 
+	 *
 	 * @param adaptivequiz $quiz the id of the quiz to create the usage for.
-	 * 
+	 *
 	 * @return int the id of the created question usage.
 	 */
 	protected static function create_quba($quiz) {
