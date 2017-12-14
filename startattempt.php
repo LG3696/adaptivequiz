@@ -41,16 +41,15 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
-$adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
+$adaptivequiz  = adaptivequiz::load($cm->instance);
 
-$quba = 1; //TODO
 
-$attempt = attempt::create($quba, $adaptivequiz->id, $USER->id);
+$attempt = attempt::create($adaptivequiz, $USER->id);
 
 // Check login and sesskey.
 require_login($course, false, $cm);
 require_sesskey();
 
 // Redirect to the attempt page.
-redirect($attempt->attempt_url($attempt->get_attemptid()));
+redirect($attempt->attempt_url($attempt->get_attemptid()), array('cmid' => $cmid));
 
