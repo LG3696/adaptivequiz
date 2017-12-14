@@ -1,5 +1,4 @@
 <?php
-use mod_quiz\plugininfo\quiz;
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -32,19 +31,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 
  /**
-  * Get the main block of the quiz.
-  *
-  * @param int $quizid the id of the quiz.
-  * @return block the main block of the quiz.
-  */
- function get_main_block($quizid) {
-     global $DB;
-
-     $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
-     return block::load($quizid, $quiz->mainblock);
- }
-
- /**
   * A class encapsulating a adaptive quiz.
   *
   * @copyright  2017 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
@@ -55,7 +41,7 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 
  	/** @var int the id of this adaptive quiz. */
  	protected $id;
- 	/** @var int the course id for this quiz. */
+ 	/** @var int the course module id for this quiz. */
  	protected $cmid;
  	/** @var int the id of the main block of this adaptive quiz. */
  	protected $mainblock;
@@ -64,13 +50,12 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  	/**
  	 * Constructor assuming we already have the necessary data loaded.
  	 * @param int $id the id of this quiz.
- 	 * @param int the course id for this quiz.
+ 	 * @param int $cmid the course module id for this quiz.
  	 * @param int the id of the main block of this adaptive quiz.
  	 */
- 	public function __construct($id, $courseid, $mainblock) {
-
+ 	public function __construct($id, $cmid, $mainblock) {
  		$this->id = $id;
- 		$this->cmid = $courseid;
+ 		$this->cmid = $cmid;
  		$this->mainblock = $mainblock;
  	}
 
@@ -84,16 +69,30 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  		global $DB;
 
  		$quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
+ 		$cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
+ 		return new adaptivequiz($quizid, $cm->id, $quiz->mainblock);
+ 	}
 
- 		return new adaptivequiz($quiz->id, $quiz->course, $quiz->mainblock);
+ 	/**
+ 	 * Get the main block of the quiz.
+ 	 *
+ 	 * @return block the main block of the quiz.
+ 	 */
+ 	function get_main_block() {
+ 		return $this->mainblock;
  	}
 
  	public function get_id() {
  	    return $this->id;
  	}
 
+ 	/**
+ 	 * Get the context of this module.
+ 	 *
+ 	 * @return context_module the context for this module.
+ 	 */
  	public function get_context() {
- 		//TODO:
+ 		return context_module::instance($this->cmid);
  	}
 
  	public function add_questions_to_quba($quba) {
