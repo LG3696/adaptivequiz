@@ -1,4 +1,6 @@
 <?php
+use mod_quiz\plugininfo\quiz;
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -40,4 +42,60 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 
      $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
      return block::load($quizid, $quiz->mainblock);
+ }
+ 
+ /**
+  * A class encapsulating a adaptive quiz.
+  *
+  * @copyright  2017 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
+  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+  * @since      Moodle 3.1
+  */
+ class adaptivequiz {
+
+ 	/** @var int the id of this adaptive quiz. */
+ 	protected $id;
+ 	/** @var int the course id for this quiz. */
+ 	protected $cmid;
+ 	/** @var int the id of the main block of this adaptive quiz. */
+ 	protected $mainblock;
+ 	
+ 	// Constructor =============================================================
+ 	/**
+ 	 * Constructor assuming we already have the necessary data loaded.
+ 	 * @param int $id the id of this quiz.
+ 	 * @param int the course id for this quiz.
+ 	 * @param int the id of the main block of this adaptive quiz.
+ 	 */
+ 	public function __construct($id, $courseid, $mainblock) {
+ 	
+ 		$this->id = $id;
+ 		$this->cmid = $courseid;
+ 		$this->mainblock = $mainblock;
+ 	}
+
+ 	/**
+ 	 * Static function to get a quiz object from a quiz id.
+ 	 *
+ 	 * @param int $quizid the id of this adaptive quiz.
+ 	 * @return adaptivequiz the new adaptivequiz object.
+ 	 */
+ 	public static function load($quizid) {
+ 		global $DB;
+ 	
+ 		$quiz = $DB->get_record('adaptivequiz', array('id' => $attemptid), '*', MUST_EXIST);
+ 	
+ 		return new adaptivequiz($quiz->id, $quiz->course, $quiz->mainblock);
+ 	}
+ 	
+ 	
+ 	
+ 	public function get_context() {
+ 		//TODO:
+ 	}
+ 	
+ 	public function add_questions_to_quba($quba) {
+ 		//TODO
+ 	}
+ 	
  }

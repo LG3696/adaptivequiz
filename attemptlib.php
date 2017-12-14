@@ -123,14 +123,14 @@ class attempt {
 		global $DB;
 	
 		$attempt = new stdClass();
-		$attempt->qubaid = attempt::create_quba($quiz);
+		$attempt->quba = attempt::create_quba($quiz);
 		$attempt->quiz = $quiz->get_id();
 		$attempt->userid = $userid;
 		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
 		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attempt);
 	
-		return new attempt($attemptid, $qubaid, $quiz->get_id(), $userid, $attempt);
+		return new attempt($attemptid, $attempt->quba, $quiz->get_id(), $userid, $attempt->attempt);
 	}
 	
 	// getters
