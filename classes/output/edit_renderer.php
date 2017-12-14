@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 
 use \html_writer;
+use single_button;
 
 /**
  * The renderer for the adaptive quiz module.
@@ -54,6 +55,11 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'done', 'value' => 1));
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $blockobj->get_name()));
         $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
+
+        if (/*TODO:!$blockobj->is_main_block()*/true) {
+            $output .= $this->condition_block();
+        }
+
         $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
 
         $children = $blockobj->get_children();
@@ -72,6 +78,9 @@ class edit_renderer extends \plugin_renderer_base {
 
         $output .= $this->question_chooser($pageurl, $category);
         $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
+        $output .= $this->condition_type_chooser();
+        $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
+
         return $output;
     }
 
@@ -201,6 +210,48 @@ class edit_renderer extends \plugin_renderer_base {
 
         return html_writer::tag('span', $this->render($menu),
             array('class' => 'add-menu-outer'));
+    }
+
+    /**
+     * Renders the HTML for the condition block.
+     *
+     * @return string the HTML of condition block.
+     */
+    public function condition_block() {
+        $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
+        $addcondition = \html_writer::tag('a', get_string('addacondition', 'mod_adaptivequiz'), array('href' => '#', 'class' => 'addblockcondition'));
+        $container = $header . $addcondition;
+        return html_writer::div($container, 'conditionblock');
+    }
+
+    /**
+     * Renders the HTML for the condition type chooser.
+     *
+     * @return string the HTML of the condtion type chooser.
+     */
+    protected function condition_type_chooser() {
+        $output = \html_writer::start_tag('form', array('action' => new \moodle_url('/mod/adaptivequiz/view.php'),
+            'id' => 'chooserform', 'method' => 'get'));
+        $output .= \html_writer::tag('input', '',
+                array('type' => 'submit', 'name' => 'addpointscondition', 'class' => 'submitbutton', 'value' => get_string('addpointscondition', 'mod_adaptivequiz')));
+        $output .= \html_writer::end_tag('form');
+        $formdiv = \html_writer::div($output, 'choseform');
+        $header = html_writer::div(get_string('choosecondtiontypetoadd', 'mod_adaptivequiz'), 'chooserheader hd');
+        $dialogue = $header . \html_writer::div(\html_writer::div($formdiv, 'choosercontainer'), 'chooserdialogue');
+        $container = html_writer::div($dialogue, '',
+            array('id' => 'conditiontypechoicecontainer'));
+        return html_writer::div($container, 'addcondition') . $this->points_condition();
+    }
+
+    /**
+     * Renders the HTML for the condition over question points.
+     *
+     * @return string the HTML of points condition.
+     */
+    protected function points_condition() {
+        $condition = 'blablabla';
+        $conditiondiv = \html_writer::div($condition, 'pointscondition');
+        return \html_writer::div($conditiondiv, 'pointsconditioncontainer');
     }
 
     /**
