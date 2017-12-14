@@ -83,11 +83,14 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  	public static function load($quizid) {
  		global $DB;
  	
- 		$quiz = $DB->get_record('adaptivequiz', array('id' => $attemptid), '*', MUST_EXIST);
+ 		$quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
  	
  		return new adaptivequiz($quiz->id, $quiz->course, $quiz->mainblock);
  	}
  	
+ 	public function get_id() {
+ 	    return $this->id;
+ 	}
  	
  	
  	public function get_context() {
