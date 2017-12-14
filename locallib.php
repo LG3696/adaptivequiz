@@ -84,6 +84,10 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
  		return $this->mainblock;
  	}
  	
+ 	public function get_id() {
+ 	    return $this->id;
+ 	}
+ 	
  	/**
  	 * Get the context of this module.
  	 * 
