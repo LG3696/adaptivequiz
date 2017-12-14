@@ -90,6 +90,10 @@ class attempt {
 	 * @param int $attemptcounter the number of this attempt.
 	 */
 	public function __construct($id, $qubaid, $quizid, $userid, $attemptcounter) {
+		
+
+// 		$this->quba = question_engine::load_questions_usage_by_activity($this->attempt->uniqueid);
+		
 		$this->id = $id;
 		$this->quba = $qubaid;
 		$this->quizid = $quizid;
@@ -119,11 +123,14 @@ class attempt {
 	 * @param int $userid the id of the user this attempt belongs to.
 	 * @return attempt the new attempt object.
 	 */
-	public static function create($qubaid, $quizid, $userid) {
+	public static function create($quizid, $userid) {
 		global $DB;
 	
 		$attempt = new stdClass();
-		$attempt->quba = $qubaid;
+		//TODO: richtiges cmid
+		$cmid = 1;
+		$context = context_module::instance($cmid);
+		$attempt->quba = question_engine::make_questions_usage_by_activity('mod_adaptivequiz', $context);
 		$attempt->quiz = $quizid;
 		$attempt->userid = $userid;
 		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz'=>$quizid, 'userid'=>$userid)) + 1;
