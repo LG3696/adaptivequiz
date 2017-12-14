@@ -38,65 +38,68 @@ defined('MOODLE_INTERNAL') || die();
 class block {
     /** @var int the id of the block. */
     protected $id = 0;
-    /** @var int the id of the quiz, this block belongs to. */
-    protected $quizid;
+    /** @var adaptivequiz the quiz, this block belongs to. */
+    protected $quiz = null;
     /** @var string the name of the block. */
     protected $name = '';
     /** @var array of {@link block_element}, that are contained in this block. */
     protected $children = null;
+    /** @var block_condition the condition of this block. */
+    protected $condition = null;
 
     // Constructor =============================================================
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block.
-     * @param int $quizid the id of the quiz, this block belongs to.
+     * @param adaptivequiz $quiz the id of the quiz, this block belongs to.
      * @param string $name the name of the block.
      * @param array $children an array of block_element representing the parts of this block.
      */
-    public function __construct($id, $quizid, $name, $children) {
+    public function __construct($id, adaptivequiz $quiz, $name, $children) {
         $this->id = $id;
-        $this->quizid = $quizid;
+        $this->quiz = $quiz;
         $this->name = $name;
         $this->children = $children;
+        $this->condition = null;
     }
 
     /**
      * Static function to get a block object from a block id.
      *
-     * @param int $quizid the id of the quiz, this block belongs to.
+     * @param adaptivequiz $quiz the quiz, this block belongs to.
      * @param int $blockid the block id.
      * @return block the new block object.
      */
-    public static function load($quizid, $blockid) {
+    public static function load(adaptivequiz $quiz, $blockid) {
         global $DB;
 
         $block = $DB->get_record('adaptivequiz_block', array('id' => $blockid), '*', MUST_EXIST);
 
-        return new block($blockid, $quizid, $block->name, null);
+        return new block($blockid, $quiz, $block->name, null);
     }
 
     /**
      * Static function to create a new block in the database.
      *
-     * @param int $quizid the quiz this block belongs to.
+     * @param adaptivequiz $quiz the quiz this block belongs to.
      * @param string $name the name of the block.
      * @return block the new block object.
      */
-    public static function create($quizid, $name) {
+    public static function create(adaptivequiz $quiz, $name) {
         global $DB;
 
         $block = new stdClass();
         $block->name = $name;
         $blockid = $DB->insert_record('adaptivequiz_block', $block);
 
-        return new block($blockid, $quizid, $block->name, null);
+        return new block($blockid, $quiz, $block->name, null);
     }
 
     /**
      * loads the children for the block.
      */
-    private function load_children() {
+    protected function load_children() {
         global $DB;
 
         //If the children are already loaded we dont need to do anything.
@@ -106,9 +109,8 @@ class block {
 
         $children = $DB->get_records('adaptivequiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
 
-        $qid = $this->quizid;
         $this->children = array_map(function($id) {
-                                        return block_element::load($qid, $id->id);
+                                        return block_element::load($this->quiz, $id->id);
                                     },
                                     array_values($children));
     }
@@ -132,7 +134,7 @@ class block {
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->children, block_element::load($this->quizid, $id));
+        array_push($this->children, block_element::load($this->quiz, $id));
     }
 
     /**
@@ -140,7 +142,7 @@ class block {
      *
      * @param object $block the block to be added as a subblock.
      */
-    public function add_subblock($block) {
+    public function add_subblock(block $block) {
         global $DB;
 
         $this->load_children();
@@ -154,23 +156,7 @@ class block {
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->children, block_element::load($this->quizid, $id));
-    }
-
-    /**
-     * Moves one element from an old slot to a new one. Used to reorder the parts of the block.
-     * @param int $oldslot the number of the old slot.
-     * @param int $newslot the number of the slot, that the element should be moved to.
-     * @return boolean whether the reordering was successfull.
-     */
-    public function move($oldslot, $newslot) {
-        global $DB;
-
-        $this->load_children();
-
-        //TODO: check if allowed -> return false if not
-
-        //TODO: otherwise update the DB
+        array_push($this->children, block_element::load($this->quiz, $id));
     }
 
     /**
@@ -179,8 +165,7 @@ class block {
      * @return bool true if this is the main block of the quiz.
      */
     public function is_main_block() {
-        $mainblock = get_main_block($this->quizid);
-        return $this->id == $mainblock->get_id();
+        return $this->id == $this->quiz->get_main_block()->get_id();
     }
 
     /**
@@ -259,12 +244,12 @@ class block {
     }
 
     /**
-     * Returns the quiz id of the block.
+     * Returns the quiz of the block.
      *
-     * @return int the id of the quiz, this block belongs to.
+     * @return adaptivequiz the quiz, this block belongs to.
      */
-    public function get_quizid() {
-        return $this->quiz_id;
+    public function get_quiz() {
+        return $this->quiz;
     }
 
     /**
@@ -278,11 +263,22 @@ class block {
             return false;
         }
         else {
-            $mainblock = get_main_block($this->quizid);
             //top down search in the block-tree to find the parent.
-            return $mainblock->search_parent($this->id)->get_id();
+            return $this->quiz->get_main_block()->search_parent($this->id)->get_id();
         }
         return false;
+    }
+
+    /**
+     * Gets the condition under which this block should be shown to a student.
+     *
+     * @return block_condition the condition under which to show this block.
+     */
+    public function get_condition() {
+        if (!$this->condition) {
+            $this->condition = block_condition::load($this);
+        }
+        return $this->condition;
     }
 
     /**
@@ -319,6 +315,8 @@ class block {
 class block_element {
     /** @var int the id of the block_element. */
     protected $id = 0;
+    /** @var adaptivequiz the quiz, this element belongs to. */
+    protected $quiz = null;
     /** @var int the type of the block_element: 0 = question, 1 = block. */
     protected $type = 0;
     /** @var int the id of the element referenced. */
@@ -331,13 +329,13 @@ class block_element {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block_elem.
-     * @param int $quizid the quiz this reference belongs to.
+     * @param adaptivequiz $quiz the quiz this reference belongs to.
      * @param int $type the type of this block_element.
      * @param object $element the element referenced by this block.
      */
-    public function __construct($id, $quizid, $type, $elementid, $element) {
+    public function __construct($id, adaptivequiz $quiz, $type, $elementid, $element) {
         $this->id = $id;
-        $this->quizid = $quizid;
+        $this->quiz = $quiz;
         $this->type = $type;
         $this->elementid = $elementid;
         $this->element = $element;
@@ -346,11 +344,11 @@ class block_element {
     /**
      * Static function to get a block_element object from a its id.
      *
-     * @param int $quizid the quiz this reference belongs to.
+     * @param adaptivequiz $quiz the quiz this reference belongs to.
      * @param int $blockelementid the blockelement id.
      * @return block the new block object.
      */
-    public static function load($quizid, $blockelementid) {
+    public static function load(adaptivequiz $quiz, $blockelementid) {
         global $DB;
 
         $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', MUST_EXIST);
@@ -360,12 +358,12 @@ class block_element {
             $element = $DB->get_record('question', array('id' => $questioninstance->blockelement), '*', MUST_EXIST);
         }
         else if ($questioninstance->type == 1) {
-            $element = block::load($quizid, $questioninstance->blockelement);
+            $element = block::load($quiz, $questioninstance->blockelement);
         }
         else {
             return null;
         }
-        return new block_element($blockelementid, $quizid, (int)$questioninstance->type, (int)$questioninstance->blockelement, $element);
+        return new block_element($blockelementid, $quiz, (int)$questioninstance->type, (int)$questioninstance->blockelement, $element);
     }
 
     /**
@@ -469,5 +467,202 @@ class block_element {
      */
     public function get_id() {
         return $this->id;
+    }
+}
+
+/**
+ * A class encapsulating the condition, under which a block should be shown to a student.
+ *
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
+ */
+class block_condition {
+    /** @var block the block this condition is for. */
+    var $block = null;
+    /** @var array the parts this condition is made from. */
+    var $parts = null;
+    /** @var bool whether the parts are connected with and. Otherwise they are connected with or. */
+    var $use_and = true;
+
+    // Constructor =============================================================
+    /**
+     * Constructor, assuming we already have the necessary data loaded.
+     *
+     * @param int $block the block this condition is for.
+     * @param array $parts the parts this condition is made from.
+     * @param bool $use_and whether the parts are connected with and. Otherwise they are connected with or.
+     */
+    public function __construct(block $block, $parts, $use_and) {
+        $this->block = $block;
+        $this->parts = $parts;
+        $this->use_and = $use_and;
+    }
+
+    /**
+     * Loads the condition for one block from the database.
+     *
+     * @param int $block the block to get the condition for.
+     *
+     * @rteturn block_condition the loaded condition.
+     */
+    public static function load(block $block) {
+        global $DB;
+
+        $blockid = $block->get_id();
+
+        $use_and = $DB->get_field('adaptivequiz_block', 'use_and'/*TODO: right field*/, array('id' => $blockid), MUST_EXIST);
+        $parts = $DB->get_records('adaptivequiz_block_condition', array('block' => $blockid));
+        $partobjs = array_map(function($part) {
+                    return new block_condition_part($part->id, $part->type, $part->on, $part->grade);
+                },
+                array_values($children));
+
+        return new block_condition($block, $partobjs, $use_and);
+    }
+
+    /**
+     * Adds a part to this condition.
+     *
+     * @param int $type the type of this condition.
+     * @param int $elementid the id of the element this condition references.
+     * @param int $grade the grade this condition is relative to.
+     */
+    public function add_part($type, $elementid, $grade) {
+        $part = block_condition_part::create($this->block, $type, $elementid, $grade);
+        array_push($this->parts, $part);
+    }
+
+    /**
+     * Checks whether this condition is met for a certain attempt.
+     *
+     * @param object $attempt the attempt to check this part of the condition for.
+     *
+     * @return bool whether this condition is fullfilled.
+     */
+    public function is_fullfilled($attempt) {
+        if ($this->use_and) {
+            foreach ($this->parts as $part) {
+                if (!$part->is_fullfilled($attempt)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        else {
+            foreach ($this->parts as $part) {
+                if ($part->is_fullfilled($attempt)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Returns the parts of this condition.
+     *
+     * @return array the parts of this condition.
+     */
+    public function get_parts() {
+        return $this->parts;
+    }
+}
+
+/**
+ * A class encapsulating one part of a condition, under which a block should be shown to a student.
+ *
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
+ */
+class block_condition_part {
+    // block_condition type
+    const WAS_DISPLAYED     = 0;
+    const LESS              = 1;
+    const LESS_OR_EQUAL     = 2;
+    const GREATER           = 3;
+    const GREATER_OR_EQUAL  = 4;
+    const EQUAL             = 5;
+
+    /** @var int the id of the block_condition. */
+    protected $id = 0;
+    /**
+     * @var int the type of the block_condition. One of WAS_DISPLAYED, LESS, LESS_OR_EQUAL,
+     * GREATER, GREATER_OR_EQUAL or EQUAL.
+     */
+    protected $type = 0;
+    /** @var int the id of the element this condition references. */
+    protected $elementid = 0;
+    /** @var int the grade this condition is relative to. */
+    protected $grade = 0;
+
+    // Constructor =============================================================
+    /**
+     * Constructor, assuming we already have the necessary data loaded.
+     *
+     * @param int $id the id of the block_elem.
+     * @param int $type the type of this condition.
+     * @param int $elementid the id of the element this condition references.
+     * @param int $grade the grade this condition is relative to.
+     */
+    public function __construct($id, $type, $elementid, $grade) {
+        $this->id = $id;
+        $this->type = $type;
+        $this->elementid = $elementid;
+        $this->grade = $grade;
+    }
+
+    /**
+     * Inserts a new condition part into the database.
+     *
+     * @param int $blockid the id of the block to create this condition part for.
+     * @param int $type the type of this condition.
+     * @param int $elementid the id of the element this condition references.
+     * @param int $grade the grade this condition is relative to.
+     *
+     * @return block_condition_part the newly created condtion part.
+     */
+    public static function create($blockid, $type, $elementid, $grade) {
+        global $DB;
+
+        $record = new stdClass();
+        $record->block = $blockid;
+        $record->on = $elementid;
+        $record->type = $type;
+        $record->grade = $grade;
+        $id = $DB->insert_record('adaptivequiz_block_condition', $record);
+
+        return new block_condition_part($id, $type, $elementid, $grade);
+    }
+
+    /**
+     * Checks whether this part of the condition is met for a certain attempt.
+     *
+     * @param object $attempt the attempt to check this part of the condition for.
+     *
+     * @return bool whether this part of the condition is fullfilled.
+     */
+    public function is_fullfilled($attempt) {
+        //TODO
+        return true;
+    }
+
+    /**
+     * Gets the id of this condition part.
+     *
+     * @return int the id of this condition part.
+     */
+    public function get_id() {
+        return $this->id;
+    }
+
+    /**
+     * Gets the type of this condition part.
+     *
+     * @return int the type of this condition part.
+     */
+    public function get_type() {
+        return $this->type;
     }
 }

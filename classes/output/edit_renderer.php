@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 
 use \html_writer;
-use single_button;
 
 /**
  * The renderer for the adaptive quiz module.
@@ -244,12 +243,36 @@ class edit_renderer extends \plugin_renderer_base {
     }
 
     /**
+     * Renders the HTML for a condition.
+     *
+     * @return string the HTML of the condition.
+     */
+    protected  function condition(\block_condition $condition) {
+        //TODO
+    }
+
+    /**
+     * Renders the HTML for a condition part.
+     *
+     * @return string the HTML of the condition part.
+     */
+    protected  function condition_part(\block_condition_part $condition_part) {
+        switch ($condition_part->get_type()) {
+            case \block_condition_part::WAS_DISPLAYED:
+                //TODO
+                break;
+            default:
+                //TODO
+        }
+    }
+
+    /**
      * Renders the HTML for the condition over question points.
      *
-     * @return string the HTML of points condition.
+     * @return string the HTML of the points condition.
      */
     protected function points_condition() {
-        $condition = 'blablabla';
+        $condition = 'Condition';
         $conditiondiv = \html_writer::div($condition, 'pointscondition');
         return \html_writer::div($conditiondiv, 'pointsconditioncontainer');
     }

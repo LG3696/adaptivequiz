@@ -43,11 +43,11 @@ if (!$blockid) {
 }
 
 $thispageurl->param('bid', $blockid);
-$quizid = $quiz->id;
 
 $PAGE->set_url($thispageurl);
 
-$block = block::load($quizid, $blockid);
+$adaptivequiz = adaptivequiz::load($quiz->id);
+$block = block::load($adaptivequiz, $blockid);
 
 if ($done) {
     $name = required_param('blockname', PARAM_TEXT);

@@ -54,7 +54,8 @@ $event->add_record_snapshot($PAGE->cm->modname, $adaptivequiz);
 $event->trigger();
 
 $context = context_module::instance($id);
-$mainblock = block::load($adaptivequiz->id, $adaptivequiz->mainblock);
+$quiz = adaptivequiz::load($adaptivequiz->id);
+$mainblock = $quiz->get_main_block();
 $canpreview = has_capability('mod/adaptivequiz:preview', $context);
 $canattempt = has_capability('mod/adaptivequiz:attempt', $context);
 $viewobj = new mod_adaptivequiz_view_object();
@@ -73,7 +74,7 @@ if (!$viewobj->quizhasquestions) {
         } else if ($canpreview) {
             $viewobj->buttontext = get_string('continuepreview', 'adaptivequiz');
         }
-        
+
     } else {
         if ($canattempt) {
             if ($viewobj->numattempts == 0) {
@@ -81,7 +82,7 @@ if (!$viewobj->quizhasquestions) {
             } else {
                 $viewobj->buttontext = get_string('reattemptquiz', 'adaptivequiz');
             }
-            
+
         } else if ($canpreview) {
             $viewobj->buttontext = get_string('previewquiznow', 'adaptivequiz');
         }
