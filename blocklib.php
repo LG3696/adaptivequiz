@@ -42,7 +42,10 @@ class block {
     protected $quiz = null;
     /** @var string the name of the block. */
     protected $name = '';
-    /** @var array of {@link block_element}, that are contained in this block. */
+    /**
+     * @var array of {@link block_element}, that are contained in this block.
+     * Do NOT use directly. Use {@link get_children()} instead. This is due to possible lazy loading of the children.
+     */
     protected $children = null;
     /** @var block_condition the condition of this block. */
     protected $condition = null;
@@ -123,18 +126,16 @@ class block {
     public function add_question($questionid) {
         global $DB;
 
-        $this->load_children();
-
         $qinstance = new stdClass();
         $qinstance->blockid = $this->id;
         $qinstance->blockelement = $questionid;
         $qinstance->type = 0;
         $qinstance->grade = 0; //TODO: ???
-        $qinstance->slot = count($this->children);
+        $qinstance->slot = count($this->get_children());
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->children, block_element::load($this->quiz, $id));
+        array_push($this->get_children(), block_element::load($this->quiz, $id));
     }
 
     /**
@@ -145,18 +146,16 @@ class block {
     public function add_subblock(block $block) {
         global $DB;
 
-        $this->load_children();
-
         $qinstance = new stdClass();
         $qinstance->blockid = $this->id;
         $qinstance->blockelement = $block->get_id();
         $qinstance->type = 1;
         $qinstance->grade = 0; //TODO: ???
-        $qinstance->slot = count($this->children);
+        $qinstance->slot = count($this->get_children());
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->children, block_element::load($this->quiz, $id));
+        array_push($this->get_children(), block_element::load($this->quiz, $id));
     }
 
     /**
@@ -174,8 +173,7 @@ class block {
      * @return bool true if there are questions in this block.
      */
     public function has_questions() {
-        $this->load_children();
-        foreach ($this->children as $element) {
+        foreach ($this->get_children() as $element) {
             if ($element->is_question()) {
                 return true;
             }
@@ -288,8 +286,7 @@ class block {
      * @return bool|block the parent block or fals, if the parent can not be found.
      */
     protected function search_parent($childid) {
-        $this->load_children();
-        foreach ($this->children as $element) {
+        foreach ($this->get_children() as $element) {
             if ($element->is_block()) {
                 $block = $element->get_element();
                 if ($block->get_id() == $childid) {
@@ -301,6 +298,17 @@ class block {
             }
         }
         return false;
+    }
+
+    /**
+     * Adds the questions of this block to a question usage.
+     *
+     * @param question_usage_by_activity $quba the question usage to add the questions to.
+     */
+    public function add_questions_to_quba(question_usage_by_activity $quba) {
+        foreach ($this->get_children() as $element) {
+            $element->add_questions_to_quba($quba);
+        }
     }
 }
 
@@ -467,6 +475,21 @@ class block_element {
      */
     public function get_id() {
         return $this->id;
+    }
+
+    /**
+     * Adds the question(s) of this element to a question usage.
+     *
+     * @param question_usage_by_activity $quba the question usage to add the questions to.
+     */
+    public function add_questions_to_quba(question_usage_by_activity $quba) {
+        if ($this->is_question()) {
+            $question = question_bank::load_question($this->get_element()->id, false);
+            $quba->add_question($question);
+        }
+        else if ($this->is_block()) {
+            $this->get_element()->add_questions_to_quba($quba);
+        }
     }
 }
 

@@ -106,7 +106,12 @@ class adaptivequiz {
     	return context_module::instance($this->cmid);
     }
 
-    public function add_questions_to_quba($quba) {
-    	//TODO
+    /**
+     * Adds the questions of this quiz to a question usage.
+     *
+     * @param question_usage_by_activity $quba the question usage to add the questions to.
+     */
+    public function add_questions_to_quba(question_usage_by_activity $quba) {
+        $this->get_main_block()->add_questions_to_quba($quba);
     }
 }

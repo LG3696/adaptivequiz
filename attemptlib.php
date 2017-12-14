@@ -185,6 +185,7 @@ class attempt {
 	    $quba = question_engine::make_questions_usage_by_activity('mod_adaptivequiz', $quiz->get_context());
 	    $quba->set_preferred_behaviour('deferredfeedback');
 	    $quiz->add_questions_to_quba($quba);
+	    $quba->start_all_questions();
 	    question_engine::save_questions_usage_by_activity($quba);
 	    return $quba->get_id();
 	}

@@ -41,7 +41,6 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 }
 
 $adaptivequiz  = adaptivequiz::load($cm->instance);
-
 $attempt = attempt::create($adaptivequiz, $USER->id);
 
 // Check login and sesskey.
