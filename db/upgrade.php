@@ -177,51 +177,82 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017121200, 'adaptivequiz');
         
 	}
-        if ($oldversion < 2017121202) {
+    if ($oldversion < 2017121202) {
         
-        	// Define field layout to be dropped from adaptivequiz_attempts.
-        	$table = new xmldb_table('adaptivequiz_attempts');
-        	$field = new xmldb_field('layout');
+		// Define field layout to be dropped from adaptivequiz_attempts.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $field = new xmldb_field('layout');
         
-        	// Conditionally launch drop field layout.
-        	if ($dbman->field_exists($table, $field)) {
-        		$dbman->drop_field($table, $field);
-        	}
-        	
-        	// Define field preview to be dropped from adaptivequiz_attempts.
-        	$table = new xmldb_table('adaptivequiz_attempts');
-        	$field = new xmldb_field('preview');
-        	
-        	// Conditionally launch drop field preview.
-        	if ($dbman->field_exists($table, $field)) {
-        		$dbman->drop_field($table, $field);
-        	}
-        	
-        	// Define key uniqueid (foreign-unique) to be dropped form adaptivequiz_attempts.
-        	$table = new xmldb_table('adaptivequiz_attempts');
-        	$key = new xmldb_key('uniqueid', XMLDB_KEY_FOREIGN_UNIQUE, array('uniqueid'), 'question_usages', array('id'));
-        	
-        	// Launch drop key uniqueid.
-        	$dbman->drop_key($table, $key);
-        	
-        	// Rename field uniqueid on table adaptivequiz_attempts to quba.
-        	$table = new xmldb_table('adaptivequiz_attempts');
-        	$field = new xmldb_field('uniqueid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'attempt');
-        	
-        	// Launch rename field uniqueid.
-        	$dbman->rename_field($table, $field, 'quba');
-        	
-        	// Define key quba (foreign-unique) to be added to adaptivequiz_attempts.
-        	$table = new xmldb_table('adaptivequiz_attempts');
-        	$key = new xmldb_key('quba', XMLDB_KEY_FOREIGN_UNIQUE, array('quba'), 'question_usages', array('id'));
-        	
-        	// Launch add key quba.
-        	$dbman->add_key($table, $key);
-        
-        	// Adaptivequiz savepoint reached.
-        	upgrade_mod_savepoint(true, 2017121202, 'adaptivequiz');
+        // Conditionally launch drop field layout.
+        if ($dbman->field_exists($table, $field)) {
+        	$dbman->drop_field($table, $field);
         }
-
+        	
+        // Define field preview to be dropped from adaptivequiz_attempts.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $field = new xmldb_field('preview');
+        	
+        // Conditionally launch drop field preview.
+        if ($dbman->field_exists($table, $field)) {
+        	$dbman->drop_field($table, $field);
+        }
+        	
+        // Define key uniqueid (foreign-unique) to be dropped form adaptivequiz_attempts.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $key = new xmldb_key('uniqueid', XMLDB_KEY_FOREIGN_UNIQUE, array('uniqueid'), 'question_usages', array('id'));
+        	
+        // Launch drop key uniqueid.
+        $dbman->drop_key($table, $key);
+        	
+        // Rename field uniqueid on table adaptivequiz_attempts to quba.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $field = new xmldb_field('uniqueid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'attempt');
+        	
+        // Launch rename field uniqueid.
+        $dbman->rename_field($table, $field, 'quba');
+        	
+        // Define key quba (foreign-unique) to be added to adaptivequiz_attempts.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $key = new xmldb_key('quba', XMLDB_KEY_FOREIGN_UNIQUE, array('quba'), 'question_usages', array('id'));
+        	
+        // Launch add key quba.
+        $dbman->add_key($table, $key);
+        
+        // Adaptivequiz savepoint reached.
+        upgrade_mod_savepoint(true, 2017121202, 'adaptivequiz');
+	}
+	if ($oldversion < 2017121500) {
+	
+		// Define table adaptivequiz to be created.
+		$table = new xmldb_table('adaptivequiz');
+	
+		// Adding fields to table adaptivequiz.
+		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+		$table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('intro', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+		$table->add_field('introformat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+		$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+		$table->add_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '100');
+		$table->add_field('mainblock', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	
+		// Adding keys to table adaptivequiz.
+		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+		$table->add_key('mainblock', XMLDB_KEY_FOREIGN, array('mainblock'), 'adaptivequiz_block', array('id'));
+	
+		// Adding indexes to table adaptivequiz.
+		$table->add_index('course', XMLDB_INDEX_NOTUNIQUE, array('course'));
+	
+		// Conditionally launch create table for adaptivequiz.
+		if (!$dbman->table_exists($table)) {
+			$dbman->create_table($table);
+		}
+	
+		// Adaptivequiz savepoint reached.
+		upgrade_mod_savepoint(true, 2017121500, 'adaptivequiz');
+	}
+	
 
     return true;
 }
