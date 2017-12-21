@@ -110,8 +110,8 @@ class attempt {
 		global $DB;
 
 		$attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
-
-		$quiz = adaptivequiz::load($attemptrow->quizid);
+		$quiz = adaptivequiz::load($attemptrow->quiz);
+		
 		return new attempt($attemptid, $attemptrow->quba, $quiz, $attemptrow->userid, $attemptrow->attempt);
 	}
 
