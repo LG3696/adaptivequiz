@@ -162,7 +162,26 @@ class attempt {
 		return $this->attempt;
 	}
 
-
+	//TODO:
+	public function get_current_slot() {
+		return 1;
+	}
+	
+	// setters
+	
+	public function set_current_slot() {
+		//TODO:
+	}
+	
+	
+	public function process_slot() {
+		//TODO:
+	}
+	
+	public function finish_attempt() {
+		//TODO:
+	}
+	
 	// URL
 
 	/**
