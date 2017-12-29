@@ -64,7 +64,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $output .= $this->edit_quiz_button($viewobj);
             }
         }
-
+        if (!$viewobj->buttontext) {
+            $output .= 'Quiz has no questions.';
+            $output .= $this->edit_quiz_button($viewobj);
+        }
         return $output;
     }
 
@@ -75,7 +78,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param moodle_url $url The URL to POST to in order to start the attempt.
      * @return string HTML fragment.
      */
-    public function start_attempt_button ($buttontext, $url) {
+    public function start_attempt_button($buttontext, $url) {
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
         return $this->render($button);
@@ -86,7 +89,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      *
      * @return string HTML fragment.
      */
-    public function edit_quiz_button ($viewobj) {
+    public function edit_quiz_button($viewobj) {
         $url = new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $viewobj->cmid));
         $buttontext = get_string('editquiz', 'adaptivequiz');
         $button = new single_button($url, $buttontext);
