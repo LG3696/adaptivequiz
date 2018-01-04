@@ -135,7 +135,8 @@ class block {
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->get_children(), block_element::load($this->quiz, $id));
+        $this->load_children();
+        array_push($this->children, block_element::load($this->quiz, $id));
     }
 
     /**
@@ -155,7 +156,8 @@ class block {
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
 
-        array_push($this->get_children(), block_element::load($this->quiz, $id));
+        $this->load_children();
+        array_push($this->children, block_element::load($this->quiz, $id));
     }
 
     /**
@@ -182,6 +184,23 @@ class block {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns all block_elements that can be used for a condition on this block.
+     *
+     * @return array the block_elements that can be used for a condition.
+     */
+    public function get_condition_candidates() {
+        $parent = $this->quiz->get_main_block()->search_parent($this->id);
+        $candidates = array();
+        foreach ($parent->get_children() as $element) {
+            if ($element->is_block() && $element->get_element()->get_id() == $this->id) {
+                break;
+            }
+            array_push($candidates, $element);
+        }
+        return $candidates;
     }
 
     /**
@@ -457,6 +476,8 @@ class block_element {
      * @return \moodle_url the edit URL of the element.
      */
     public function get_edit_url(array $params) {
+        global $CFG;
+
         if ($this->is_question()) {
             $questionparams = array_merge($params, array('id' => $this->element->id));
             return new moodle_url("$CFG->wwwroot/question/question.php", $questionparams);
@@ -534,12 +555,12 @@ class block_condition {
 
         $blockid = $block->get_id();
 
-        $use_and = $DB->get_field('adaptivequiz_block', 'use_and'/*TODO: right field*/, array('id' => $blockid), MUST_EXIST);
+        $use_and = $DB->get_field('adaptivequiz_block', 'use_and', array('id' => $blockid), MUST_EXIST);
         $parts = $DB->get_records('adaptivequiz_block_condition', array('block' => $blockid));
         $partobjs = array_map(function($part) {
-                    return new block_condition_part($part->id, $part->type, $part->on, $part->grade);
+            return new block_condition_part($part->id, $part->type, $part->on_qinstance, $part->grade);
                 },
-                array_values($children));
+                array_values($parts));
 
         return new block_condition($block, $partobjs, $use_and);
     }
@@ -582,6 +603,34 @@ class block_condition {
         }
     }
 
+
+    /**
+     * Sets how the parts of this condition are connected.
+     *
+     * @param bool whether the parts of this condition should be connected with and. Or is used otherwise.
+     */
+    public function set_use_and($use_and) {
+        if ($this->use_and != $use_and) {
+            global $DB;
+
+            $this->use_and = $use_and;
+
+            $record = new stdClass();
+            $record->id = $this->block->get_id();
+            $record->use_and = $this->use_and;
+            $DB->update_record('adaptivequiz_block', $record);
+        }
+    }
+
+    /**
+     * Returns whether the parts are connected with and.
+     *
+     * @return bool true if the parts are connected with and, false for a connection with or.
+     */
+    public function get_use_and() {
+        return $this->use_and;
+    }
+
     /**
      * Returns the parts of this condition.
      *
@@ -589,6 +638,42 @@ class block_condition {
      */
     public function get_parts() {
         return $this->parts;
+    }
+
+    /**
+     * Updates the condition using the submitted array.
+     *
+     * @param array $conditionparts the array from the form.
+     */
+    public function update($conditionparts) {
+        foreach ($this->parts as $existingpart) {
+            $deleted = true;
+            foreach ($conditionparts as $part) {
+                if (array_key_exists('id', $part) && $part['id'] == $existingpart->get_id()) {
+                    $deleted = false;
+                    break;
+                }
+            }
+            if ($deleted) {
+                global $DB;
+                $DB->delete_records('adaptivequiz_block_condition', array('id' => $existingpart->get_id()));
+            }
+        }
+        foreach ($conditionparts as $part) {
+            //update existing condition parts
+            if (array_key_exists('id', $part)) {
+                foreach ($this->parts as $existingpart) {
+                    if ($existingpart->get_id() == $part['id']) {
+                        $existingpart->update($part['type'], $part['question'], $part['points']);
+                        break;
+                    }
+                }
+            }
+            //insert new condition parts
+            else {
+                $this->add_part($part['type'], $part['question'], $part['points']);
+            }
+        }
     }
 }
 
@@ -607,6 +692,7 @@ class block_condition_part {
     const GREATER           = 3;
     const GREATER_OR_EQUAL  = 4;
     const EQUAL             = 5;
+    const NOT_EQUAL         = 6;
 
     /** @var int the id of the block_condition. */
     protected $id = 0;
@@ -639,21 +725,22 @@ class block_condition_part {
     /**
      * Inserts a new condition part into the database.
      *
-     * @param int $blockid the id of the block to create this condition part for.
+     * @param block $block the block to create this condition part for.
      * @param int $type the type of this condition.
      * @param int $elementid the id of the element this condition references.
      * @param int $grade the grade this condition is relative to.
      *
      * @return block_condition_part the newly created condtion part.
      */
-    public static function create($blockid, $type, $elementid, $grade) {
+    public static function create(\block $block, $type, $elementid, $grade) {
         global $DB;
 
         $record = new stdClass();
-        $record->block = $blockid;
-        $record->on = $elementid;
+        $record->block = $block->get_id();
+        $record->on_qinstance = $elementid;
         $record->type = $type;
         $record->grade = $grade;
+
         $id = $DB->insert_record('adaptivequiz_block_condition', $record);
 
         return new block_condition_part($id, $type, $elementid, $grade);
@@ -687,5 +774,48 @@ class block_condition_part {
      */
     public function get_type() {
         return $this->type;
+    }
+
+    /**
+     * Gets the grade of this condition part.
+     *
+     * @return int the grade of this condition part.
+     */
+    public function get_grade() {
+        return $this->grade;
+    }
+
+    /**
+     * Gets the element id this condition part is about.
+     *
+     * @return int the element id.
+     */
+    public function get_elementid() {
+        return $this->elementid;
+    }
+
+    /**
+     * Updates the part to the new values.
+     *
+     * @param int $type the new type.
+     * @param int $elementid the id of the new element to refer to.
+     * @param int $grade the new grade to use for this part.
+     */
+    public function update($type, $elementid, $grade) {
+        if ($this->type != $type || $this->elementid != $elementid || $this->grade != $grade) {
+            global $DB;
+
+            $this->type = $type;
+            $this->elementid = $elementid;
+            $this->grade = $grade;
+
+            $record = new stdClass();
+            $record->id = $this->id;
+            $record->type = $this->type;
+            $record->elementid = $this->elementid;
+            $record->grade = $this->grade;
+
+            $DB->update_record('adaptivequiz_block_condition', $record);
+        }
     }
 }
