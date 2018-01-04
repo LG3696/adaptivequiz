@@ -172,6 +172,7 @@ class attempt {
 	}
 
 	public function get_current_slot() {
+		//TODO Datenbank?
 		return $this->currentslot;
 	}
 	
@@ -181,17 +182,34 @@ class attempt {
 		//TODO:
 	}
 	
-	//??
-	public function get_slots() {
-		
-	}
-	
 	public function process_slot() {
 		//TODO:
 	}
 	
 	public function finish_attempt() {
 		//TODO:
+	}
+	
+	/**
+	 * Checks if this is the last slot.
+	 * 
+	 * @param int $slot the slot
+	 * @return boolean wether this is the last slot.
+	 */
+	public function is_last_slot($slot) {
+		//TODO Blöcke beachten
+		return $slot == $this->quba->question_count() - 1;
+	}
+	
+	/**
+	 * Determines the next slot based on the conditions of the blocks.
+	 * 
+	 * @param int $currentslot the current slot
+	 * @return number the next slot
+	 */
+	public function next_slot($currentslot) {
+		//TODO Blöcke beachten
+		return $currentslot + 1;
 	}
 	
 	// URL
