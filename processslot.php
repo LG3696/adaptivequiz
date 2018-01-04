@@ -15,14 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script deals with starting a new attempt at a quiz.
- *
- * Normally, it will end up redirecting to attempt.php - unless a password form is displayed.
- *
- * This code used to be at the top of attempt.php, if you are looking for CVS history.
+ * This script displays a particular page of a quiz attempt that is in progress.
  *
  * @package   mod_adaptivequiz
- * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
+ * @copyright  2018 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,7 +27,20 @@ require_once(dirname(__FILE__).'/locallib.php');
 require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
-$cmid = required_param('cmid', PARAM_INT); // Course module id.
+$attemptid = required_param('attempt',  PARAM_INT);
+$slot = required_param('slot', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
+
+$timenow = time();
+
+$attempt = attempt::load($attemptid);
+$quba = $attempt->get_quba();
+
+$nextslot = $attempt->next_slot($slot);
+
+//Set $nexturl.
+$url = $attempt->attempt_url();
+$nexturl = new \moodle_url($url, array('cmid' => $cmid, 'slot' => $nextslot));
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -40,17 +49,15 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
-$adaptivequiz  = adaptivequiz::load($cm->instance);
-$attempt = attempt::create($adaptivequiz, $USER->id);
-
-// Check login and sesskey.
+// Check login.
 require_login($course, false, $cm);
-require_sesskey();
 
-$url = $attempt->attempt_url();
-$attempturl = new moodle_url($url, array('cmid' => $cmid));
+// Check that this attempt belongs to this user.
+if ($attempt->get_userid() != $USER->id) {
+    throw new moodle_quiz_exception($attempt->get_quiz(), 'notyourattempt');
+}
 
+//Process slot.
+$attempt->process_slot($timenow, $quba);
 
-// Redirect to the attempt page.
-redirect($attempturl);
-
+redirect($nexturl);
