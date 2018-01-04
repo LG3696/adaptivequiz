@@ -183,14 +183,13 @@ class attempt {
 	 * @param int $timenow the current time.
 	 * @param question_usage_by_activity $quba the question usage.
 	 */
-	public function process_slot($timenow, $quba) {
-		//TODO quba schon da
+	public function process_slot($timenow) {
 	    global $DB;
 	    
 	    $transaction = $DB->start_delegated_transaction();
 	    
-	    $quba->process_all_actions($timenow);
-	    question_engine::save_questions_usage_by_activity($quba);
+	    $this->quba->process_all_actions($timenow);
+	    question_engine::save_questions_usage_by_activity($this->quba);
 	    
 	    $transaction->allow_commit();
 	}
