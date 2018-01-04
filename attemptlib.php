@@ -59,9 +59,6 @@ class attempt {
 
 	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
 	protected $qubaid;
-	
-	/** @var int currentslot the current slot in this attempt. */
-	protected $currentslot;
 
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
@@ -71,9 +68,6 @@ class attempt {
 
 	/** @var int attempt */
  	protected $attemptcounter;
- 	
- 	/** @var quba the question usage for this quiz attempt. */
- 	protected $quba;
 
 // 	/** @var float the sum of the grades. */
 // 	protected $sumgrades;
@@ -150,10 +144,7 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-		if(!$this->quba) {
-			$this->quba = question_engine::load_questions_usage_by_activity($this->qubaid);
-		}
-		return $quba;
+		return question_engine::load_questions_usage_by_activity($this->qubaid);
 	}
 
 	/** @return adaptivequiz the quiz this attempt belongs to. */
@@ -171,8 +162,9 @@ class attempt {
 		return $this->attempt;
 	}
 
+	//TODO:
 	public function get_current_slot() {
-		return $this->currentslot;
+		return 1;
 	}
 	
 	// setters
@@ -181,13 +173,21 @@ class attempt {
 		//TODO:
 	}
 	
-	//??
-	public function get_slots() {
-		
-	}
-	
-	public function process_slot() {
-		//TODO:
+	/**
+	 * Processes the slot.
+	 * 
+	 * @param int $timenow the current time.
+	 * @param question_usage_by_activity $quba the question usage.
+	 */
+	public function process_slot($timenow, $quba) {
+	    global $DB;
+	    
+	    $transaction = $DB->start_delegated_transaction();
+	    
+	    $quba->process_all_actions($timenow);
+	    question_engine::save_questions_usage_by_activity($quba);
+	    
+	    $transaction->allow_commit();
 	}
 	
 	public function finish_attempt() {

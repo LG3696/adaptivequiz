@@ -87,6 +87,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the edit quiz button.
      *
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display 
+     * the view page.
      * @return string HTML fragment.
      */
     public function edit_quiz_button($viewobj) {
@@ -95,6 +97,75 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
         return $this->render($button);
+    }
+    
+    /**
+     * Generates the page of the attempt.
+     * 
+     * @param int $attemptid the id of the attempt.
+     * @param int $slot the current slot.
+     * @param int $nextslot the next slot.
+     * @param int $cmid the course module id.
+     * @param question_usage_by_activity $quba the question usage by activity.
+     * @param question_display_options $options options that control how a question is displayed.$this
+     * @return string HTML fragment.
+     * 
+     */
+    public function attempt_page($attemptid, $slot, $quba, $options, $cmid) {
+       $output = '';
+       
+       $attempt = attempt::load($attemptid);
+       
+       $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
+       
+       $output .= html_writer::start_tag('form',
+           array('action' => $processurl, 'method' => 'post',
+               'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
+               'id' => 'responseform'));
+       $output .= html_writer::start_tag('div');
+ 
+       $output .= $quba->render_question($slot, $options);
+       
+       //TODO
+       $islast = false;
+       
+       $output .= $this->attempt_navigation_buttons($islast);
+       
+       // Some hidden fields to trach what is going on.
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
+           'value' => $attempt->get_attemptid()));
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
+           'value' => $slot));
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
+           'value' => $cmid));
+       
+       $output .= html_writer::end_tag('div');
+       $output .= html_writer::end_tag('form');
+          
+       return $output;
+    }
+    
+    /**
+     * Generates the attempt navigation buttons.
+     * 
+     * @param bool $islast whether this is the last slot.
+     * @return string HTML fragment.
+     */
+    public function attempt_navigation_buttons($islast) {
+        $output = '';
+        
+        $output .= html_writer::start_tag('div');
+        
+        if ($islast) {
+            $nextlabel = get_string('endtest', 'adaptivequiz');
+        } else {
+            $nextlabel = get_string('nextpage', 'adaptivequiz');
+        }
+        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next',
+            'value' => $nextlabel));
+        $output .= html_writer::end_tag('div');
+        
+        return $output;
     }
 }
 
