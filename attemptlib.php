@@ -59,6 +59,9 @@ class attempt {
 
 	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
 	protected $qubaid;
+	
+	/** @var int currentslot the current slot in this attempt. */
+	protected $currentslot;
 
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
@@ -68,6 +71,9 @@ class attempt {
 
 	/** @var int attempt */
  	protected $attemptcounter;
+ 	
+ 	/** @var quba the question usage for this quiz attempt. */
+ 	protected $quba;
 
 // 	/** @var float the sum of the grades. */
 // 	protected $sumgrades;
@@ -144,7 +150,10 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-		return question_engine::load_questions_usage_by_activity($this->qubaid);
+		if(!$this->quba) {
+			$this->quba = question_engine::load_questions_usage_by_activity($this->qubaid);
+		}
+		return $quba;
 	}
 
 	/** @return adaptivequiz the quiz this attempt belongs to. */
@@ -162,9 +171,8 @@ class attempt {
 		return $this->attempt;
 	}
 
-	//TODO:
 	public function get_current_slot() {
-		return 1;
+		return $this->currentslot;
 	}
 	
 	// setters
@@ -173,6 +181,10 @@ class attempt {
 		//TODO:
 	}
 	
+	//??
+	public function get_slots() {
+		
+	}
 	
 	public function process_slot() {
 		//TODO:

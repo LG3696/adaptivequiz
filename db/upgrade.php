@@ -253,6 +253,19 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
 		upgrade_mod_savepoint(true, 2017121500, 'adaptivequiz');
 	}
 	
+	if ($oldversion < 2018010300) {
+	
+		// Rename field currentpage on table adaptivequiz_attempts to currentslot.
+		$table = new xmldb_table('adaptivequiz_attempts');
+		$field = new xmldb_field('currentpage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'quba');
+	
+		// Launch rename field currentslot.
+		$dbman->rename_field($table, $field, 'currentslot');
+	
+		// Adaptivequiz savepoint reached.
+		upgrade_mod_savepoint(true, 2018010300, 'adaptivequiz');
+	}
+	
 
     return true;
 }
