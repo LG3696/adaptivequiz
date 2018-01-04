@@ -181,15 +181,16 @@ class attempt {
 	 * Processes the slot.
 	 * 
 	 * @param int $timenow the current time.
-	 * @param question_usage_by_activity $quba the question usage.
 	 */
 	public function process_slot($timenow) {
 	    global $DB;
 	    
 	    $transaction = $DB->start_delegated_transaction();
 	    
-	    $this->quba->process_all_actions($timenow);
-	    question_engine::save_questions_usage_by_activity($this->quba);
+	    $quba = $this->get_quba();
+	    
+	    $quba->process_all_actions($timenow);
+	    question_engine::save_questions_usage_by_activity($quba);
 	    
 	    $transaction->allow_commit();
 	}
@@ -206,7 +207,8 @@ class attempt {
 	 */
 	public function is_last_slot($slot) {
 		//TODO Blöcke beachten
-		return $slot == $this->quba->question_count() - 1;
+		$quba = $this->get_quba();
+		return $slot == $quba->question_count();
 	}
 	
 	/**

@@ -104,17 +104,17 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * 
      * @param int $attemptid the id of the attempt.
      * @param int $slot the current slot.
-     * @param int $nextslot the next slot.
-     * @param int $cmid the course module id.
-     * @param question_usage_by_activity $quba the question usage by activity.
      * @param question_display_options $options options that control how a question is displayed.$this
+     * @param int $cmid the course module id.
      * @return string HTML fragment.
      * 
      */
-    public function attempt_page($attemptid, $slot, $quba, $options, $cmid) {
+    public function attempt_page($attemptid, $slot, $options, $cmid) {
        $output = '';
        
        $attempt = attempt::load($attemptid);
+       $quba = $attempt->get_quba();
+       $islastslot = $attempt->is_last_slot($slot);
        
        $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
        
@@ -126,10 +126,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
  
        $output .= $quba->render_question($slot, $options);
        
-       //TODO
-       $islast = false;
-       
-       $output .= $this->attempt_navigation_buttons($islast);
+       $output .= $this->attempt_navigation_buttons($islastslot);
        
        // Some hidden fields to trach what is going on.
        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
@@ -138,6 +135,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
            'value' => $slot));
        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
            'value' => $cmid));
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'islastslot',
+           'value' => $islastslot));
        
        $output .= html_writer::end_tag('div');
        $output .= html_writer::end_tag('form');
