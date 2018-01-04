@@ -53,8 +53,8 @@ class attempt {
 	/** @var int the id of this adaptivequiz_attempt. */
 	protected $id;
 
-	/** @var question_usage_by_activity the question usage for this quiz attempt. */
-	protected $quba;
+	/** @var int the question_usage_by_activity id of the question usage for this quiz attempt. */
+	protected $qubaid;
 	
 	/** @var int currentslot the current slot in this attempt. */
 	protected $currentslot;
@@ -143,9 +143,7 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-		if(!$this->quba) {
-			$this->quba = question_engine::load_questions_usage_by_activity($this->qubaid);
-		}
+			$quba = question_engine::load_questions_usage_by_activity($this->qubaid);
 		return $quba;
 	}
 
