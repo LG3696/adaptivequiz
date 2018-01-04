@@ -30,11 +30,11 @@ require_once(dirname(__FILE__).'/attemptlib.php');
 $attemptid = required_param('attempt',  PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 $cmid = required_param('cmid', PARAM_INT);
+$islastslot = required_param('islastslot', PARAM_BOOL);
 
 $timenow = time();
 
 $attempt = attempt::load($attemptid);
-$quba = $attempt->get_quba();
 
 $nextslot = $attempt->next_slot($slot);
 
@@ -58,6 +58,11 @@ if ($attempt->get_userid() != $USER->id) {
 }
 
 //Process slot.
-$attempt->process_slot($timenow, $quba);
+$attempt->process_slot($timenow);
 
-redirect($nexturl);
+if(!$islastslot) {
+    redirect($nexturl);
+}
+else {
+    echo 'ENDE! Feedbackseite noch in Arbeit.';
+}

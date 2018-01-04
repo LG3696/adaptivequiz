@@ -49,10 +49,8 @@ $PAGE->set_title(format_string($adaptivequiz->get_main_block()->get_name()));
 $PAGE->set_heading($course->fullname);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
-$quba = $attempt->get_quba();
-
 $options = new question_display_options();
 
 echo $OUTPUT->header();
-echo $output->attempt_page($attemptid, $slot, $quba, $options, $cmid);
+echo $output->attempt_page($attemptid, $slot, $options, $cmid);
 echo $OUTPUT->footer();
