@@ -191,6 +191,7 @@ class attempt {
         global $DB;
 
         $transaction = $DB->start_delegated_transaction();
+        
         $quba = $this->get_quba();
         $quba->finish_all_questions($timenow);
         
@@ -204,7 +205,7 @@ class attempt {
         $attempt->attempt = $this->get_attempt_number();
         $attempt->sumgrades = $this->quba->get_total_mark();
         $DB->update_record('adaptivequiz_attempts', $attempt);
-        
+
         // TODO in later userstory
         //quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
 
