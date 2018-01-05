@@ -164,7 +164,8 @@ class attempt {
 
 	//TODO:
 	public function get_current_slot() {
-		return 1;
+		//TODO Datenbank?
+		return $this->currentslot;
 	}
 	
 	// setters
@@ -173,13 +174,51 @@ class attempt {
 		//TODO:
 	}
 	
-	
-	public function process_slot() {
-		//TODO:
+
+	/**
+	 * Processes the slot.
+	 * 
+	 * @param int $timenow the current time.
+	 * @param question_usage_by_activity $quba the question usage.
+	 */
+	public function process_slot($timenow) {
+	    global $DB;
+	    
+	    $transaction = $DB->start_delegated_transaction();
+	    
+	    $quba = $this->get_quba();
+	    
+	    $quba->process_all_actions($timenow);
+	    question_engine::save_questions_usage_by_activity($quba);
+	    
+	    $transaction->allow_commit();
 	}
 	
 	public function finish_attempt() {
 		//TODO:
+	}
+	
+	/**
+	 * Checks if this is the last slot.
+	 * 
+	 * @param int $slot the slot
+	 * @return boolean wether this is the last slot.
+	 */
+	public function is_last_slot($slot) {
+		//TODO Blöcke beachten
+		$quba = $this->get_quba();
+		return $slot == $quba->question_count();
+	}
+	
+	/**
+	 * Determines the next slot based on the conditions of the blocks.
+	 * 
+	 * @param int $currentslot the current slot
+	 * @return number the next slot
+	 */
+	public function next_slot($currentslot) {
+		//TODO Blöcke beachten
+		return $currentslot + 1;
 	}
 	
 	// URL
