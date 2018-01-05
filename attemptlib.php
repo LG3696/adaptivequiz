@@ -50,15 +50,11 @@ class attempt {
 	/** @var string to identify the abandoned state. */
 	//const ABANDONED   = 'abandoned';
 
-
-// 	/** @var quiz object containing the quiz settings. */
-// 	protected $quizobj;
-
 	/** @var int the id of this adaptivequiz_attempt. */
 	protected $id;
 
-	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
-	protected $qubaid;
+	/** @var question_usage_by_activity the question usage for this quiz attempt. */
+	protected $quba;
 
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
@@ -66,11 +62,11 @@ class attempt {
 	/** @var int the user this attempt belongs to. */
 	protected $userid;
 
-	/** @var int attempt */
- 	protected $attemptcounter;
+	/** @var int the number of this attempt */
+ 	protected $attempt_number;
 
-// 	/** @var float the sum of the grades. */
-// 	protected $sumgrades;
+	/** @var float the sum of the grades. */
+	protected $sumgrades;
 
 // 	/** @var int time of starting this attempt. */
 // 	protected $timestart;
@@ -86,17 +82,18 @@ class attempt {
 	/**
 	 * Constructor assuming we already have the necessary data loaded.
 	 * @param int $id the id of this attempt.
-	 * @param int $qubaid the question_usages_by_activity id this attempt belongs to.
+	 * @param question_usage_by_activity $quba the question_usages_by_activity id this attempt belongs to.
 	 * @param adaptivequiz $quiz the quiz this attempt belongs to.
 	 * @param int $userid the id of the user this attempt belongs to.
-	 * @param int $attemptcounter the number of this attempt.
+	 * @param int $attemptnumber the number of this attempt.
 	 */
-	public function __construct($id, $qubaid, adaptivequiz $quiz, $userid, $attemptcounter) {
+	public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber) {
 		$this->id = $id;
-		$this->qubaid = $qubaid;
+		$this->quba = $quba;
 		$this->quiz = $quiz;
+
 		$this->userid = $userid;
-		$this->attempt = $attemptcounter;
+		$this->attempt_number = $attemptnumber;
 	}
 
 
@@ -110,9 +107,10 @@ class attempt {
 		global $DB;
 
 		$attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
+		$quba = question_engine::load_questions_usage_by_activity($attemptrow->quba);
 		$quiz = adaptivequiz::load($attemptrow->quiz);
 		
-		return new attempt($attemptid, $attemptrow->quba, $quiz, $attemptrow->userid, $attemptrow->attempt);
+		return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt);
 	}
 
 	/**
@@ -124,15 +122,18 @@ class attempt {
 	public static function create(adaptivequiz $quiz, $userid) {
 		global $DB;
 
-		$attempt = new stdClass();
-		$attempt->quba = attempt::create_quba($quiz);
-		$attempt->quiz = $quiz->get_id();
-		$attempt->userid = $userid;
-		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
+		$quba = attempt::create_quba($quiz);
+		
+		$attemptrow = new stdClass();
+		$attemptrow->quba = $quba->get_id();
+		$attemptrow->quiz = $quiz->get_id();
+		$attemptrow->userid = $userid;
+		$attemptrow->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
-		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attempt);
+		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
 
-		return new attempt($attemptid, $attempt->quba, $quiz, $userid, $attempt->attempt);
+		$attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt);
+		return $attempt;
 	}
 
 	// getters
@@ -144,7 +145,7 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-		return question_engine::load_questions_usage_by_activity($this->qubaid);
+		return $this->quba;
 	}
 
 	/** @return adaptivequiz the quiz this attempt belongs to. */
@@ -156,24 +157,11 @@ class attempt {
 	public function get_userid() {
 		return $this->userid;
 	}
-	//todo:
-	/** @return int count of this attempt. */
-	public function get_attempt() {
-		return $this->attempt;
-	}
-
-	//TODO:
-	public function get_current_slot() {
-		//TODO Datenbank?
-		return $this->currentslot;
-	}
 	
-	// setters
-	
-	public function set_current_slot() {
-		//TODO:
+	/** @return int the number of this attempt. */
+	public function get_attempt_number() {
+		return $this->attempt_number;
 	}
-	
 
 	/**
 	 * Processes the slot.
@@ -193,9 +181,34 @@ class attempt {
 	    
 	    $transaction->allow_commit();
 	}
-	
-	public function finish_attempt() {
-		//TODO:
+
+	/**
+	 * Process responses during an attempt at a quiz and finish the attempt.
+	 *
+	 * @param  int $timenow the current time.
+	 */
+	public function finish_attempt($timenow) {
+        global $DB;
+
+        $transaction = $DB->start_delegated_transaction();
+        $quba = $this->get_quba();
+        $quba->finish_all_questions($timenow);
+        
+        question_engine::save_questions_usage_by_activity($quba);
+        
+        $attempt = new stdClass();
+        $attempt->id = $this->get_attemptid();
+        $attempt->quba = $this->get_quba()->get_id();
+        $attempt->quiz = $this->get_quiz()->get_id();
+        $attempt->userid = $this->get_userid();
+        $attempt->attempt = $this->get_attempt_number();
+        $attempt->sumgrades = $this->quba->get_total_mark();
+        $DB->update_record('adaptivequiz_attempts', $attempt);
+        
+        // TODO in later userstory
+        //quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
+
+        $transaction->allow_commit();
 	}
 	
 	/**
@@ -235,16 +248,16 @@ class attempt {
 	/**
 	 * Creates a new question usage for this attempt.
 	 *
-	 * @param adaptivequiz $quiz the id of the quiz to create the usage for.
+	 * @param adaptivequiz $quiz the quiz to create the usage for.
 	 *
-	 * @return int the id of the created question usage.
+	 * @return question_usage_by_activity the created question usage.
 	 */
-	protected static function create_quba($quiz) {
+	protected static function create_quba(adaptivequiz $quiz) {
 	    $quba = question_engine::make_questions_usage_by_activity('mod_adaptivequiz', $quiz->get_context());
 	    $quba->set_preferred_behaviour('deferredfeedback');
 	    $quiz->add_questions_to_quba($quba);
 	    $quba->start_all_questions();
 	    question_engine::save_questions_usage_by_activity($quba);
-	    return $quba->get_id();
+	    return $quba;
 	}
 }

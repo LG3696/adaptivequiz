@@ -64,5 +64,6 @@ if(!$islastslot) {
     redirect($nexturl);
 }
 else {
+	$attempt->finish_attempt($timenow);
     echo 'ENDE! Feedbackseite noch in Arbeit.';
 }
