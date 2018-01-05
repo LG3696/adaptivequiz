@@ -64,7 +64,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $output .= $this->edit_quiz_button($viewobj);
             }
         }
-
+        if (!$viewobj->buttontext) {
+            $output .= 'Quiz has no questions.';
+            $output .= $this->edit_quiz_button($viewobj);
+        }
         return $output;
     }
 
@@ -75,7 +78,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param moodle_url $url The URL to POST to in order to start the attempt.
      * @return string HTML fragment.
      */
-    public function start_attempt_button ($buttontext, $url) {
+    public function start_attempt_button($buttontext, $url) {
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
         return $this->render($button);
@@ -84,14 +87,84 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the edit quiz button.
      *
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display 
+     * the view page.
      * @return string HTML fragment.
      */
-    public function edit_quiz_button ($viewobj) {
+    public function edit_quiz_button($viewobj) {
         $url = new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $viewobj->cmid));
         $buttontext = get_string('editquiz', 'adaptivequiz');
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
         return $this->render($button);
+    }
+    
+    /**
+     * Generates the page of the attempt.
+     * 
+     * @param int $attemptid the id of the attempt.
+     * @param int $slot the current slot.
+     * @param question_display_options $options options that control how a question is displayed.$this
+     * @param int $cmid the course module id.
+     * @return string HTML fragment.
+     * 
+     */
+    public function attempt_page($attemptid, $slot, $options, $cmid) {
+       $output = '';
+       
+       $attempt = attempt::load($attemptid);
+       $quba = $attempt->get_quba();
+       $islastslot = $attempt->is_last_slot($slot);
+       
+       $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
+       
+       $output .= html_writer::start_tag('form',
+           array('action' => $processurl, 'method' => 'post',
+               'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
+               'id' => 'responseform'));
+       $output .= html_writer::start_tag('div');
+ 
+       $output .= $quba->render_question($slot, $options);
+       
+       $output .= $this->attempt_navigation_buttons($islastslot);
+       
+       // Some hidden fields to trach what is going on.
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
+           'value' => $attempt->get_attemptid()));
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
+           'value' => $slot));
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
+           'value' => $cmid));
+       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'islastslot',
+           'value' => $islastslot));
+       
+       $output .= html_writer::end_tag('div');
+       $output .= html_writer::end_tag('form');
+          
+       return $output;
+    }
+    
+    /**
+     * Generates the attempt navigation buttons.
+     * 
+     * @param bool $islast whether this is the last slot.
+     * @return string HTML fragment.
+     */
+    public function attempt_navigation_buttons($islast) {
+        $output = '';
+        
+        $output .= html_writer::start_tag('div');
+        
+        if ($islast) {
+            $nextlabel = get_string('endtest', 'adaptivequiz');
+        } else {
+            $nextlabel = get_string('nextpage', 'adaptivequiz');
+        }
+        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next',
+            'value' => $nextlabel));
+        $output .= html_writer::end_tag('div');
+        
+        return $output;
     }
 }
 
