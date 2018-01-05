@@ -52,6 +52,13 @@ $block = block::load($adaptivequiz, $blockid);
 if ($done) {
     $name = required_param('blockname', PARAM_TEXT);
     $block->set_name($name);
+    if (array_key_exists('conditionparts', $_POST)) {
+        $block->get_condition()->update($_POST['conditionparts']);
+    }
+    $useand = optional_param('use_and', null, PARAM_INT);
+    if (!is_null($useand)) {
+        $block->get_condition()->set_use_and($useand);
+    }
     if ($parentid = $block->get_parentid()) {
         $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $parentid));
     }
