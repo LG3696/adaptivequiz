@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 
 use \html_writer;
-use gradereport_singleview\local\ui\element;
 
 /**
  * The renderer for the adaptive quiz module.
@@ -150,7 +149,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function element_remove_button($element, $pageurl) {
-        $image = $this->pix_icon('t/delete', $strdelete);
+        $image = $this->pix_icon('t/delete', get_string('delete'));
         return html_writer::tag('button', $image,
             array('type' => 'submit', 'name' => 'delete', 'value' => $element->get_id()));
     }
@@ -207,7 +206,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition block.
      *
-     * @param block $block the block for which to render the conditions.
+     * @param \block $block the block for which to render the conditions.
      *
      * @return string the HTML of the condition block.
      */
@@ -246,7 +245,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition type chooser.
      *
-     * @param block $block the block to render the condition type chooser for.
+     * @param \block $block the block to render the condition type chooser for.
      *
      * @return string the HTML of the condtion type chooser.
      */
@@ -267,7 +266,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for a condition.
      *
-     * @param block $block the block to render the condition for.
+     * @param \block $block the block to render the condition for.
      *
      * @return string the HTML of the condition.
      */
@@ -299,14 +298,13 @@ class edit_renderer extends \plugin_renderer_base {
               $condition_part = $this->points_condition($block, 'part' . $index, $part);
         }
         $condition_part .= \html_writer::tag('input', '', array('class' => 'conditionid', 'name' => 'conditionparts[part' . $index . '][id]', 'value' => $part->get_id()));
-        //TODO: conjunction / disjunction
         return \html_writer::div($condition_part, 'conditionpart');
     }
 
     /**
      * Renders the HTML for the condition over question points.
      *
-     * @param block $block the block to render the condition for.
+     * @param \block $block the block to render the condition for.
      * @param string $index the index into the conditionparts array for this condition.
      * @param \block_condition_part|null $part hte condtion part to fill in or null.
      *
@@ -335,7 +333,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for a dropdownbox of all questions, that this block can have conditions on.
      *
-     * @param block $block the block to render the selector for.
+     * @param \block $block the block to render the selector for.
      * @param string $index the index into the conditionparts array for this condition.
      * @param \block_condition_part|null $part the condition part used to fill in a value or null.
      *
