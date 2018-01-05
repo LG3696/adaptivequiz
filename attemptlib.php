@@ -50,14 +50,15 @@ class attempt {
 	/** @var string to identify the abandoned state. */
 	//const ABANDONED   = 'abandoned';
 
+
+// 	/** @var quiz object containing the quiz settings. */
+// 	protected $quizobj;
+
 	/** @var int the id of this adaptivequiz_attempt. */
 	protected $id;
 
-	/** @var int the question_usage_by_activity id of the question usage for this quiz attempt. */
+	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
 	protected $qubaid;
-	
-	/** @var int currentslot the current slot in this attempt. */
-	protected $currentslot;
 
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
@@ -143,8 +144,7 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-			$quba = question_engine::load_questions_usage_by_activity($this->qubaid);
-		return $quba;
+		return question_engine::load_questions_usage_by_activity($this->qubaid);
 	}
 
 	/** @return adaptivequiz the quiz this attempt belongs to. */
@@ -179,6 +179,7 @@ class attempt {
 	 * Processes the slot.
 	 * 
 	 * @param int $timenow the current time.
+	 * @param question_usage_by_activity $quba the question usage.
 	 */
 	public function process_slot($timenow) {
 	    global $DB;
