@@ -49,6 +49,10 @@ class block {
     protected $children = null;
     /** @var block_condition the condition of this block. */
     protected $condition = null;
+    /** @var int the slotnumber of the first question in this block. */
+    protected $startingslot = 0;
+    /** @var int the number of slots in this block. */
+    protected $slotcount = 0;
 
     // Constructor =============================================================
     /**
@@ -296,6 +300,78 @@ class block {
             $this->condition = block_condition::load($this);
         }
         return $this->condition;
+    }
+
+    /**
+     * Returns the number of the last slot in this block.
+     *
+     * @return int the number of the last slot in this block.
+     */
+    public function get_last_slot() {
+        return $this->startingslot + $this->slotcount - 1;
+    }
+
+    /**
+     * Returns the number of slots in this block. Requires a prior call to enumerate.
+     *
+     * @return int the number of slots used by this block.
+     */
+    public function get_slotcount() {
+        return $this->slotcount;
+    }
+
+    /**
+     * Enumerates the questions in this block.
+     *
+     * @param int $startingslot the slotnumber to start counting at.
+     *
+     * @return int hte number of slots used by this block.
+     */
+    public function enumerate($startingslot) {
+        $this->startingslot = $startingslot;
+        $count = 0;
+        foreach($this->get_children() as $element) {
+            if ($element->is_question()) {
+                $count += 1;
+            }
+            else if ($element->is_block()) {
+                $count += $element->get_element()->enumerate($startingslot + $count);
+            }
+        }
+        $this->slotcount = $count;
+        return $count;
+    }
+
+    /**
+     * Returns the next slot that a student should work on for a certain attempt.
+     *
+     * @param attempt the attempt that  the student is currently working on.
+     *
+     * @return null|int the number of the next slot that the student should work on or null, if no such slot exists.
+     */
+    public function next_slot(attempt $attempt) {
+        $currentslot = $attempt->get_current_slot();
+        if ($currentslot >= $this->get_last_slot() || !$this->get_condition()->is_fullfilled($attempt)) {
+            return null;
+        }
+        $slot = $this->startingslot;
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                if ($currentslot < $slot) {
+                    return $slot;
+                }
+                $slot += 1;
+            }
+            else if ($child->is_block()) {
+                $block = $child->get_element();
+                $childslot = $block->next_slot($attempt);
+                if (!is_null($childslot)) {
+                    return $childslot;
+                }
+                $slot += $block->get_slotcount();
+            }
+        }
+        return null;
     }
 
     /**
@@ -754,7 +830,7 @@ class block_condition_part {
      * @return bool whether this part of the condition is fullfilled.
      */
     public function is_fullfilled($attempt) {
-        //TODO
+        //TODO: condition part checking
         return true;
     }
 

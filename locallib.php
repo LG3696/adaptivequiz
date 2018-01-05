@@ -29,6 +29,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/attemptlib.php');
 
 /**
 * A class encapsulating a adaptive quiz.
@@ -104,6 +105,25 @@ class adaptivequiz {
      */
     public function get_context() {
     	return context_module::instance($this->cmid);
+    }
+
+    /**
+     * Returns the next slot that a student should work on for a certain attempt.
+     *
+     * @param attempt the attempt that  the student is currently working on.
+     *
+     * @return null|int the number of the next slot that the student should work on or null, if no such slot exists.
+     */
+    public function next_slot(attempt $attempt) {
+        $this->enumerate();
+        return $this->get_main_block()->next_slot($attempt);
+    }
+
+    /**
+     * Enumerates the questions of this quiz.
+     */
+    protected function enumerate() {
+        $this->get_main_block()->enumerate(1);
     }
 
     /**

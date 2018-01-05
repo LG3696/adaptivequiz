@@ -36,7 +36,7 @@ $timenow = time();
 
 $attempt = attempt::load($attemptid);
 
-$nextslot = $attempt->next_slot($slot);
+$nextslot = $attempt->next_slot();
 
 //Set $nexturl.
 $url = $attempt->attempt_url();
