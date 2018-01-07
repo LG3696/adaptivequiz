@@ -31,6 +31,11 @@ $attemptid = required_param('attempt', PARAM_INT);
 $cmid = required_param('cmid', PARAM_INT); // Course module id
 $slot = optional_param('slot', 1, PARAM_INT);
 
+// TODO: clean handling
+if ($slot == 0) {
+    echo 'ENDE! Feedbackseite noch in Arbeit.'; die();
+}
+
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
 }

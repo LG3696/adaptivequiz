@@ -127,6 +127,18 @@ class adaptivequiz {
     }
 
     /**
+     * Returns the slot number for an element id.
+     *
+     * @param int $elementid the id of the element.
+     *
+     * @return null|int the slot number of the element or null, if the element can not be found.
+     */
+    public function get_slot_for_element($elementid) {
+        $this->enumerate();
+        return $this->get_main_block()->get_slot_for_element($elementid);
+    }
+
+    /**
      * Adds the questions of this quiz to a question usage.
      *
      * @param question_usage_by_activity $quba the question usage to add the questions to.

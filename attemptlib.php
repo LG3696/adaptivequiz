@@ -168,7 +168,22 @@ class attempt {
 		return $this->attempt;
 	}
 
-	//TODO:
+	/**
+	 * Returns the number of points achieved at a certain slot in this attempt.
+	 *
+	 * @param int $slot the slot to return the grade for.
+	 *
+	 * @return null|int the achieved points in this attempt for the slot or null, if it has no mark yet.
+	 */
+	public function get_grade_at_slot($slot) {
+	    return $this->get_quba()->get_question_mark($slot);
+	}
+
+	/**
+	 * Gets the current slot the student should work on for this attempt.
+	 *
+	 * @return int the current slot of this attempt.
+	 */
 	public function get_current_slot() {
 		return $this->currentslot;
 	}
