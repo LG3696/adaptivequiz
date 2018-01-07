@@ -51,14 +51,14 @@ class attempt {
 	//const ABANDONED   = 'abandoned';
 
 
-// 	/** @var quiz object containing the quiz settings. */
-// 	protected $quizobj;
-
 	/** @var int the id of this adaptivequiz_attempt. */
 	protected $id;
 
 	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
 	protected $qubaid;
+
+	/** @var question_usage_by_activity the quba of this attempt. */
+	protected $quba = null;
 
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
@@ -150,7 +150,10 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-		return question_engine::load_questions_usage_by_activity($this->qubaid);
+	    if (is_null($this->quba)) {
+	        $this->quba = question_engine::load_questions_usage_by_activity($this->qubaid);
+	    }
+		return $this->quba;
 	}
 
 	/** @return adaptivequiz the quiz this attempt belongs to. */
@@ -210,7 +213,6 @@ class attempt {
 	 * Processes the slot.
 	 *
 	 * @param int $timenow the current time.
-	 * @param question_usage_by_activity $quba the question usage.
 	 */
 	public function process_slot($timenow) {
 	    global $DB;
@@ -220,9 +222,13 @@ class attempt {
 	    $quba = $this->get_quba();
 
 	    $quba->process_all_actions($timenow);
+	    $quba->finish_question($this->currentslot, $timenow);
+
 	    question_engine::save_questions_usage_by_activity($quba);
 
 	    $transaction->allow_commit();
+
+	    $this->next_slot();
 	}
 
 	public function finish_attempt() {
@@ -230,15 +236,12 @@ class attempt {
 	}
 
 	/**
-	 * Checks if this is the last slot.
+	 * Checks if this attempt is finished.
 	 *
-	 * @param int $slot the slot
-	 * @return boolean wether this is the last slot.
+	 * @return boolean wether this attempt is finished.
 	 */
-	public function is_last_slot($slot) {
-		//TODO Blöcke beachten
-		$quba = $this->get_quba();
-		return $slot == $quba->question_count();
+	public function is_finished() {
+	    return $this->currentslot > $this->quiz->get_main_block()->get_slotcount();
 	}
 
 	/**
@@ -250,6 +253,9 @@ class attempt {
 	    $nextslot = $this->get_quiz()->next_slot($this);
 	    if (!is_null($nextslot)) {
 	        $this->set_current_slot($nextslot);
+	    }
+	    else {
+	        $this->set_current_slot($this->quiz->get_main_block()->get_slotcount() + 1);
 	    }
 		return $nextslot;
 	}

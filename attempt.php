@@ -29,12 +29,6 @@ require_once(dirname(__FILE__).'/attemptlib.php');
 // Get submitted parameters.
 $attemptid = required_param('attempt', PARAM_INT);
 $cmid = required_param('cmid', PARAM_INT); // Course module id
-$slot = optional_param('slot', 1, PARAM_INT);
-
-// TODO: clean handling
-if ($slot == 0) {
-    echo 'ENDE! Feedbackseite noch in Arbeit.'; die();
-}
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -47,6 +41,12 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 require_login($course, false, $cm);
 
 $attempt = attempt::load($attemptid);
+
+// TODO: clean handling
+if ($attempt->is_finished()) {
+    echo 'ENDE! Feedbackseite noch in Arbeit.'; die();
+}
+
 $adaptivequiz = adaptivequiz::load($cm->instance);
 $PAGE->set_url($attempt->attempt_url());
 $PAGE->set_pagelayout('incourse');
@@ -57,5 +57,5 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 $options = new question_display_options();
 
 echo $OUTPUT->header();
-echo $output->attempt_page($attemptid, $slot, $options, $cmid);
+echo $output->attempt_page($attemptid, $attempt->get_current_slot(), $options, $cmid);
 echo $OUTPUT->footer();

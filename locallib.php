@@ -108,6 +108,16 @@ class adaptivequiz {
     }
 
     /**
+     * Returns the number of slots in this quiz.
+     *
+     * @return int the number of slots used by this quiz.
+     */
+    public function get_slotcount() {
+        $this->enumerate();
+        return $this->get_main_block()->get_slotcount();
+    }
+
+    /**
      * Returns the next slot that a student should work on for a certain attempt.
      *
      * @param attempt the attempt that  the student is currently working on.
