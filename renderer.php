@@ -114,6 +114,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
        
        $attempt = attempt::load($attemptid);
        $quba = $attempt->get_quba();
+       
        $islastslot = $attempt->is_last_slot($slot);
        
        $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
