@@ -32,12 +32,6 @@ $cmid = required_param('cmid', PARAM_INT);
 
 $timenow = time();
 
-$attempt = attempt::load($attemptid);
-
-//Set $nexturl.
-$url = $attempt->attempt_url();
-$nexturl = new \moodle_url($url, array('cmid' => $cmid));
-
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
 }
@@ -47,6 +41,12 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 
 // Check login.
 require_login($course, false, $cm);
+
+$attempt = attempt::load($attemptid);
+
+//Set $nexturl.
+$url = $attempt->attempt_url();
+$nexturl = new \moodle_url($url, array('cmid' => $cmid));
 
 // Check that this attempt belongs to this user.
 if ($attempt->get_userid() != $USER->id) {

@@ -241,7 +241,7 @@ class attempt {
 	 * @return boolean wether this attempt is finished.
 	 */
 	public function is_finished() {
-	    return $this->currentslot > $this->quiz->get_main_block()->get_slotcount();
+	    return $this->currentslot > $this->get_quiz()->get_slotcount();
 	}
 
 	/**
