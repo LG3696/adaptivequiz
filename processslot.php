@@ -28,19 +28,9 @@ require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
 $attemptid = required_param('attempt',  PARAM_INT);
-$slot = required_param('slot', PARAM_INT);
 $cmid = required_param('cmid', PARAM_INT);
-$islastslot = required_param('islastslot', PARAM_BOOL);
 
 $timenow = time();
-
-$attempt = attempt::load($attemptid);
-
-$nextslot = $attempt->next_slot($slot);
-
-//Set $nexturl.
-$url = $attempt->attempt_url();
-$nexturl = new \moodle_url($url, array('cmid' => $cmid, 'slot' => $nextslot));
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -52,6 +42,12 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 // Check login.
 require_login($course, false, $cm);
 
+$attempt = attempt::load($attemptid);
+
+//Set $nexturl.
+$url = $attempt->attempt_url();
+$nexturl = new \moodle_url($url, array('cmid' => $cmid));
+
 // Check that this attempt belongs to this user.
 if ($attempt->get_userid() != $USER->id) {
     throw new moodle_quiz_exception($attempt->get_quiz(), 'notyourattempt');
@@ -60,9 +56,4 @@ if ($attempt->get_userid() != $USER->id) {
 //Process slot.
 $attempt->process_slot($timenow);
 
-if(!$islastslot) {
-    redirect($nexturl);
-}
-else {
-    echo 'ENDE! Feedbackseite noch in Arbeit.';
-}
+redirect($nexturl);

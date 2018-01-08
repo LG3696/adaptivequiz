@@ -50,7 +50,7 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::start_tag('form', array('method' => 'POST', 'action' => $pageurl->out()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
-        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'done', 'value' => 1));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
         $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
 
@@ -71,7 +71,7 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
 
-        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'));
+        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'), array('type' => 'submit', 'name' => 'done', 'value' => 1));
         $output .= html_writer::end_tag('form');
 
         $output .= $this->question_chooser($pageurl, $category);
@@ -133,15 +133,9 @@ class edit_renderer extends \plugin_renderer_base {
 
         // Build the icon.
         if ($action) {
-            if ($returnurl instanceof \moodle_url) {
-                $returnurl = $returnurl->out_as_local_url(false);
-            }
-            $elementparams = array('cmid' => $cmid, 'returnurl' => $returnurl);
-            $elementurl = $element->get_edit_url($elementparams);
-            return '<a title="' . $action . '" href="' . $elementurl->out() . '" class="elementeditbutton element-edit-button"><img src="' .
-                $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />' .
-                '</a>';
-            return '';
+            return html_writer::tag('button',
+                '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />',
+                array('type' => 'submit', 'name' => 'edit', 'value' => $element->get_id()));
         }
         else {
             return '';
@@ -155,12 +149,9 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function element_remove_button($element, $pageurl) {
-        $url = new \moodle_url($pageurl, array('sesskey' => sesskey(), 'remove' => $element->get_id()));
-        $strdelete = get_string('delete');
-
-        $image = $this->pix_icon('t/delete', $strdelete);
-        return $this->action_link($url, $image, null, array('title' => $strdelete,
-            'class' => 'cm-edit-action editing_delete element-remove-button', 'data-action' => 'delete'));
+        $image = $this->pix_icon('t/delete', get_string('delete'));
+        return html_writer::tag('button', $image,
+            array('type' => 'submit', 'name' => 'delete', 'value' => $element->get_id()));
     }
 
     /**
@@ -215,7 +206,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition block.
      *
-     * @param block $block the block for which to render the conditions.
+     * @param \block $block the block for which to render the conditions.
      *
      * @return string the HTML of the condition block.
      */
@@ -254,7 +245,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition type chooser.
      *
-     * @param block $block the block to render the condition type chooser for.
+     * @param \block $block the block to render the condition type chooser for.
      *
      * @return string the HTML of the condtion type chooser.
      */
@@ -275,7 +266,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for a condition.
      *
-     * @param block $block the block to render the condition for.
+     * @param \block $block the block to render the condition for.
      *
      * @return string the HTML of the condition.
      */
@@ -307,14 +298,13 @@ class edit_renderer extends \plugin_renderer_base {
               $condition_part = $this->points_condition($block, 'part' . $index, $part);
         }
         $condition_part .= \html_writer::tag('input', '', array('class' => 'conditionid', 'name' => 'conditionparts[part' . $index . '][id]', 'value' => $part->get_id()));
-        //TODO: conjunction / disjunction
         return \html_writer::div($condition_part, 'conditionpart');
     }
 
     /**
      * Renders the HTML for the condition over question points.
      *
-     * @param block $block the block to render the condition for.
+     * @param \block $block the block to render the condition for.
      * @param string $index the index into the conditionparts array for this condition.
      * @param \block_condition_part|null $part hte condtion part to fill in or null.
      *
@@ -343,7 +333,7 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for a dropdownbox of all questions, that this block can have conditions on.
      *
-     * @param block $block the block to render the selector for.
+     * @param \block $block the block to render the selector for.
      * @param string $index the index into the conditionparts array for this condition.
      * @param \block_condition_part|null $part the condition part used to fill in a value or null.
      *

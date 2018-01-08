@@ -51,14 +51,14 @@ class attempt {
 	//const ABANDONED   = 'abandoned';
 
 
-// 	/** @var quiz object containing the quiz settings. */
-// 	protected $quizobj;
-
 	/** @var int the id of this adaptivequiz_attempt. */
 	protected $id;
 
 	/** @var int question_usage_by_activity the id of the question usage for this quiz attempt. */
 	protected $qubaid;
+
+	/** @var question_usage_by_activity the quba of this attempt. */
+	protected $quba = null;
 
 	/** @var int the quiz this attempt belongs to. */
 	protected $quiz;
@@ -68,6 +68,9 @@ class attempt {
 
 	/** @var int attempt */
  	protected $attemptcounter;
+
+ 	/** @var int the current slot of the attempt. */
+ 	protected $currentslot;
 
 // 	/** @var float the sum of the grades. */
 // 	protected $sumgrades;
@@ -90,13 +93,15 @@ class attempt {
 	 * @param adaptivequiz $quiz the quiz this attempt belongs to.
 	 * @param int $userid the id of the user this attempt belongs to.
 	 * @param int $attemptcounter the number of this attempt.
+	 * @param int $currentslot the current slot of this attempt.
 	 */
-	public function __construct($id, $qubaid, adaptivequiz $quiz, $userid, $attemptcounter) {
+	public function __construct($id, $qubaid, adaptivequiz $quiz, $userid, $attemptcounter, $currentslot = 1) {
 		$this->id = $id;
 		$this->qubaid = $qubaid;
 		$this->quiz = $quiz;
 		$this->userid = $userid;
 		$this->attempt = $attemptcounter;
+		$this->currentslot = $currentslot;
 	}
 
 
@@ -111,8 +116,8 @@ class attempt {
 
 		$attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
 		$quiz = adaptivequiz::load($attemptrow->quiz);
-		
-		return new attempt($attemptid, $attemptrow->quba, $quiz, $attemptrow->userid, $attemptrow->attempt);
+
+		return new attempt($attemptid, $attemptrow->quba, $quiz, $attemptrow->userid, $attemptrow->attempt, $attemptrow->currentslot);
 	}
 
 	/**
@@ -128,6 +133,7 @@ class attempt {
 		$attempt->quba = attempt::create_quba($quiz);
 		$attempt->quiz = $quiz->get_id();
 		$attempt->userid = $userid;
+		$attempt->currentslot = 1;
 		$attempt->attempt = $DB->count_records('adaptivequiz_attempts', array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
 		$attemptid = $DB->insert_record('adaptivequiz_attempts', $attempt);
@@ -144,7 +150,10 @@ class attempt {
 
 	/** @return question_usage_by_activity the quba of this attempt. */
 	public function get_quba() {
-		return question_engine::load_questions_usage_by_activity($this->qubaid);
+	    if (is_null($this->quba)) {
+	        $this->quba = question_engine::load_questions_usage_by_activity($this->qubaid);
+	    }
+		return $this->quba;
 	}
 
 	/** @return adaptivequiz the quiz this attempt belongs to. */
@@ -162,65 +171,95 @@ class attempt {
 		return $this->attempt;
 	}
 
-	//TODO:
+	/**
+	 * Returns the number of points achieved at a certain slot in this attempt.
+	 *
+	 * @param int $slot the slot to return the grade for.
+	 *
+	 * @return null|int the achieved points in this attempt for the slot or null, if it has no mark yet.
+	 */
+	public function get_grade_at_slot($slot) {
+	    return $this->get_quba()->get_question_mark($slot);
+	}
+
+	/**
+	 * Gets the current slot the student should work on for this attempt.
+	 *
+	 * @return int the current slot of this attempt.
+	 */
 	public function get_current_slot() {
-		//TODO Datenbank?
 		return $this->currentslot;
 	}
-	
-	// setters
-	
-	public function set_current_slot() {
-		//TODO:
+
+    /**
+     * Sets the current slot of this attempt.
+     *
+     * @param int $slot the slot this attempt should be at after this call.
+     */
+	public function set_current_slot($slot) {
+	    global $DB;
+
+	    $record = new stdClass();
+        $record->id = $this->id;
+        $record->currentslot = $slot;
+
+        $DB->update_record('adaptivequiz_attempts', $record);
+
+        $this->currentslot = $slot;
 	}
-	
+
 
 	/**
 	 * Processes the slot.
-	 * 
+	 *
 	 * @param int $timenow the current time.
-	 * @param question_usage_by_activity $quba the question usage.
 	 */
 	public function process_slot($timenow) {
 	    global $DB;
-	    
+
 	    $transaction = $DB->start_delegated_transaction();
-	    
+
 	    $quba = $this->get_quba();
-	    
+
 	    $quba->process_all_actions($timenow);
+	    $quba->finish_question($this->currentslot, $timenow);
+
 	    question_engine::save_questions_usage_by_activity($quba);
-	    
+
 	    $transaction->allow_commit();
+
+	    $this->next_slot();
 	}
-	
+
 	public function finish_attempt() {
 		//TODO:
 	}
-	
+
 	/**
-	 * Checks if this is the last slot.
-	 * 
-	 * @param int $slot the slot
-	 * @return boolean wether this is the last slot.
+	 * Checks if this attempt is finished.
+	 *
+	 * @return boolean wether this attempt is finished.
 	 */
-	public function is_last_slot($slot) {
-		//TODO Blöcke beachten
-		$quba = $this->get_quba();
-		return $slot == $quba->question_count();
+	public function is_finished() {
+	    return $this->currentslot > $this->get_quiz()->get_slotcount();
 	}
-	
+
 	/**
 	 * Determines the next slot based on the conditions of the blocks.
-	 * 
-	 * @param int $currentslot the current slot
-	 * @return number the next slot
+	 *
+	 * @return null|int the number of the next slot that the student should work or null, if no such slot exists.
 	 */
-	public function next_slot($currentslot) {
-		//TODO Blöcke beachten
-		return $currentslot + 1;
+	public function next_slot() {
+	    $nextslot = $this->get_quiz()->next_slot($this);
+	    if (!is_null($nextslot)) {
+	        $this->set_current_slot($nextslot);
+	    }
+	    else {
+	        $this->set_current_slot($this->quiz->get_main_block()->get_slotcount() + 1);
+	    }
+		return $nextslot;
 	}
-	
+
 	// URL
 
 	/**
