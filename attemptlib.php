@@ -270,6 +270,15 @@ class attempt {
 	public function attempt_url() {
 		return new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $this->id));
 	}
+	
+	/**
+	 * Generates the URL of the review page.
+	 * 
+	 * @return moodle_url the URL to review this attempt.
+	 */
+	public function review_url() {
+	    return new moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->id));
+	}
 
 	/**
 	 * Creates a new question usage for this attempt.

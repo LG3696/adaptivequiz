@@ -97,6 +97,15 @@ class adaptivequiz {
     public function get_id() {
         return $this->id;
     }
+    
+    /**
+     * Gets the course module id of this quiz.
+     *
+     * @return int the id of this quiz.
+     */
+    public function get_cmid() {
+        return $this->cmid;
+    }
 
     /**
      * Get the context of this module.
