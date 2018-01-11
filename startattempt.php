@@ -40,17 +40,13 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
-$adaptivequiz  = adaptivequiz::load($cm->instance);
-$attempt = attempt::create($adaptivequiz, $USER->id);
-
 // Check login and sesskey.
 require_login($course, false, $cm);
 require_sesskey();
 
-$url = $attempt->attempt_url();
-$attempturl = new moodle_url($url, array('cmid' => $cmid));
-
+$adaptivequiz  = adaptivequiz::load($cm->instance);
+$attempt = attempt::create($adaptivequiz, $USER->id);
 
 // Redirect to the attempt page.
-redirect($attempturl);
+redirect($attempt->attempt_url());
 

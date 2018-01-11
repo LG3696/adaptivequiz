@@ -49,6 +49,10 @@ class block {
     protected $children = null;
     /** @var block_condition the condition of this block. */
     protected $condition = null;
+    /** @var int the slotnumber of the first question in this block. */
+    protected $startingslot = 0;
+    /** @var int the number of slots in this block. */
+    protected $slotcount = 0;
 
     // Constructor =============================================================
     /**
@@ -299,6 +303,132 @@ class block {
     }
 
     /**
+     * Returns the number of the last slot in this block.
+     *
+     * @return int the number of the last slot in this block.
+     */
+    public function get_last_slot() {
+        return $this->startingslot + $this->slotcount - 1;
+    }
+
+    /**
+     * Returns the number of slots in this block. Requires a prior call to enumerate.
+     *
+     * @return int the number of slots used by this block.
+     */
+    public function get_slotcount() {
+        return $this->slotcount;
+    }
+
+    /**
+     * Returns the slot number for an element id. Requires a prior call to enumerate.
+     *
+     * @param int $elementid the id of the element.
+     *
+     * @return null|int the slot number of the element or null, if the element can not be found.
+     */
+    public function get_slot_for_element($elementid) {
+        $slot = $this->startingslot;
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                if ($child->get_id() == $elementid) {
+                    return $slot;
+                }
+                else {
+                    $slot++;
+                }
+            }
+            else if ($child->is_block()) {
+                $block = $child->get_element();
+                $childslot = $block->get_slot_for_element($elementid);
+                if (is_null($childslot)) {
+                    $slot += $block->get_slotcount();
+                }
+                else {
+                    return $childslot;
+                }
+            }
+            else {
+                debugging('Unsupported element type');
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the achieved grade for this block in a certain attempt.
+     *
+     * @param attempt $attempt the attempt for which to return the grade_grade
+     *
+     * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
+     */
+    public function get_grade(attempt $attempt) {
+        $sum = 0;
+        foreach ($this->get_children() as $child) {
+            $grade = $child->get_grade($attempt);
+            if (is_null($grade)) {
+                return null;
+            }
+            $sum += $grade;
+        }
+        return $sum;
+    }
+
+    /**
+     * Enumerates the questions in this block.
+     *
+     * @param int $startingslot the slotnumber to start counting at.
+     *
+     * @return int hte number of slots used by this block.
+     */
+    public function enumerate($startingslot) {
+        $this->startingslot = $startingslot;
+        $count = 0;
+        foreach($this->get_children() as $element) {
+            if ($element->is_question()) {
+                $count += 1;
+            }
+            else if ($element->is_block()) {
+                $count += $element->get_element()->enumerate($startingslot + $count);
+            }
+        }
+        $this->slotcount = $count;
+        return $count;
+    }
+
+    /**
+     * Returns the next slot that a student should work on for a certain attempt.
+     *
+     * @param attempt the attempt that  the student is currently working on.
+     *
+     * @return null|int the number of the next slot that the student should work on or null, if no such slot exists.
+     */
+    public function next_slot(attempt $attempt) {
+        $currentslot = $attempt->get_current_slot();
+        if ($currentslot >= $this->get_last_slot() || !$this->get_condition()->is_fullfilled($attempt)) {
+            return null;
+        }
+        $slot = $this->startingslot;
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                if ($currentslot < $slot) {
+                    return $slot;
+                }
+                $slot += 1;
+            }
+            else if ($child->is_block()) {
+                $block = $child->get_element();
+                $childslot = $block->next_slot($attempt);
+                if (!is_null($childslot)) {
+                    return $childslot;
+                }
+                $slot += $block->get_slotcount();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Finds the parent of a block.
      * @param int $childid the id of the child to find the parent for.
      *
@@ -436,6 +566,27 @@ class block_element {
     }
 
     /**
+     * Returns the achieved grade for this element in a certain attempt.
+     *
+     * @param attempt $attempt the attempt for which to return the grade_grade
+     *
+     * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
+     */
+    public function get_grade(attempt $attempt) {
+        if ($this->is_question()) {
+            $slot = $this->quiz->get_slot_for_element($this->id);
+            return $attempt->get_grade_at_slot($slot);
+        }
+        else if ($this->is_block()) {
+            return $this->element->get_grade($attempt);
+        }
+        else {
+            debugging('Unsupported element type: ' . $this->type);
+            return 0;
+        }
+    }
+
+    /**
      * Checks whether the element can be edited.
      *
      * @return bool True if it may be edited, false otherwise.
@@ -557,8 +708,9 @@ class block_condition {
 
         $use_and = $DB->get_field('adaptivequiz_block', 'use_and', array('id' => $blockid), MUST_EXIST);
         $parts = $DB->get_records('adaptivequiz_block_condition', array('block' => $blockid));
-        $partobjs = array_map(function($part) {
-            return new block_condition_part($part->id, $part->type, $part->on_qinstance, $part->grade);
+        $quiz = $block->get_quiz();
+        $partobjs = array_map(function($part) use($quiz) {
+            return new block_condition_part($part->id, $quiz, $part->type, $part->on_qinstance, $part->grade);
                 },
                 array_values($parts));
 
@@ -696,6 +848,8 @@ class block_condition_part {
 
     /** @var int the id of the block_condition. */
     protected $id = 0;
+    /** @var adaptivequiz the quiz this condition part belongs to. */
+    protected $quiz = null;
     /**
      * @var int the type of the block_condition. One of WAS_DISPLAYED, LESS, LESS_OR_EQUAL,
      * GREATER, GREATER_OR_EQUAL or EQUAL.
@@ -711,12 +865,14 @@ class block_condition_part {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block_elem.
+     * @param adaptivequiz $quiz the quiz this condition part belongs to.
      * @param int $type the type of this condition.
      * @param int $elementid the id of the element this condition references.
      * @param int $grade the grade this condition is relative to.
      */
-    public function __construct($id, $type, $elementid, $grade) {
+    public function __construct($id, adaptivequiz $quiz, $type, $elementid, $grade) {
         $this->id = $id;
+        $this->quiz = $quiz;
         $this->type = $type;
         $this->elementid = $elementid;
         $this->grade = $grade;
@@ -732,7 +888,7 @@ class block_condition_part {
      *
      * @return block_condition_part the newly created condtion part.
      */
-    public static function create(\block $block, $type, $elementid, $grade) {
+    public static function create(block $block, $type, $elementid, $grade) {
         global $DB;
 
         $record = new stdClass();
@@ -743,19 +899,39 @@ class block_condition_part {
 
         $id = $DB->insert_record('adaptivequiz_block_condition', $record);
 
-        return new block_condition_part($id, $type, $elementid, $grade);
+        return new block_condition_part($id, $block->get_quiz(), $type, $elementid, $grade);
     }
 
     /**
      * Checks whether this part of the condition is met for a certain attempt.
      *
-     * @param object $attempt the attempt to check this part of the condition for.
+     * @param attempt $attempt the attempt to check this part of the condition for.
      *
      * @return bool whether this part of the condition is fullfilled.
      */
-    public function is_fullfilled($attempt) {
-        //TODO
-        return true;
+    public function is_fullfilled(attempt $attempt) {
+        $referencedelement = block_element::load($this->quiz, $this->elementid);
+        $achievedgrade = $referencedelement->get_grade($attempt);
+        if (is_null($achievedgrade)) {
+            return false;
+        }
+        switch ($this->type) {
+            case block_condition_part::LESS:
+                return $achievedgrade < $this->grade;
+            case block_condition_part::LESS_OR_EQUAL:
+                return $achievedgrade <= $this->grade;
+            case block_condition_part::GREATER:
+                return $achievedgrade > $this->grade;
+            case block_condition_part::GREATER_OR_EQUAL:
+                return $achievedgrade >= $this->grade;
+            case block_condition_part::EQUAL:
+                return $achievedgrade == $this->grade;
+            case block_condition_part::NOT_EQUAL:
+                return $achievedgrade != $this->grade;
+            default:
+                debugging('Unsupported condition part type: ' . $this->type);
+                return true;
+        }
     }
 
     /**

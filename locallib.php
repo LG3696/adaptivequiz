@@ -29,6 +29,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/attemptlib.php');
 
 /**
 * A class encapsulating a adaptive quiz.
@@ -96,6 +97,15 @@ class adaptivequiz {
     public function get_id() {
         return $this->id;
     }
+    
+    /**
+     * Gets the course module id of this quiz.
+     *
+     * @return int the id of this quiz.
+     */
+    public function get_cmid() {
+        return $this->cmid;
+    }
 
     /**
      * Get the context of this module.
@@ -104,6 +114,47 @@ class adaptivequiz {
      */
     public function get_context() {
     	return context_module::instance($this->cmid);
+    }
+
+    /**
+     * Returns the number of slots in this quiz.
+     *
+     * @return int the number of slots used by this quiz.
+     */
+    public function get_slotcount() {
+        $this->enumerate();
+        return $this->get_main_block()->get_slotcount();
+    }
+
+    /**
+     * Returns the next slot that a student should work on for a certain attempt.
+     *
+     * @param attempt the attempt that  the student is currently working on.
+     *
+     * @return null|int the number of the next slot that the student should work on or null, if no such slot exists.
+     */
+    public function next_slot(attempt $attempt) {
+        $this->enumerate();
+        return $this->get_main_block()->next_slot($attempt);
+    }
+
+    /**
+     * Enumerates the questions of this quiz.
+     */
+    protected function enumerate() {
+        $this->get_main_block()->enumerate(1);
+    }
+
+    /**
+     * Returns the slot number for an element id.
+     *
+     * @param int $elementid the id of the element.
+     *
+     * @return null|int the slot number of the element or null, if the element can not be found.
+     */
+    public function get_slot_for_element($elementid) {
+        $this->enumerate();
+        return $this->get_main_block()->get_slot_for_element($elementid);
     }
 
     /**
