@@ -47,7 +47,7 @@ class edit_renderer extends \plugin_renderer_base {
     public function edit_page(\block $block, \moodle_url $pageurl, array $pagevars) {
         $output = '';
 
-        $output .= html_writer::start_tag('form', array('method' => 'POST', 'action' => $pageurl->out()));
+        $output .= html_writer::start_tag('form', array('method' => 'POST', 'id' => 'blockeditingform', 'action' => $pageurl->out()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
@@ -67,7 +67,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         $category = question_get_category_id_from_pagevars($pagevars);
 
-        $addmenu = $this->add_menu($pageurl, $category);
+        $addmenu = $this->add_menu($block, $pageurl, $category);
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
 
@@ -76,6 +76,12 @@ class edit_renderer extends \plugin_renderer_base {
 
         $output .= $this->question_chooser($pageurl, $category);
         $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
+
+        $output .= $this->questionbank_loading();
+        $this->page->requires->js_call_amd('mod_adaptivequiz/questionbank', 'init');
+
+        $this->page->requires->js_call_amd('mod_adaptivequiz/addnewblock', 'init');
+
         if (!$block->is_main_block()) {
             $output .= $this->condition_type_chooser($block);
             $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
@@ -157,12 +163,13 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Outputs the add menu HTML.
      *
+     * @param \block $block object containing all the block information.
      * @param \moodle_url $pageurl The URL of the page.
      * @param int $category the id of the category for new questions.
      *
      * @return string HTML to output.
      */
-    protected function add_menu(\moodle_url $pageurl, $category) {
+    protected function add_menu(\block $block, \moodle_url $pageurl, $category) {
         $menu = new \action_menu();
         $menu->set_alignment(\action_menu::TL, \action_menu::TL);
         $trigger = html_writer::tag('span', get_string('add', 'adaptivequiz'));
@@ -187,7 +194,7 @@ class edit_renderer extends \plugin_renderer_base {
         $questionbank =  new \action_menu_link_secondary($pageurl,
             new \pix_icon('t/add', get_string('questionbank', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
             get_string('questionbank', 'adaptivequiz'),
-            array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank'));
+            array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank', 'data-cmid' => $block->get_quiz()->get_cmid()));
         $menu->add($questionbank);
         $menu->prioritise = true;
 
@@ -196,7 +203,7 @@ class edit_renderer extends \plugin_renderer_base {
         $addablock = new \action_menu_link_secondary($addblockurl,
             new \pix_icon('t/add', get_string('addablock', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
             get_string('addablock', 'adaptivequiz'),
-            array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank'));
+            array('class' => 'cm-edit-action addnewblock'));
         $menu->add($addablock);
 
         return html_writer::tag('span', $this->render($menu),
@@ -400,5 +407,29 @@ class edit_renderer extends \plugin_renderer_base {
         $container = html_writer::div(print_choose_qtype_to_add_form(array('returnurl' => $returnurl->out_as_local_url(false), 'cmid' => $returnurl->get_param('cmid'), 'appendqnumstring' => 'addquestion', 'category' => $category), null, false), '',
             array('id' => 'qtypechoicecontainer'));
         return html_writer::div($container, 'createnewquestion');
+    }
+
+    /**
+     * Renders the HTML for the question bank loading icon.
+     *
+     * @return string the HTML div of the icon.
+     */
+    public function questionbank_loading() {
+        return html_writer::div(html_writer::div(html_writer::empty_tag('img',
+            array('alt' => 'loading', 'class' => 'loading-icon', 'src' => $this->pix_url('i/loading'))),
+            'questionbankloading'), 'questionbankloadingcontainer');
+    }
+
+
+
+    /**
+     * Return the contents of the question bank, to be displayed in the question-bank pop-up.
+     *
+     * @param \mod_adaptivequiz\question\bank\custom_view $questionbank the question bank view object.
+     * @param array $pagevars the variables from {@link \question_edit_setup()}.
+     * @return string HTML to output / send back in response to an AJAX request.
+     */
+    public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
+        return $questionbank->render('editq', 0, 20, $pagevars['cat'], true, false, false);
     }
 }
