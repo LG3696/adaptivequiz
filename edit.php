@@ -77,6 +77,15 @@ if ($save) {
         $newblock = block::create($adaptivequiz, get_string('blockname', 'adaptivequiz'));
         $block->add_subblock($newblock);
         $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
+    } else if ($qtype = optional_param('qtype', null, PARAM_TEXT)) {
+        $nexturl = new moodle_url('/question/question.php', array(
+            'category' => question_make_default_categories($contexts->all())->id,
+            'courseid' => $PAGE->course->id,
+            'cmid' => $cmid,
+            'qtype' => $qtype,
+            'returnurl' => $thispageurl->out_as_local_url(false),
+            'appendqnumstring' => 'addquestion'
+        ));
     } else {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
     }

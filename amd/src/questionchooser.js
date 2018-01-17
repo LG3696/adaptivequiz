@@ -103,16 +103,22 @@ define(['jquery'], function($) {
 	                this.options.setAttribute('disabled', 'disabled');
 	                this.cancel_listenevents();
 
-	                this.container.one('form').submit();
+	                e.preventDefault();
+	                var input = $('<input>')
+	                    .attr('type', 'hidden')
+	                    .attr('name', 'qtype').val($('input[name=qtype]:checked').val());
+	                $('#blockeditingform').append($(input));
+	                $('#blockeditingform').submit(); 
 	            }
 	        }, this);
 	        this.listenevents.push(thisevent);
 
-	        this.container.one('form').on('submit', function() {
+	        this.container.one('form').on('submit', function(e) {
 	            // Prevent duplicate submissions on submit
 	            this.submitbutton.setAttribute('disabled', 'disabled');
 	            this.options.setAttribute('disabled', 'disabled');
 	            this.cancel_listenevents();
+	            e.preventDefault();
 	        }, this);
 
 	        // Hook onto the cancel button to hide the form
@@ -129,6 +135,15 @@ define(['jquery'], function($) {
 
 	        // Add references to various elements we adjust
 	        this.submitbutton = this.container.one('.submitbutton');
+            
+            this.submitbutton.on('click', function(e) {
+                e.preventDefault();
+                var input = $('<input>')
+                    .attr('type', 'hidden')
+                    .attr('name', 'qtype').val($('input[name=qtype]:checked').val());
+                $('#blockeditingform').append($(input));
+                $('#blockeditingform').submit();
+            }, this);
 
 	        // Disable the submit element until the user makes a selection
 	        this.submitbutton.set('disabled', 'true');
