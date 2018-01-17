@@ -430,6 +430,6 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output / send back in response to an AJAX request.
      */
     public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
-        return $questionbank->render('editq', 0, 20, $pagevars['cat'], true, false, false);
+        return $questionbank->render('editq', $pagevars['page'], $pagevars['qperpage'], $pagevars['cat'], true, false, false);
     }
 }

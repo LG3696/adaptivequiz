@@ -15,22 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * Quiz external functions and service definitions.
  *
  * @package    mod_adaptivequiz
+ * @category   external
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
-$plugin->component = 'mod_adaptivequiz';
-$plugin->version = 2018011700;
-$plugin->release = 'v0.0';
-$plugin->requires = 2014051200;
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->cron = 0;
-$plugin->dependencies = array();
+$functions = array(
+    'mod_adaptivequiz_get_questionbank' => array(
+        'classname' => 'mod_adaptivequiz_external',
+        'methodname' => 'get_questionbank',
+        'classpath' => 'mod/adaptivequiz/externallib.php',
+        'description' => 'Returns the HTML for the questionbank.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'mod/adaptivequiz:manage'
+    )
+);
+
+$services = array(
+  'Adaptivequiz service' => array(
+      'functions' => array('mod_adaptivequiz_get_questionbank'),
+      'restrictedusers' => 0,
+      'enabled' => 1
+  )
+);
