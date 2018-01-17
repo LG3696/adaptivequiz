@@ -47,10 +47,6 @@ require_sesskey();
 $adaptivequiz  = adaptivequiz::load($cm->instance);
 $attempt = attempt::create($adaptivequiz, $USER->id);
 
-$url = $attempt->attempt_url();
-$attempturl = new moodle_url($url, array('cmid' => $cmid));
-
-
 // Redirect to the attempt page.
-redirect($attempturl);
+redirect($attempt->attempt_url());
 

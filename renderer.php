@@ -102,18 +102,15 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the page of the attempt.
      *
-     * @param int $attemptid the id of the attempt.
+     * @param attempt $attempt the attempt.
      * @param int $slot the current slot.
      * @param question_display_options $options options that control how a question is displayed.$this
      * @param int $cmid the course module id.
      * @return string HTML fragment.
      *
      */
-    public function attempt_page($attemptid, $slot, $options, $cmid) {
+    public function attempt_page(attempt $attempt, $slot, $options, $cmid) {
        $output = '';
-
-       $attempt = attempt::load($attemptid);
-       $quba = $attempt->get_quba();
 
        $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
 
@@ -123,7 +120,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                'id' => 'responseform'));
        $output .= html_writer::start_tag('div');
 
-       $output .= $quba->render_question($slot, $options);
+       $output .= $attempt->get_quba()->render_question($slot, $options);
 
        $output .= $this->attempt_navigation_buttons();
 
