@@ -49,7 +49,7 @@ class edit_page_viewed extends \core\event\base {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
-    
+
     /**
      * Returns description of what happened.
      *
@@ -68,7 +68,7 @@ class edit_page_viewed extends \core\event\base {
     public static function get_name() {
         return get_string('eventeditpageviewed', 'adaptivequiz');
     }
-    
+
     /**
      * Returns relevant URL.
      *
@@ -76,5 +76,5 @@ class edit_page_viewed extends \core\event\base {
      */
     public function get_url() {
         return new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $this->contextinstanceid));
-    } 
+    }
 }

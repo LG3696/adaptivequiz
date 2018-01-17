@@ -48,7 +48,7 @@ class attempt_started extends \core\event\base {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }
-    
+
     /**
      * Returns description of what happened.
      *
@@ -58,7 +58,7 @@ class attempt_started extends \core\event\base {
         return "The user with id '$this->relateduserid' has started the attempt with id '$this->objectid' for the " .
         "quiz with course module id '$this->contextinstanceid'.";
     }
-    
+
     /**
      * Returns localised general event name.
      *
@@ -67,4 +67,4 @@ class attempt_started extends \core\event\base {
     public static function get_name() {
         return get_string('eventadaptivequizattemptstarted', 'adaptivequiz');
     }
-    }
+}

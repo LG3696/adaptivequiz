@@ -18,7 +18,7 @@
  * Defines the view event.
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * override methods get_url() and get_legacy_log_data(), too.
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @since      Moodle 2.7
+ * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_module_viewed extends \core\event\course_module_viewed {

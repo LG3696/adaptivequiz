@@ -50,7 +50,7 @@ class attempt_preview_started extends \core\event\base {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
-    
+
     /**
      * Returns description of what happened.
      *
@@ -60,7 +60,7 @@ class attempt_preview_started extends \core\event\base {
         return "The user with id '$this->relateduserid' has had their attempt with id '$this->objectid' previewed by " .
         "the user with id '$this->userid' for the quiz with course module id '$this->contextinstanceid'.";
     }
-    
+
     /**
      * Returns localised general event name.
      *
@@ -69,7 +69,7 @@ class attempt_preview_started extends \core\event\base {
     public static function get_name() {
         return get_string('eventattemptpreviewstarted', 'adaptivequiz');
     }
-    
+
     /**
      * Returns relevant URL.
      *

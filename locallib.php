@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module adaptivequiz
+ * Internal library of functions for module adaptivequiz.
  *
  * All the adaptivequiz specific functions, needed to implement the module
  * logic, should go here. Never include this file from your lib.php!
@@ -32,12 +31,12 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 require_once($CFG->dirroot . '/mod/adaptivequiz/attemptlib.php');
 
 /**
-* A class encapsulating a adaptive quiz.
-*
-* @copyright  2017 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-* @since      Moodle 3.1
-*/
+ * A class encapsulating a adaptive quiz.
+ *
+ * @copyright  2017 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
+ */
 class adaptivequiz {
     /** @var int the id of this adaptive quiz. */
     protected $id = 0;
@@ -56,10 +55,10 @@ class adaptivequiz {
      * @param int $mainblockid the id of the main block of this adaptive quiz.
      */
     public function __construct($id, $cmid, $mainblockid) {
-    	$this->id = $id;
-    	$this->cmid = $cmid;
-    	$this->mainblock = null;
-    	$this->mainblockid = $mainblockid;
+        $this->id = $id;
+        $this->cmid = $cmid;
+        $this->mainblock = null;
+        $this->mainblockid = $mainblockid;
     }
 
     /**
@@ -69,12 +68,12 @@ class adaptivequiz {
      * @return adaptivequiz the new adaptivequiz object.
      */
     public static function load($quizid) {
-    	global $DB;
+        global $DB;
 
-    	$quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
-    	$cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
+        $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
+        $cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
 
-    	return new adaptivequiz($quizid, $cm->id, $quiz->mainblock);
+        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock);
     }
 
     /**
@@ -82,7 +81,7 @@ class adaptivequiz {
      *
      * @return block the main block of the quiz.
      */
-    function get_main_block() {
+    public function get_main_block() {
         if (!$this->mainblock) {
             $this->mainblock = block::load($this, $this->mainblockid);
         }
@@ -97,7 +96,7 @@ class adaptivequiz {
     public function get_id() {
         return $this->id;
     }
-    
+
     /**
      * Gets the course module id of this quiz.
      *
@@ -113,7 +112,7 @@ class adaptivequiz {
      * @return context_module the context for this module.
      */
     public function get_context() {
-    	return context_module::instance($this->cmid);
+        return context_module::instance($this->cmid);
     }
 
     /**
@@ -129,8 +128,7 @@ class adaptivequiz {
     /**
      * Returns the next slot that a student should work on for a certain attempt.
      *
-     * @param attempt the attempt that  the student is currently working on.
-     *
+     * @param attempt $attempt the attempt that  the student is currently working on.
      * @return null|int the number of the next slot that the student should work on or null, if no such slot exists.
      */
     public function next_slot(attempt $attempt) {
@@ -149,7 +147,6 @@ class adaptivequiz {
      * Returns the slot number for an element id.
      *
      * @param int $elementid the id of the element.
-     *
      * @return null|int the slot number of the element or null, if the element can not be found.
      */
     public function get_slot_for_element($elementid) {
