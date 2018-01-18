@@ -163,7 +163,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Builds the review page.
      * 
      * @param question_usage_by_activity $quba the question usage.
-     * 
+     * @param int $slot the slot of the question.
      * @param question_display_options $options the display options.
      * @return $output containing HTML data.
      */

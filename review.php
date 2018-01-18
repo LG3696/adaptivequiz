@@ -32,15 +32,6 @@ $attemptid = required_param('attempt', PARAM_INT);
 $attempt = attempt::load($attemptid);
 $cmid = $attempt->get_quiz()->get_cmid();
 $quba = $attempt->get_quba();
-$options = new question_display_options();
-
-$options->feedback = question_display_options::VISIBLE;
-$options->generalfeedback = question_display_options::VISIBLE;
-$options->marks = question_display_options::MARK_AND_MAX;
-$options->correctness = question_display_options::VISIBLE;
-$options->flags = question_display_options::HIDDEN;
-$options->rightanswer = question_display_options::VISIBLE;
-$attempt->set_current_slot(1);
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -51,6 +42,16 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 
 // Check login.
 require_login($course, false, $cm);
+
+$options = new question_display_options();
+$options->feedback = question_display_options::VISIBLE;
+$options->generalfeedback = question_display_options::VISIBLE;
+$options->marks = question_display_options::MARK_AND_MAX;
+$options->correctness = question_display_options::VISIBLE;
+$options->flags = question_display_options::HIDDEN;
+$options->rightanswer = question_display_options::VISIBLE;
+
+$attempt->set_current_slot(1);
 
 $adaptivequiz = adaptivequiz::load($cm->instance);
 $PAGE->set_url($attempt->review_url());
