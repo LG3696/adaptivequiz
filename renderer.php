@@ -35,10 +35,10 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
  */
 class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
-     * Generates the view page
+     * Generates the view page.
      *
-     * @param array $quiz Array containing quiz data
-     * @param mod_quiz_view_object $viewobj
+     * @param array $quiz Array containing quiz data.
+     * @param mod_quiz_view_object $viewobj the information required to display the view page.
      */
     public function view_page($quiz, $viewobj) {
         $output = '';
@@ -48,10 +48,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Work out, and render, whatever buttons, and surrounding info, should appear
+     * Work out, and render, whatever buttons, and surrounding info, should appear.
      * at the end of the review page.
-     * @param mod_quiz_view_object $viewobj the information required to display
-     * the view page.
+     *
+     * @param mod_quiz_view_object $viewobj the information required to display the view page.
      * @return string HTML to output.
      */
     public function view_page_buttons($viewobj) {
@@ -87,8 +87,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the edit quiz button.
      *
-     * @param mod_adaptivequiz_view_object $viewobj the information required to display
-     * the view page.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
      * @return string HTML fragment.
      */
     public function edit_quiz_button($viewobj) {
@@ -104,38 +103,38 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      *
      * @param attempt $attempt the attempt.
      * @param int $slot the current slot.
-     * @param question_display_options $options options that control how a question is displayed.$this
+     * @param question_display_options $options options that control how a question is displayed.
      * @param int $cmid the course module id.
      * @return string HTML fragment.
      *
      */
     public function attempt_page(attempt $attempt, $slot, $options, $cmid) {
-       $output = '';
+        $output = '';
 
-       $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
+        $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
 
-       $output .= html_writer::start_tag('form',
+        $output .= html_writer::start_tag('form',
            array('action' => $processurl, 'method' => 'post',
                'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
                'id' => 'responseform'));
-       $output .= html_writer::start_tag('div');
+        $output .= html_writer::start_tag('div');
 
-       $output .= $attempt->get_quba()->render_question($slot, $options);
+        $output .= $attempt->get_quba()->render_question($slot, $options);
 
-       $output .= $this->attempt_navigation_buttons();
+        $output .= $this->attempt_navigation_buttons();
 
-       // Some hidden fields to track what is going on.
-       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
+        // Some hidden fields to track what is going on.
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
            'value' => $attempt->get_attemptid()));
-       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
            'value' => $slot));
-       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
            'value' => $cmid));
 
-       $output .= html_writer::end_tag('div');
-       $output .= html_writer::end_tag('form');
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('form');
 
-       return $output;
+        return $output;
     }
 
     /**
@@ -152,12 +151,24 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $nextlabel = get_string('endtest', 'adaptivequiz');
         } else {*/
             $nextlabel = get_string('nextpage', 'adaptivequiz');
-        //}
+        // }
         $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next',
             'value' => $nextlabel));
         $output .= html_writer::end_tag('div');
 
         return $output;
+    }
+    
+    /**
+     * Builds the review page.
+     * 
+     * @param question_usage_by_activity $quba the question usage.
+     * @param int $slot the slot of the question.
+     * @param question_display_options $options the display options.
+     * @return $output containing HTML data.
+     */
+    public function review_page(question_usage_by_activity $quba, $slot, $options) {
+        return $quba->render_question($slot, $options);
     }
 }
 

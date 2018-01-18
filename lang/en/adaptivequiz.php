@@ -16,7 +16,7 @@
 
 
 /**
- * English strings for adaptivequiz
+ * English strings for adaptivequiz.
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -57,6 +57,9 @@ $string['editingblock'] = 'Editing block:';
 $string['editingblockx'] = 'Editing block: {$a}';
 $string['editingfeedback'] = 'Editing feedback';
 $string['editquiz'] = 'Edit quiz';
+$string['eventadaptivequizattemptstarted'] = 'Adaptive Quiz attempt sarted';
+$string['eventattemptpreviewstarted'] = 'Adaptive Quiz attempt preview started';
+$string['eventeditpageviewed'] = 'Adaptive Quiz edit page viewed';
 $string['endtest'] = 'Finish attempt';
 $string['grade'] = 'Grade';
 $string['mustbe'] = 'must be';

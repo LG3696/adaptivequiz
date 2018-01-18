@@ -30,12 +30,24 @@ $blockid = optional_param('bid', 0, PARAM_INT);
 $addquestion = optional_param('addquestion', 0, PARAM_INT);
 $save = optional_param('save', 0, PARAM_INT);
 
-list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
-    question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
+list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) = question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
+
+// Check login.
+require_login($cm->course, false, $cm);
 
 require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 
-// if no block id was passed, we default to editing the main block of the quiz.
+$params = array(
+    'courseid' => $cm->course,
+    'context' => $contexts->lowest(),
+    'other' => array(
+        'quizid' => $quiz->id
+    )
+);
+$event = \mod_adaptivequiz\event\edit_page_viewed::create($params);
+$event->trigger();
+
+// If no block id was passed, we default to editing the main block of the quiz.
 if (!$blockid) {
     $blockid = $quiz->mainblock;
 }

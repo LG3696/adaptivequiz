@@ -101,7 +101,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-    
+
     // Ability to do the quiz as a 'student'.
     'mod/adaptivequiz:attempt' => array(
         'riskbitmask' => RISK_SPAM,
@@ -111,7 +111,7 @@ $capabilities = array(
             'student' => CAP_ALLOW
         )
     ),
-    
+
     // View the quiz reports.
     'mod/adaptivequiz:viewreports' => array(
         'riskbitmask' => RISK_PERSONAL,

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the view event.
+ * The mod_quiz edit page viewed event.
  *
  * @package    mod_adaptivequiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
@@ -27,23 +27,54 @@ namespace mod_adaptivequiz\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_adaptivequiz instance viewed event class
+ * The mod_quiz edit page viewed event class.
  *
- * If the view mode needs to be stored as well, you may need to
- * override methods get_url() and get_legacy_log_data(), too.
+ * @property-read array $other {
+ *      Extra information about event.
+ *
+ *      - int quizid: the id of the quiz.
+ * }
  *
  * @package    mod_adaptivequiz
  * @since      Moodle 2.7
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course_module_viewed extends \core\event\course_module_viewed {
+class edit_page_viewed extends \core\event\base {
 
     /**
-     * Initialize the event
+     * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'adaptivequiz';
-        parent::init();
+        $this->data['crud'] = 'r';
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
+    }
+
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "The user with id '$this->userid' viewed the edit page for the quiz with " .
+        "course module id '$this->contextinstanceid'.";
+    }
+
+    /**
+     * Returns localised general event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventeditpageviewed', 'adaptivequiz');
+    }
+
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $this->contextinstanceid));
     }
 }

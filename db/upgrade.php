@@ -32,9 +32,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute adaptivequiz upgrade from the given old version
+ * Execute adaptivequiz upgrade from the given old version.
  *
- * @param int $oldversion
+ * @param int $oldversion the current version number.
  * @return bool
  */
 function xmldb_adaptivequiz_upgrade($oldversion) {
@@ -44,7 +44,7 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
 
     if ($oldversion < 2018011800) {
 
-        // Rename field useand on table adaptivequiz_block to NEWNAMEGOESHERE.
+        // Rename field use_and on table adaptivequiz_block to useand.
         $table = new xmldb_table('adaptivequiz_block');
         $field = new xmldb_field('use_and', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'name');
 
@@ -54,7 +54,6 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2018011800, 'adaptivequiz');
     }
-
 
     return true;
 }
