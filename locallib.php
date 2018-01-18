@@ -28,6 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/feedbackblocklib.php');
 require_once($CFG->dirroot . '/mod/adaptivequiz/attemptlib.php');
 
 /**

@@ -445,4 +445,16 @@ class edit_renderer extends \plugin_renderer_base {
     public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
         return $questionbank->render('editq', $pagevars['page'], $pagevars['qperpage'], $pagevars['cat'], true, false, false);
     }
+
+    /**
+     * Render the feedback edit page
+     *
+     * @param \feedback_block $block object containing all the feedback block information.
+     * @param \moodle_url $pageurl The URL of the page.
+     * @param array $pagevars the variables from {@link question_edit_setup()}.
+     * @return string HTML to output.
+     */
+    public function edit_feedback_page(\feedback_block $block, \moodle_url $pageurl, array $pagevars) {
+        return '';
+    }
 }
