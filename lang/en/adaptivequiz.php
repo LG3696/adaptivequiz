@@ -57,6 +57,7 @@ $string['editingblock'] = 'Editing block:';
 $string['editingblockx'] = 'Editing block: {$a}';
 $string['editquiz'] = 'Edit quiz';
 $string['eventadaptivequizattemptstarted'] = 'Adaptive Quiz attempt sarted';
+$string['eventadaptivequizattemptsubmitted'] = 'Adaptive Quiz attempt submitted';
 $string['eventattemptpreviewstarted'] = 'Adaptive Quiz attempt preview started';
 $string['eventeditpageviewed'] = 'Adaptive Quiz edit page viewed';
 $string['endtest'] = 'Finish attempt';

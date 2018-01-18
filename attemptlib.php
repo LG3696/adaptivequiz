@@ -297,6 +297,21 @@ class attempt {
 
         // TODO in later userstory
         // quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
+        
+        // Trigger event.
+        $params = array(
+            'context' => $this->get_quiz()->get_context(),
+            'courseid' => 2, // TODO: course id .
+            'objectid' => $this->get_attemptid(),
+            'relateduserid' => $this->get_userid(),
+            'other' => array(
+                'submitterid' => CLI_SCRIPT ? null : $USER->id,
+                'quizid' => $this->get_quiz()->get_id()
+            )
+        );
+        
+        $event = $event = \mod_adaptivequiz\event\attempt_submitted::create($params);
+        $event_trigger;
 
         $transaction->allow_commit();
     }
@@ -349,7 +364,6 @@ class attempt {
      * Creates a new question usage for this attempt.
      *
      * @param adaptivequiz $quiz the quiz to create the usage for.
-     *
      * @return question_usage_by_activity the created question usage.
      */
     protected static function create_quba(adaptivequiz $quiz) {
