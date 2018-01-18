@@ -55,6 +55,7 @@ $string['continuepreview'] = 'Continue the last preview';
 $string['done'] = 'Done';
 $string['editingblock'] = 'Editing block:';
 $string['editingblockx'] = 'Editing block: {$a}';
+$string['editingfeedback'] = 'Editing feedback';
 $string['editquiz'] = 'Edit quiz';
 $string['endtest'] = 'Finish attempt';
 $string['grade'] = 'Grade';

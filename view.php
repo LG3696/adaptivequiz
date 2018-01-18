@@ -65,6 +65,9 @@ $viewobj->quizhasquestions = $mainblock->has_questions();
 $viewobj->preventmessages = array();
 $viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
 
+// TODO: unfinished check
+$unfinished = false;
+
 if (!$viewobj->quizhasquestions) {
     $viewobj->buttontext = '';
 } else {
