@@ -48,7 +48,7 @@ class mod_adaptivequiz_external extends external_api {
             array('cmid' => new external_value(PARAM_INT, 'the course module id'),
                 'page' => new external_value(PARAM_INT, 'the page of the question bank view', VALUE_DEFAULT, 0),
                 'qperpage' => new external_value(PARAM_INT, 'the number of questions per page', VALUE_DEFAULT, DEFAULT_QUESTIONS_PER_PAGE),
-                'category' => new external_value(PARAM_RAW, 'the question category', VALUE_DEFAULT, null)
+                'category' => new external_value(PARAM_TEXT, 'the question category', VALUE_DEFAULT, null)
             )
         );
     }
