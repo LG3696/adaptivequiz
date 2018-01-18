@@ -28,7 +28,6 @@ require_once($CFG->dirroot . '/question/editlib.php');
 
 $blockid = optional_param('bid', 0, PARAM_INT);
 $addquestion = optional_param('addquestion', 0, PARAM_INT);
-$addblock = optional_param('addblock', 0, PARAM_INT);
 $save = optional_param('save', 0, PARAM_INT);
 
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) = question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
@@ -59,7 +58,6 @@ $PAGE->set_url($thispageurl);
 
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $block = block::load($adaptivequiz, $blockid);
-
 if ($save) {
     $name = required_param('blockname', PARAM_TEXT);
     $block->set_name($name);
@@ -84,6 +82,13 @@ if ($save) {
         $element = block_element::load($adaptivequiz, $edit);
         $elementparams = array('cmid' => $cmid, 'returnurl' => $thispageurl->out_as_local_url(false));
         $nexturl = $element->get_edit_url($elementparams);
+    } else if ($questionid = optional_param('addfromquestionbank', 0, PARAM_INT)) {
+        $block->add_question($questionid);
+        $nexturl = $thispageurl;
+    } else if (optional_param('addnewblock', 0, PARAM_INT)) {
+        $newblock = block::create($adaptivequiz, get_string('blockname', 'adaptivequiz'));
+        $block->add_subblock($newblock);
+        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
     } else {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
     }
@@ -92,13 +97,6 @@ if ($save) {
 
 if ($addquestion) {
     $block->add_question($addquestion);
-}
-
-if ($addblock) {
-    $newblock = block::create($adaptivequiz, get_string('blockname', 'adaptivequiz'));
-    $block->add_subblock($newblock);
-    $newblockurl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
-    redirect($newblockurl);
 }
 
 $PAGE->set_pagelayout('incourse');

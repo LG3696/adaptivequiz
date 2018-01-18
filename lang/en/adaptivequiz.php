@@ -43,6 +43,7 @@ $string['addablock'] = 'a new block';
 $string['addaquestion'] = 'a new question';
 $string['addacondition'] = 'Add a condition';
 $string['addpointscondition'] = 'Points at question';
+$string['addtoblock'] = 'Add to block';
 $string['all'] = 'all';
 $string['atleastone'] = 'at least one';
 $string['attemptquiznow'] = 'Attempt quiz now';

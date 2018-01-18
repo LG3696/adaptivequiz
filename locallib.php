@@ -100,7 +100,7 @@ class adaptivequiz {
     /**
      * Gets the course module id of this quiz.
      *
-     * @return int the id of this quiz.
+     * @return int the course module id of this quiz.
      */
     public function get_cmid() {
         return $this->cmid;
