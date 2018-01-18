@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of interface functions and constants for module adaptivequiz
+ * Library of interface functions and constants for module adaptivequiz.
  *
  * All the core Moodle functions, neeeded to allow the module to work
  * integrated in Moodle should be placed here.
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 /* Moodle core API */
 
 /**
- * Returns the information on whether the module supports a feature
+ * Returns the information on whether the module supports a feature.
  *
  * See {@link plugin_supports()} for more info.
  *
@@ -58,16 +58,16 @@ function adaptivequiz_supports($feature) {
 }
 
 /**
- * Saves a new instance of the adaptivequiz into the database
+ * Saves a new instance of the adaptivequiz into the database.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param stdClass $adaptivequiz Submitted data from the form in mod_form.php
- * @param mod_adaptivequiz_mod_form $mform The form instance itself (if needed)
- * @return int The id of the newly inserted adaptivequiz record
+ * @param stdClass $adaptivequiz Submitted data from the form in mod_form.php.
+ * @param mod_adaptivequiz_mod_form $mform The form instance itself (if needed).
+ * @return int The id of the newly inserted adaptivequiz record.
  */
 function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_form $mform = null) {
     global $DB;
@@ -87,15 +87,15 @@ function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_
 }
 
 /**
- * Updates an instance of the adaptivequiz in the database
+ * Updates an instance of the adaptivequiz in the database.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param stdClass $adaptivequiz An object from the form in mod_form.php
- * @param mod_adaptivequiz_mod_form $mform The form instance itself (if needed)
- * @return boolean Success/Fail
+ * @param stdClass $adaptivequiz An object from the form in mod_form.php.
+ * @param mod_adaptivequiz_mod_form $mform The form instance itself (if needed).
+ * @return boolean Success/Fail.
  */
 function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_form $mform = null) {
     global $DB;
@@ -113,13 +113,13 @@ function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_m
 }
 
 /**
- * This standard function will check all instances of this module
+ * This standard function will check all instances of this module.
  * and make sure there are up-to-date events created for each of them.
  * If courseid = 0, then every adaptivequiz event in the site is checked, else
  * only adaptivequiz events belonging to the course specified are checked.
  * This is only required if the module is generating calendar events.
  *
- * @param int $courseid Course ID
+ * @param int $courseid the Course ID.
  * @return bool
  */
 function adaptivequiz_refresh_events($courseid = 0) {
@@ -137,21 +137,21 @@ function adaptivequiz_refresh_events($courseid = 0) {
 
     foreach ($adaptivequizs as $adaptivequiz) {
         // Create a function such as the one below to deal with updating calendar events.
-        // adaptivequiz_update_events($adaptivequiz);
+        // adaptivequiz_update_events($adaptivequiz); .
     }
 
     return true;
 }
 
 /**
- * Removes an instance of the adaptivequiz from the database
+ * Removes an instance of the adaptivequiz from the database.
  *
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
  * and any data that depends on it.
  *
- * @param int $id Id of the module instance
- * @return boolean Success/Failure
+ * @param int $id Id of the module instance.
+ * @return boolean Success/Failure.
  */
 function adaptivequiz_delete_instance($id) {
     global $DB;
@@ -177,11 +177,11 @@ function adaptivequiz_delete_instance($id) {
  * $return->time = the time they did it
  * $return->info = a short text description
  *
- * @param stdClass $course The course record
- * @param stdClass $user The user record
- * @param cm_info|stdClass $mod The course module info object or record
- * @param stdClass $adaptivequiz The adaptivequiz instance record
- * @return stdClass|null
+ * @param stdClass $course The course record.
+ * @param stdClass $user The user record.
+ * @param cm_info|stdClass $mod The course module info object or record.
+ * @param stdClass $adaptivequiz The adaptivequiz instance record.
+ * @return stdClass|null information about what a user has done with a given particular instance of this module.
  */
 function adaptivequiz_user_outline($course, $user, $mod, $adaptivequiz) {
 
@@ -197,10 +197,10 @@ function adaptivequiz_user_outline($course, $user, $mod, $adaptivequiz) {
  *
  * It is supposed to echo directly without returning a value.
  *
- * @param stdClass $course the current course record
- * @param stdClass $user the record of the user we are generating report for
- * @param cm_info $mod course module info
- * @param stdClass $adaptivequiz the module instance record
+ * @param stdClass $course the current course record.
+ * @param stdClass $user the record of the user we are generating report for.
+ * @param cm_info $mod course module info.
+ * @param stdClass $adaptivequiz the module instance record.
  */
 function adaptivequiz_user_complete($course, $user, $mod, $adaptivequiz) {
 }
@@ -209,17 +209,17 @@ function adaptivequiz_user_complete($course, $user, $mod, $adaptivequiz) {
  * Given a course and a time, this module should find recent activity
  * that has occurred in adaptivequiz activities and print it out.
  *
- * @param stdClass $course The course record
- * @param bool $viewfullnames Should we display full names
- * @param int $timestart Print activity since this timestamp
- * @return boolean True if anything was printed, otherwise false
+ * @param stdClass $course The course record.
+ * @param bool $viewfullnames Should we display full names.
+ * @param int $timestart Print activity since this timestamp.
+ * @return boolean True if anything was printed, otherwise false.
  */
 function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart) {
     return false;
 }
 
 /**
- * Prepares the recent activity data
+ * Prepares the recent activity data.
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
@@ -227,31 +227,31 @@ function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart)
  *
  * Returns void, it adds items into $activities and increases $index.
  *
- * @param array $activities sequentially indexed array of objects with added 'cmid' property
- * @param int $index the index in the $activities to use for the next record
- * @param int $timestart append activity since this time
- * @param int $courseid the id of the course we produce the report for
- * @param int $cmid course module id
- * @param int $userid check for a particular user's activity only, defaults to 0 (all users)
- * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups)
+ * @param array $activities sequentially indexed array of objects with added 'cmid' property.
+ * @param int $index the index in the $activities to use for the next record.
+ * @param int $timestart append activity since this time.
+ * @param int $courseid the id of the course we produce the report for.
+ * @param int $cmid course module id.
+ * @param int $userid check for a particular user's activity only, defaults to 0 (all users).
+ * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups).
  */
 function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
 }
 
 /**
- * Prints single activity item prepared by {@link adaptivequiz_get_recent_mod_activity()}
+ * Prints single activity item prepared by {@link adaptivequiz_get_recent_mod_activity()}.
  *
- * @param stdClass $activity activity record with added 'cmid' property
- * @param int $courseid the id of the course we produce the report for
- * @param bool $detail print detailed report
- * @param array $modnames as returned by {@link get_module_types_names()}
- * @param bool $viewfullnames display users' full names
+ * @param stdClass $activity activity record with added 'cmid' property.
+ * @param int $courseid the id of the course we produce the report for.
+ * @param bool $detail print detailed report.
+ * @param array $modnames as returned by {@link get_module_types_names()}.
+ * @param bool $viewfullnames display users' full names.
  */
 function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
 }
 
 /**
- * Function to be run periodically according to the moodle cron
+ * Function to be run periodically according to the moodle cron.
  *
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc ...
@@ -265,7 +265,7 @@ function adaptivequiz_cron () {
 }
 
 /**
- * Returns all other caps used in the module
+ * Returns all other caps used in the module.
  *
  * For example, this could be array('moodle/site:accessallgroups') if the
  * module uses that capability.
@@ -284,9 +284,9 @@ function adaptivequiz_get_extra_capabilities() {
  * This function returns if a scale is being used by one adaptivequiz
  * if it has support for grading and scales.
  *
- * @param int $adaptivequizid ID of an instance of this module
- * @param int $scaleid ID of the scale
- * @return bool true if the scale is used by the given adaptivequiz instance
+ * @param int $adaptivequizid ID of an instance of this module.
+ * @param int $scaleid ID of the scale.
+ * @return bool true if the scale is used by the given adaptivequiz instance.
  */
 function adaptivequiz_scale_used($adaptivequizid, $scaleid) {
     global $DB;
@@ -303,8 +303,8 @@ function adaptivequiz_scale_used($adaptivequizid, $scaleid) {
  *
  * This is used to find out if scale used anywhere.
  *
- * @param int $scaleid ID of the scale
- * @return boolean true if the scale is used by any adaptivequiz instance
+ * @param int $scaleid ID of the scale.
+ * @return boolean true if the scale is used by any adaptivequiz instance.
  */
 function adaptivequiz_scale_used_anywhere($scaleid) {
     global $DB;
@@ -321,9 +321,8 @@ function adaptivequiz_scale_used_anywhere($scaleid) {
  *
  * Needed by {@link grade_update_mod_grades()}.
  *
- * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property
- * @param bool $reset reset grades in the gradebook
- * @return void
+ * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property.
+ * @param bool $reset reset grades in the gradebook.
  */
 function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $reset=false) {
     global $CFG;
@@ -353,9 +352,9 @@ function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $reset=false) {
 }
 
 /**
- * Delete grade item for given adaptivequiz instance
+ * Delete grade item for given adaptivequiz instance.
  *
- * @param stdClass $adaptivequiz instance object
+ * @param stdClass $adaptivequiz instance object.
  * @return grade_item
  */
 function adaptivequiz_grade_item_delete($adaptivequiz) {
@@ -367,12 +366,12 @@ function adaptivequiz_grade_item_delete($adaptivequiz) {
 }
 
 /**
- * Update adaptivequiz grades in the gradebook
+ * Update adaptivequiz grades in the gradebook.
  *
  * Needed by {@link grade_update_mod_grades()}.
  *
- * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property
- * @param int $userid update grade of specific user only, 0 means all participants
+ * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property.
+ * @param int $userid update grade of specific user only, 0 means all participants.
  */
 function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid = 0) {
     global $CFG, $DB;
@@ -387,10 +386,10 @@ function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid = 0) {
 /* File API */
 
 /**
- * Returns the lists of all browsable file areas within the given module context
+ * Returns the lists of all browsable file areas within the given module context.
  *
  * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
+ * by {@link file_browser::get_file_info_context_module()}.
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -423,18 +422,18 @@ function adaptivequiz_get_file_info($browser, $areas, $course, $cm, $context, $f
 }
 
 /**
- * Serves the files from the adaptivequiz file areas
+ * Serves the files from the adaptivequiz file areas.
  *
  * @package mod_adaptivequiz
  * @category files
  *
- * @param stdClass $course the course object
- * @param stdClass $cm the course module object
- * @param stdClass $context the adaptivequiz's context
- * @param string $filearea the name of the file area
- * @param array $args extra arguments (itemid, path)
- * @param bool $forcedownload whether or not force download
- * @param array $options additional options affecting the file serving
+ * @param stdClass $course the course object.
+ * @param stdClass $cm the course module object.
+ * @param stdClass $context the adaptivequiz's context.
+ * @param string $filearea the name of the file area.
+ * @param array $args extra arguments (itemid, path).
+ * @param bool $forcedownload whether or not force download.
+ * @param array $options additional options affecting the file serving.
  */
 function adaptivequiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
     global $DB, $CFG;
@@ -451,27 +450,27 @@ function adaptivequiz_pluginfile($course, $cm, $context, $filearea, array $args,
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding adaptivequiz nodes if there is a relevant content
+ * Extends the global navigation tree by adding adaptivequiz nodes if there is a relevant content.
  *
  * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
  *
- * @param navigation_node $navref An object representing the navigation tree node of the adaptivequiz module instance
- * @param stdClass $course current course record
- * @param stdClass $module current adaptivequiz instance record
- * @param cm_info $cm course module information
+ * @param navigation_node $navref An object representing the navigation tree node of the adaptivequiz module instance.
+ * @param stdClass $course current course record.
+ * @param stdClass $module current adaptivequiz instance record.
+ * @param cm_info $cm course module information.
  */
 function adaptivequiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // TODO Delete this function and its docblock, or implement it.
 }
 
 /**
- * Extends the settings navigation with the adaptivequiz settings
+ * Extends the settings navigation with the adaptivequiz settings.
  *
  * This function is called when the context for the page is a adaptivequiz module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
  *
- * @param settings_navigation $settingsnav complete settings navigation tree
- * @param navigation_node $adaptivequiznode adaptivequiz administration node
+ * @param settings_navigation $settingsnav complete settings navigation tree.
+ * @param navigation_node $adaptivequiznode adaptivequiz administration node.
  */
 function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode=null) {
     global $PAGE, $CFG, $DB;
@@ -489,7 +488,7 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
         $beforekey = $keys[$i + 1];
     }
 
-    // Edit Quiz button
+    // Edit Quiz button.
     if (has_capability('mod/adaptivequiz:manage', $PAGE->cm->context)) {
         $node = navigation_node::create(get_string('editquiz', 'adaptivequiz'),
                 new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id)),
@@ -497,11 +496,11 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
                 new pix_icon('t/edit', ''));
         $adaptivequiznode->add_node($node, $beforekey);
     }
-    
-    // Preview Quiz button
+
+    // Preview Quiz button.
     if (has_capability('mod/quiz:preview', $PAGE->cm->context)) {
         $url = new moodle_url('/mod/adaptivequiz/startattempt.php',
-            array('cmid'=>$PAGE->cm->id, 'sesskey'=>sesskey()));
+            array('cmid' => $PAGE->cm->id, 'sesskey' => sesskey()));
         $node = navigation_node::create(get_string('preview', 'adaptivequiz'), $url,
             navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_preview',
             new pix_icon('i/preview', ''));
