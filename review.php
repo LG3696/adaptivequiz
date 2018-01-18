@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script displays a particular page of a quiz attempt that is in progress.
+ * This page prints a review of a particular quiz attempt.
  *
  * @package   mod_adaptivequiz
  * @copyright  2018 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
