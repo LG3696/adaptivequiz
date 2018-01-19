@@ -62,9 +62,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-while(!$attempt->is_finished()) {
-    echo $output->review_page($quba, $attempt->get_current_slot(), $options);
-    $attempt->next_slot();
-}
+echo $output->review_page($quba, $attempt, $options);
 
 echo $OUTPUT->footer();
