@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirect the user to the appropriate submission related page
+ * Redirect the user to the appropriate submission related page.
  *
  * @package   mod_adaptivequiz
  * @category  grade
@@ -29,6 +29,12 @@ $id = required_param('id', PARAM_INT);// Course module ID.
 // Item number may be != 0 for activities that allow more than one grade per user.
 $itemnumber = optional_param('itemnumber', 0, PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT); // Graded user ID (optional).
+
+$cm = get_coursemodule_from_id('adaptivequiz', $id);
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+
+// Check login.
+require_login($course, false, $cm); // TODO: $cm???
 
 // In the simplest case just redirect to the view page.
 redirect('view.php?id='.$id);

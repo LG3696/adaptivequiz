@@ -15,14 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script deals with starting a new attempt at a quiz.
- *
- * Normally, it will end up redirecting to attempt.php - unless a password form is displayed.
- *
- * This code used to be at the top of attempt.php, if you are looking for CVS history.
+ * This page prints a review of a particular quiz attempt.
  *
  * @package   mod_adaptivequiz
- * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
+ * @copyright  2018 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,7 +27,11 @@ require_once(dirname(__FILE__).'/locallib.php');
 require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
-$cmid = required_param('cmid', PARAM_INT);
+$attemptid = required_param('attempt', PARAM_INT);
+
+$attempt = attempt::load($attemptid);
+$cmid = $attempt->get_quiz()->get_cmid();
+$quba = $attempt->get_quba();
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -40,13 +40,28 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
     print_error("coursemisconf");
 }
 
-// Check login and sesskey.
+// Check login.
 require_login($course, false, $cm);
-require_sesskey();
 
-$adaptivequiz  = adaptivequiz::load($cm->instance);
-$attempt = attempt::create($adaptivequiz, $USER->id);
+$options = new question_display_options();
+$options->feedback = question_display_options::VISIBLE;
+$options->generalfeedback = question_display_options::VISIBLE;
+$options->marks = question_display_options::MARK_AND_MAX;
+$options->correctness = question_display_options::VISIBLE;
+$options->flags = question_display_options::HIDDEN;
+$options->rightanswer = question_display_options::VISIBLE;
 
-// Redirect to the attempt page.
-redirect($attempt->attempt_url());
+$attempt->set_current_slot(1);
 
+$adaptivequiz = adaptivequiz::load($cm->instance);
+$PAGE->set_url($attempt->review_url());
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_title(format_string($adaptivequiz->get_main_block()->get_name()));
+$PAGE->set_heading($course->fullname);
+$output = $PAGE->get_renderer('mod_adaptivequiz');
+
+echo $OUTPUT->header();
+
+echo $output->review_page($quba, $attempt, $options);
+
+echo $OUTPUT->footer();

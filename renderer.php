@@ -35,10 +35,10 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
  */
 class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
-     * Generates the view page
+     * Generates the view page.
      *
-     * @param array $quiz Array containing quiz data
-     * @param mod_quiz_view_object $viewobj
+     * @param array $quiz Array containing quiz data.
+     * @param mod_quiz_view_object $viewobj the information required to display the view page.
      */
     public function view_page($quiz, $viewobj) {
         $output = '';
@@ -48,10 +48,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Work out, and render, whatever buttons, and surrounding info, should appear
+     * Work out, and render, whatever buttons, and surrounding info, should appear.
      * at the end of the review page.
-     * @param mod_quiz_view_object $viewobj the information required to display
-     * the view page.
+     *
+     * @param mod_quiz_view_object $viewobj the information required to display the view page.
      * @return string HTML to output.
      */
     public function view_page_buttons($viewobj) {
@@ -87,8 +87,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the edit quiz button.
      *
-     * @param mod_adaptivequiz_view_object $viewobj the information required to display
-     * the view page.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
      * @return string HTML fragment.
      */
     public function edit_quiz_button($viewobj) {
@@ -102,43 +101,40 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the page of the attempt.
      *
-     * @param int $attemptid the id of the attempt.
+     * @param attempt $attempt the attempt.
      * @param int $slot the current slot.
-     * @param question_display_options $options options that control how a question is displayed.$this
+     * @param question_display_options $options options that control how a question is displayed.
      * @param int $cmid the course module id.
      * @return string HTML fragment.
      *
      */
-    public function attempt_page($attemptid, $slot, $options, $cmid) {
-       $output = '';
+    public function attempt_page(attempt $attempt, $slot, $options, $cmid) {
+        $output = '';
 
-       $attempt = attempt::load($attemptid);
-       $quba = $attempt->get_quba();
+        $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
 
-       $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
-
-       $output .= html_writer::start_tag('form',
+        $output .= html_writer::start_tag('form',
            array('action' => $processurl, 'method' => 'post',
                'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
                'id' => 'responseform'));
-       $output .= html_writer::start_tag('div');
+        $output .= html_writer::start_tag('div');
 
-       $output .= $quba->render_question($slot, $options);
+        $output .= $attempt->get_quba()->render_question($slot, $options);
 
-       $output .= $this->attempt_navigation_buttons();
+        $output .= $this->attempt_navigation_buttons();
 
-       // Some hidden fields to track what is going on.
-       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
+        // Some hidden fields to track what is going on.
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
            'value' => $attempt->get_attemptid()));
-       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
            'value' => $slot));
-       $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
            'value' => $cmid));
 
-       $output .= html_writer::end_tag('div');
-       $output .= html_writer::end_tag('form');
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('form');
 
-       return $output;
+        return $output;
     }
 
     /**
@@ -155,12 +151,58 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $nextlabel = get_string('endtest', 'adaptivequiz');
         } else {*/
             $nextlabel = get_string('nextpage', 'adaptivequiz');
-        //}
+        // }
         $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next',
             'value' => $nextlabel));
         $output .= html_writer::end_tag('div');
 
         return $output;
+    }
+    
+    /**
+     * Builds the review page.
+     * 
+     * @param question_usage_by_activity $quba the question usage.
+     * @param attempt $attempt the attempt this review belongs to.
+     * @param question_display_options $options the display options.
+     * @return $output containing HTML data.
+     */
+    public function review_page(question_usage_by_activity $quba, attempt $attempt, $options) {
+        $output = '';
+        $output .= $this->review_question($quba, $attempt, $options);
+        $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
+        
+        return $output;
+    }
+    
+    /**
+     * Renders each question.
+     * 
+     * @param question_usage_by_activity $quba the question usage.
+     * @param attempt $attempt the attempt this review belongs to.
+     * @param question_display_options $options the display options.
+     * @return string HTML to output.
+     */
+    public function review_question(question_usage_by_activity $quba, attempt $attempt, $options) {
+        $output = '';
+        while(!$attempt->is_finished()) {
+            $output .= $quba->render_question($attempt->get_current_slot(), $options);
+            $attempt->next_slot();
+        }
+        return $output;
+    }
+    
+    /**
+     * Generates the finish review button.
+     * 
+     * @param int $cmid the course module id.
+     * @return string HTML fragment.
+     */
+    public function finish_review_button($cmid) {
+        $url = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
+        $buttontext = get_string('finishreview', 'adaptivequiz');
+        $button = new single_button($url, $buttontext);
+        return $this->render($button);
     }
 }
 

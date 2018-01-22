@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints a particular adaptive quiz
+ * Prints a particular adaptive quiz.
  *
  * @package    mod_adaptivequiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
@@ -64,6 +64,9 @@ $viewobj->cmid = $id;
 $viewobj->quizhasquestions = $mainblock->has_questions();
 $viewobj->preventmessages = array();
 $viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
+
+// TODO: unfinished check
+$unfinished = false;
 
 if (!$viewobj->quizhasquestions) {
     $viewobj->buttontext = '';

@@ -57,3 +57,24 @@ input[type=number].conditionelement {
 #conditiontypechoicecontainer {
 	display: none;
 }
+
+.questionbankloadingcontainer {
+	display: none;
+}
+
+.mod_adaptivequiz_qbank_dialogue {
+    width: 80%;
+    min-height: 200px;
+}
+
+.mod_adaptivequiz_qbank_dialogue .questionbankloading {
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    text-align: center;
+    opacity: 0.5;
+    padding-top: 50px;
+}

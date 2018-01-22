@@ -28,8 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * A class encapsulating a block and the questions it contains, and making the
- * information available to scripts like view.php.
+ * A class encapsulating a block and the questions it contains, and making the information available to scripts like view.php.
  *
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -104,12 +103,12 @@ class block {
     }
 
     /**
-     * loads the children for the block.
+     * Loads the children for the block.
      */
     protected function load_children() {
         global $DB;
 
-        //If the children are already loaded we dont need to do anything.
+        // If the children are already loaded we dont need to do anything.
         if ($this->children !== null) {
             return;
         }
@@ -118,7 +117,7 @@ class block {
 
         $this->children = array_map(function($id) {
                                         return block_element::load($this->quiz, $id->id);
-                                    },
+        },
                                     array_values($children));
     }
 
@@ -134,7 +133,7 @@ class block {
         $qinstance->blockid = $this->id;
         $qinstance->blockelement = $questionid;
         $qinstance->type = 0;
-        $qinstance->grade = 0; //TODO: ???
+        $qinstance->grade = 0; // TODO: ???
         $qinstance->slot = count($this->get_children());
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
@@ -146,7 +145,7 @@ class block {
     /**
      * Adds a new subblock to the block.
      *
-     * @param object $block the block to be added as a subblock.
+     * @param block $block the block to be added as a subblock.
      */
     public function add_subblock(block $block) {
         global $DB;
@@ -155,7 +154,7 @@ class block {
         $qinstance->blockid = $this->id;
         $qinstance->blockelement = $block->get_id();
         $qinstance->type = 1;
-        $qinstance->grade = 0; //TODO: ???
+        $qinstance->grade = 0; // TODO: ???
         $qinstance->slot = count($this->get_children());
 
         $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
@@ -182,8 +181,7 @@ class block {
         foreach ($this->get_children() as $element) {
             if ($element->is_question()) {
                 return true;
-            }
-            else if ($element->is_block() && $element->get_element()->has_questions()) {
+            } else if ($element->is_block() && $element->get_element()->has_questions()) {
                 return true;
             }
         }
@@ -217,7 +215,7 @@ class block {
 
         $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
 
-        // necessary because now the loaded children information is outdated.
+        // Necessary because now the loaded children information is outdated.
         $this->children = null;
     }
 
@@ -242,6 +240,7 @@ class block {
 
     /**
      * Sets the name of the block.
+     *
      * @param string $name new name of the block.
      */
     public function set_name($name) {
@@ -279,12 +278,11 @@ class block {
      * @return bool|int the the id of the parent block or false.
      */
     public function get_parentid() {
-        //if this is the main block, there is no parent block.
+        // If this is the main block, there is no parent block.
         if ($this->is_main_block()) {
             return false;
-        }
-        else {
-            //top down search in the block-tree to find the parent.
+        } else {
+            // Top down search in the block-tree to find the parent.
             return $this->quiz->get_main_block()->search_parent($this->id)->get_id();
         }
         return false;
@@ -324,7 +322,6 @@ class block {
      * Returns the slot number for an element id. Requires a prior call to enumerate.
      *
      * @param int $elementid the id of the element.
-     *
      * @return null|int the slot number of the element or null, if the element can not be found.
      */
     public function get_slot_for_element($elementid) {
@@ -333,22 +330,18 @@ class block {
             if ($child->is_question()) {
                 if ($child->get_id() == $elementid) {
                     return $slot;
-                }
-                else {
+                } else {
                     $slot++;
                 }
-            }
-            else if ($child->is_block()) {
+            } else if ($child->is_block()) {
                 $block = $child->get_element();
                 $childslot = $block->get_slot_for_element($elementid);
                 if (is_null($childslot)) {
                     $slot += $block->get_slotcount();
-                }
-                else {
+                } else {
                     return $childslot;
                 }
-            }
-            else {
+            } else {
                 debugging('Unsupported element type');
             }
         }
@@ -358,8 +351,7 @@ class block {
     /**
      * Returns the achieved grade for this block in a certain attempt.
      *
-     * @param attempt $attempt the attempt for which to return the grade_grade
-     *
+     * @param attempt $attempt the attempt for which to return the grade_grade.
      * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
      */
     public function get_grade(attempt $attempt) {
@@ -378,17 +370,15 @@ class block {
      * Enumerates the questions in this block.
      *
      * @param int $startingslot the slotnumber to start counting at.
-     *
      * @return int hte number of slots used by this block.
      */
     public function enumerate($startingslot) {
         $this->startingslot = $startingslot;
         $count = 0;
-        foreach($this->get_children() as $element) {
+        foreach ($this->get_children() as $element) {
             if ($element->is_question()) {
                 $count += 1;
-            }
-            else if ($element->is_block()) {
+            } else if ($element->is_block()) {
                 $count += $element->get_element()->enumerate($startingslot + $count);
             }
         }
@@ -399,8 +389,7 @@ class block {
     /**
      * Returns the next slot that a student should work on for a certain attempt.
      *
-     * @param attempt the attempt that  the student is currently working on.
-     *
+     * @param attempt $attempt the attempt that  the student is currently working on.
      * @return null|int the number of the next slot that the student should work on or null, if no such slot exists.
      */
     public function next_slot(attempt $attempt) {
@@ -415,8 +404,7 @@ class block {
                     return $slot;
                 }
                 $slot += 1;
-            }
-            else if ($child->is_block()) {
+            } else if ($child->is_block()) {
                 $block = $child->get_element();
                 $childslot = $block->next_slot($attempt);
                 if (!is_null($childslot)) {
@@ -430,8 +418,8 @@ class block {
 
     /**
      * Finds the parent of a block.
-     * @param int $childid the id of the child to find the parent for.
      *
+     * @param int $childid the id of the child to find the parent for.
      * @return bool|block the parent block or fals, if the parent can not be found.
      */
     protected function search_parent($childid) {
@@ -488,6 +476,7 @@ class block_element {
      * @param int $id the id of the block_elem.
      * @param adaptivequiz $quiz the quiz this reference belongs to.
      * @param int $type the type of this block_element.
+     * @param int $elementid the id of the element referenced.
      * @param object $element the element referenced by this block.
      */
     public function __construct($id, adaptivequiz $quiz, $type, $elementid, $element) {
@@ -513,14 +502,13 @@ class block_element {
         $element = null;
         if ($questioninstance->type == 0) {
             $element = $DB->get_record('question', array('id' => $questioninstance->blockelement), '*', MUST_EXIST);
-        }
-        else if ($questioninstance->type == 1) {
+        } else if ($questioninstance->type == 1) {
             $element = block::load($quiz, $questioninstance->blockelement);
-        }
-        else {
+        } else {
             return null;
         }
-        return new block_element($blockelementid, $quiz, (int)$questioninstance->type, (int)$questioninstance->blockelement, $element);
+        return new block_element($blockelementid, $quiz, (int)$questioninstance->type,
+            (int)$questioninstance->blockelement, $element);
     }
 
     /**
@@ -568,19 +556,16 @@ class block_element {
     /**
      * Returns the achieved grade for this element in a certain attempt.
      *
-     * @param attempt $attempt the attempt for which to return the grade_grade
-     *
+     * @param attempt $attempt the attempt for which to return the grade_grade.
      * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
      */
     public function get_grade(attempt $attempt) {
         if ($this->is_question()) {
             $slot = $this->quiz->get_slot_for_element($this->id);
             return $attempt->get_grade_at_slot($slot);
-        }
-        else if ($this->is_block()) {
+        } else if ($this->is_block()) {
             return $this->element->get_grade($attempt);
-        }
-        else {
+        } else {
             debugging('Unsupported element type: ' . $this->type);
             return 0;
         }
@@ -623,7 +608,6 @@ class block_element {
      * Get a URL for the edit page of this element.
      *
      * @param array $params paramters to use for the url.
-     *
      * @return \moodle_url the edit URL of the element.
      */
     public function get_edit_url(array $params) {
@@ -658,8 +642,7 @@ class block_element {
         if ($this->is_question()) {
             $question = question_bank::load_question($this->get_element()->id, false);
             $quba->add_question($question);
-        }
-        else if ($this->is_block()) {
+        } else if ($this->is_block()) {
             $this->get_element()->add_questions_to_quba($quba);
         }
     }
@@ -678,43 +661,43 @@ class block_condition {
     /** @var array the parts this condition is made from. */
     var $parts = null;
     /** @var bool whether the parts are connected with and. Otherwise they are connected with or. */
-    var $use_and = true;
+    var $useand = true;
 
     // Constructor =============================================================
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
-     * @param int $block the block this condition is for.
+     * @param block $block the block this condition is for.
      * @param array $parts the parts this condition is made from.
-     * @param bool $use_and whether the parts are connected with and. Otherwise they are connected with or.
+     * @param bool $useand whether the parts are connected with and. Otherwise they are connected with or.
      */
-    public function __construct(block $block, $parts, $use_and) {
+    public function __construct(block $block, $parts, $useand) {
         $this->block = $block;
         $this->parts = $parts;
-        $this->use_and = $use_and;
+        $this->useand = $useand;
     }
 
     /**
      * Loads the condition for one block from the database.
      *
-     * @param int $block the block to get the condition for.
+     * @param block $block the block to get the condition for.
      *
-     * @rteturn block_condition the loaded condition.
+     * @return block_condition the loaded condition.
      */
     public static function load(block $block) {
         global $DB;
 
         $blockid = $block->get_id();
 
-        $use_and = $DB->get_field('adaptivequiz_block', 'use_and', array('id' => $blockid), MUST_EXIST);
+        $useand = $DB->get_field('adaptivequiz_block', 'useand', array('id' => $blockid), MUST_EXIST);
         $parts = $DB->get_records('adaptivequiz_block_condition', array('block' => $blockid));
         $quiz = $block->get_quiz();
         $partobjs = array_map(function($part) use($quiz) {
             return new block_condition_part($part->id, $quiz, $part->type, $part->on_qinstance, $part->grade);
-                },
+        },
                 array_values($parts));
 
-        return new block_condition($block, $partobjs, $use_and);
+        return new block_condition($block, $partobjs, $useand);
     }
 
     /**
@@ -733,19 +716,17 @@ class block_condition {
      * Checks whether this condition is met for a certain attempt.
      *
      * @param object $attempt the attempt to check this part of the condition for.
-     *
      * @return bool whether this condition is fullfilled.
      */
     public function is_fullfilled($attempt) {
-        if ($this->use_and) {
+        if ($this->useand) {
             foreach ($this->parts as $part) {
                 if (!$part->is_fullfilled($attempt)) {
                     return false;
                 }
             }
             return true;
-        }
-        else {
+        } else {
             foreach ($this->parts as $part) {
                 if ($part->is_fullfilled($attempt)) {
                     return true;
@@ -759,17 +740,17 @@ class block_condition {
     /**
      * Sets how the parts of this condition are connected.
      *
-     * @param bool whether the parts of this condition should be connected with and. Or is used otherwise.
+     * @param bool $useand whether the parts of this condition should be connected with and. Or is used otherwise.
      */
-    public function set_use_and($use_and) {
-        if ($this->use_and != $use_and) {
+    public function set_use_and($useand) {
+        if ($this->useand != $useand) {
             global $DB;
 
-            $this->use_and = $use_and;
+            $this->useand = $useand;
 
             $record = new stdClass();
             $record->id = $this->block->get_id();
-            $record->use_and = $this->use_and;
+            $record->useand = $this->useand;
             $DB->update_record('adaptivequiz_block', $record);
         }
     }
@@ -779,8 +760,8 @@ class block_condition {
      *
      * @return bool true if the parts are connected with and, false for a connection with or.
      */
-    public function get_use_and() {
-        return $this->use_and;
+    public function get_useand() {
+        return $this->useand;
     }
 
     /**
@@ -812,7 +793,7 @@ class block_condition {
             }
         }
         foreach ($conditionparts as $part) {
-            //update existing condition parts
+            // Update existing condition parts.
             if (array_key_exists('id', $part)) {
                 foreach ($this->parts as $existingpart) {
                     if ($existingpart->get_id() == $part['id']) {
@@ -820,9 +801,7 @@ class block_condition {
                         break;
                     }
                 }
-            }
-            //insert new condition parts
-            else {
+            } else { // Insert new condition parts.
                 $this->add_part($part['type'], $part['question'], $part['points']);
             }
         }
@@ -837,13 +816,20 @@ class block_condition {
  * @since      Moodle 3.1
  */
 class block_condition_part {
-    // block_condition type
+    // Block_condition type.
+    /** */
     const WAS_DISPLAYED     = 0;
+    /** condition that student has less points than a set amount */
     const LESS              = 1;
+    /** condition that student has less or more points than a set amount */
     const LESS_OR_EQUAL     = 2;
+    /** condition that student has more points than a set amount */
     const GREATER           = 3;
+    /** condition that student has more or the same points than a set amount */
     const GREATER_OR_EQUAL  = 4;
+    /** condition that student has the same points than a set amount */
     const EQUAL             = 5;
+    /** condition that student has not the same points than a set amount */
     const NOT_EQUAL         = 6;
 
     /** @var int the id of the block_condition. */
@@ -906,7 +892,6 @@ class block_condition_part {
      * Checks whether this part of the condition is met for a certain attempt.
      *
      * @param attempt $attempt the attempt to check this part of the condition for.
-     *
      * @return bool whether this part of the condition is fullfilled.
      */
     public function is_fullfilled(attempt $attempt) {

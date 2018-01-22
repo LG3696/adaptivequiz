@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/adaptivequiz/db" VERSION="20180103" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
+<XMLDB PATH="mod/adaptivequiz/db" VERSION="20180118" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -28,7 +28,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="use_and" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the parts of the condition on this block should be connected with and. Or is used otherwise."/>
+        <FIELD NAME="useand" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the parts of the condition on this block should be connected with and. Or is used otherwise."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

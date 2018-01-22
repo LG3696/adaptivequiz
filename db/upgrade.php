@@ -32,9 +32,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute adaptivequiz upgrade from the given old version
+ * Execute adaptivequiz upgrade from the given old version.
  *
- * @param int $oldversion
+ * @param int $oldversion the current version number.
  * @return bool
  */
 function xmldb_adaptivequiz_upgrade($oldversion) {
@@ -42,5 +42,17 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2018011800) {
+
+        // Rename field use_and on table adaptivequiz_block to useand.
+        $table = new xmldb_table('adaptivequiz_block');
+        $field = new xmldb_field('use_and', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'name');
+
+        // Launch rename field useand.
+        $dbman->rename_field($table, $field, 'useand');
+
+        // Adaptivequiz savepoint reached.
+        upgrade_mod_savepoint(true, 2018011800, 'adaptivequiz');
+    }
     return true;
 }

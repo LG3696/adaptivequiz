@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a one-line short description of the file
+ * This is a one-line short description of the file.
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.

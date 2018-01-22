@@ -15,32 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides code to be executed during the module installation
- *
- * This file replaces the legacy STATEMENTS section in db/install.xml,
- * lib.php/modulename_install() post installation hook and partially defaults.php.
+ * Quiz external functions and service definitions.
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @category   external
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
  */
 
+defined('MOODLE_INTERNAL') || die;
 
+$functions = array(
+    'mod_adaptivequiz_get_questionbank' => array(
+        'classname' => 'mod_adaptivequiz_external',
+        'methodname' => 'get_questionbank',
+        'classpath' => 'mod/adaptivequiz/externallib.php',
+        'description' => 'Returns the HTML for the questionbank.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'mod/adaptivequiz:manage'
+    )
+);
 
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Post installation procedure
- *
- * @see upgrade_plugins_modules()
- */
-function xmldb_adaptivequiz_install() {
-}
-
-/**
- * Post installation recovery procedure
- *
- * @see upgrade_plugins_modules()
- */
-function xmldb_adaptivequiz_install_recovery() {
-}
+$services = array(
+  'Adaptivequiz service' => array(
+      'functions' => array('mod_adaptivequiz_get_questionbank'),
+      'restrictedusers' => 0,
+      'enabled' => 1
+  )
+);

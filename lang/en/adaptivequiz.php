@@ -16,7 +16,7 @@
 
 
 /**
- * English strings for adaptivequiz
+ * English strings for adaptivequiz.
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -43,6 +43,7 @@ $string['addablock'] = 'a new block';
 $string['addaquestion'] = 'a new question';
 $string['addacondition'] = 'Add a condition';
 $string['addpointscondition'] = 'Points at question';
+$string['addtoblock'] = 'Add to block';
 $string['all'] = 'all';
 $string['atleastone'] = 'at least one';
 $string['attemptquiznow'] = 'Attempt quiz now';
@@ -54,8 +55,14 @@ $string['continuepreview'] = 'Continue the last preview';
 $string['done'] = 'Done';
 $string['editingblock'] = 'Editing block:';
 $string['editingblockx'] = 'Editing block: {$a}';
+$string['editingfeedback'] = 'Editing feedback';
 $string['editquiz'] = 'Edit quiz';
+$string['eventadaptivequizattemptstarted'] = 'Adaptive Quiz attempt sarted';
+$string['eventadaptivequizattemptsubmitted'] = 'Adaptive Quiz attempt submitted';
+$string['eventattemptpreviewstarted'] = 'Adaptive Quiz attempt preview started';
+$string['eventeditpageviewed'] = 'Adaptive Quiz edit page viewed';
 $string['endtest'] = 'Finish attempt';
+$string['finishreview'] = 'Finish review';
 $string['grade'] = 'Grade';
 $string['mustbe'] = 'must be';
 $string['mustfullfill'] = 'A student must fullfill';

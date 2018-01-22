@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,32 +14,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides code to be executed during the module installation
- *
- * This file replaces the legacy STATEMENTS section in db/install.xml,
- * lib.php/modulename_install() post installation hook and partially defaults.php.
+ * Javascript for the question type chooser, when adding a new question to a block.
  *
  * @package    mod_adaptivequiz
- * @copyright  2016 Your Name <your@email.address>
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Post installation procedure
- *
- * @see upgrade_plugins_modules()
- */
-function xmldb_adaptivequiz_install() {
-}
-
-/**
- * Post installation recovery procedure
- *
- * @see upgrade_plugins_modules()
- */
-function xmldb_adaptivequiz_install_recovery() {
-}
+define(['jquery'], function($) {
+    return {
+        init: function() {
+            //make the add block button submit all changes and a request for a new block
+            $('.addnewblock').click(function(e) {
+                e.preventDefault();
+                var input = $('<input>')
+                    .attr('type', 'hidden')
+                    .attr('name', 'addnewblock').val(1);
+                $('#blockeditingform').append($(input));
+               $('#blockeditingform').submit(); 
+            });
+        }
+    };
+});

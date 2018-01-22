@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The main adaptivequiz configuration form
+ * The main adaptivequiz configuration form.
  *
  * It uses the standard core Moodle formslib. For more info about them, please
  * visit: http://docs.moodle.org/en/Development:lib/formslib.php
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 
 /**
- * Module instance settings form
+ * Module instance settings form.
  *
  * @package    mod_adaptivequiz
  * @copyright  2016 Your Name <your@email.address>
@@ -39,7 +39,7 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
 class mod_adaptivequiz_mod_form extends moodleform_mod {
 
     /**
-     * Defines forms elements
+     * Defines forms elements.
      */
     public function definition() {
         global $CFG;
@@ -66,7 +66,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         } else {
             $this->add_intro_editor();
         }
-		
+
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();
 

@@ -47,8 +47,10 @@ class edit_renderer extends \plugin_renderer_base {
     public function edit_page(\block $block, \moodle_url $pageurl, array $pagevars) {
         $output = '';
 
-        $output .= html_writer::start_tag('form', array('method' => 'POST', 'action' => $pageurl->out()));
-        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
+        $output .= html_writer::start_tag('form',
+            array('method' => 'POST', 'id' => 'blockeditingform', 'action' => $pageurl->out()));
+        $output .= html_writer::tag('input', '',
+            array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
@@ -61,21 +63,28 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
 
         $children = $block->get_children();
-        foreach($children as $child) {
+        foreach ($children as $child) {
             $output .= $this->block_elem($child, $pageurl, $pageurl->get_param('cmid'));
         }
 
         $category = question_get_category_id_from_pagevars($pagevars);
 
-        $addmenu = $this->add_menu($pageurl, $category);
+        $addmenu = $this->add_menu($block, $pageurl, $category);
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
 
-        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'), array('type' => 'submit', 'name' => 'done', 'value' => 1));
+        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
+            array('type' => 'submit', 'name' => 'done', 'value' => 1));
         $output .= html_writer::end_tag('form');
 
         $output .= $this->question_chooser($pageurl, $category);
         $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
+
+        $output .= $this->questionbank_loading();
+        $this->page->requires->js_call_amd('mod_adaptivequiz/questionbank', 'init');
+
+        $this->page->requires->js_call_amd('mod_adaptivequiz/addnewblock', 'init');
+
         if (!$block->is_main_block()) {
             $output .= $this->condition_type_chooser($block);
             $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
@@ -93,14 +102,14 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to display this element.
      */
     public function block_elem(\block_element $blockelem, $pageurl, $cmid) {
-        //Description of the element.
-        $element_html = '';
-        $edit_html = '';
+        // Description of the element.
+        $elementhtml = '';
+        $edithtml = '';
 
-        $element_html = $blockelem->get_name();
-        $edit_html = $this->element_edit_button($blockelem, $pageurl, $cmid);
-        $remove_html = $this->element_remove_button($blockelem, $pageurl);
-        return html_writer::tag('li', $element_html . $edit_html . $remove_html);
+        $elementhtml = $blockelem->get_name();
+        $edithtml = $this->element_edit_button($blockelem, $pageurl, $cmid);
+        $removehtml = $this->element_remove_button($blockelem, $pageurl);
+        return html_writer::tag('li', $elementhtml . $edithtml . $removehtml);
     }
 
     /**
@@ -136,8 +145,7 @@ class edit_renderer extends \plugin_renderer_base {
             return html_writer::tag('button',
                 '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />',
                 array('type' => 'submit', 'name' => 'edit', 'value' => $element->get_id()));
-        }
-        else {
+        } else {
             return '';
         }
     }
@@ -146,6 +154,7 @@ class edit_renderer extends \plugin_renderer_base {
      * Outputs the remove button HTML for an element.
      *
      * @param \block_element $element the element to get the button for.
+     * @param \moodle_url $pageurl The URL of the page. 
      * @return string HTML to output.
      */
     public function element_remove_button($element, $pageurl) {
@@ -157,12 +166,13 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Outputs the add menu HTML.
      *
+     * @param \block $block object containing all the block information.
      * @param \moodle_url $pageurl The URL of the page.
      * @param int $category the id of the category for new questions.
      *
      * @return string HTML to output.
      */
-    protected function add_menu(\moodle_url $pageurl, $category) {
+    protected function add_menu(\block $block, \moodle_url $pageurl, $category) {
         $menu = new \action_menu();
         $menu->set_alignment(\action_menu::TL, \action_menu::TL);
         $trigger = html_writer::tag('span', get_string('add', 'adaptivequiz'));
@@ -174,29 +184,30 @@ class edit_renderer extends \plugin_renderer_base {
             'category' => $category,
             'appendqnumstring' => 'addquestion');
 
-        //Button to add a question.
+        // Button to add a question.
         $addaquestion = new \action_menu_link_secondary(
             new \moodle_url('/question/addquestion.php', $params),
-            new \pix_icon('t/add', get_string('addaquestion', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
-            get_string('addaquestion', 'adaptivequiz'),
+            new \pix_icon('t/add', get_string('addaquestion', 'adaptivequiz'),
+                'moodle', array('class' => 'iconsmall', 'title' => '')), get_string('addaquestion', 'adaptivequiz'),
             array('class' => 'cm-edit-action addquestion', 'data-action' => 'addquestion')
             );
         $menu->add($addaquestion);
 
         //Button to add question from question bank.
         $questionbank =  new \action_menu_link_secondary($pageurl,
-            new \pix_icon('t/add', get_string('questionbank', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
-            get_string('questionbank', 'adaptivequiz'),
-            array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank'));
+            new \pix_icon('t/add', get_string('questionbank', 'adaptivequiz'), 'moodle',
+                array('class' => 'iconsmall', 'title' => '')), get_string('questionbank', 'adaptivequiz'),
+            array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank',
+                'data-cmid' => $block->get_quiz()->get_cmid()));
         $menu->add($questionbank);
         $menu->prioritise = true;
 
-        //Button to add a block.
+        // Button to add a block.
         $addblockurl = new \moodle_url($pageurl, array('addblock' => 1));
         $addablock = new \action_menu_link_secondary($addblockurl,
             new \pix_icon('t/add', get_string('addablock', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
             get_string('addablock', 'adaptivequiz'),
-            array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank'));
+            array('class' => 'cm-edit-action addnewblock'));
         $menu->add($addablock);
 
         return html_writer::tag('span', $this->render($menu),
@@ -214,7 +225,8 @@ class edit_renderer extends \plugin_renderer_base {
         $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
         $conjunctionchooser = $this->conjunction_chooser($block);
         $conditionlist = \html_writer::div($this->condition($block), 'conditionpartslist');
-        $addcondition = \html_writer::tag('a', get_string('addacondition', 'mod_adaptivequiz'), array('href' => '#', 'class' => 'addblockcondition'));
+        $addcondition = \html_writer::tag('a', get_string('addacondition', 'mod_adaptivequiz'),
+            array('href' => '#', 'class' => 'addblockcondition'));
         $container = $header . $conjunctionchooser . $conditionlist . $addcondition;
         return html_writer::div($container, 'conditionblock');
     }
@@ -230,10 +242,10 @@ class edit_renderer extends \plugin_renderer_base {
         if ($block->get_condition()->get_use_and()) {
             $options = \html_writer::tag('option', get_string('all', 'adaptivequiz'), array('value' => 1, 'selected' => ''));
             $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'), array('value' => 0));
-        }
-        else {
+        } else {
             $options = \html_writer::tag('option', get_string('all', 'adaptivequiz'), array('value' => 1));
-            $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'), array('value' => 0, 'selected' => ''));
+            $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'),
+                array('value' => 0, 'selected' => ''));
         }
 
         $chooser = \html_writer::tag('select', $options, array('name' => 'use_and'));
@@ -253,7 +265,8 @@ class edit_renderer extends \plugin_renderer_base {
         $output = \html_writer::start_tag('form', array('action' => new \moodle_url('/mod/adaptivequiz/view.php'),
             'id' => 'chooserform', 'method' => 'get'));
         $output .= \html_writer::tag('input', '',
-                array('type' => 'submit', 'name' => 'addpointscondition', 'class' => 'submitbutton', 'value' => get_string('addpointscondition', 'mod_adaptivequiz')));
+                array('type' => 'submit', 'name' => 'addpointscondition', 'class' => 'submitbutton',
+                    'value' => get_string('addpointscondition', 'mod_adaptivequiz')));
         $output .= \html_writer::end_tag('form');
         $formdiv = \html_writer::div($output, 'choseform');
         $header = html_writer::div(get_string('choosecondtiontypetoadd', 'mod_adaptivequiz'), 'chooserheader hd');
@@ -270,7 +283,7 @@ class edit_renderer extends \plugin_renderer_base {
      *
      * @return string the HTML of the condition.
      */
-    protected  function condition(\block $block) {
+    protected function condition(\block $block) {
         $output = '';
         foreach ($block->get_condition()->get_parts() as $part) {
             $output .= $this->condition_part($block, $part);
@@ -286,19 +299,20 @@ class edit_renderer extends \plugin_renderer_base {
      *
      * @return string the HTML of the condition part.
      */
-    protected  function condition_part(\block $block, \block_condition_part $part) {
+    protected function condition_part(\block $block, \block_condition_part $part) {
         static $index = 0;
         $index += 1;
-        $condition_part = '';
+        $conditionpart = '';
         switch ($part->get_type()) {
             case \block_condition_part::WAS_DISPLAYED:
-                //TODO
+                // TODO: .
                 break;
             default:
-              $condition_part = $this->points_condition($block, 'part' . $index, $part);
+                $conditionpart = $this->points_condition($block, 'part' . $index, $part);
         }
-        $condition_part .= \html_writer::tag('input', '', array('class' => 'conditionid', 'name' => 'conditionparts[part' . $index . '][id]', 'value' => $part->get_id()));
-        return \html_writer::div($condition_part, 'conditionpart');
+        $conditionpart .= \html_writer::tag('input', '',
+            array('class' => 'conditionid', 'name' => 'conditionparts[part' . $index . '][id]', 'value' => $part->get_id()));
+        return \html_writer::div($conditionpart, 'conditionpart');
     }
 
     /**
@@ -312,14 +326,18 @@ class edit_renderer extends \plugin_renderer_base {
      */
     protected function points_condition(\block $block, $index = '', $part = null) {
         $questionspan = \html_writer::tag('span', $this->question_selector($block, $index, $part));
-        $condition = \html_writer::tag('label', get_string('grade', 'adaptivequiz') . ' ' . $questionspan, array('class' => 'conditionelement'));
+        $condition = \html_writer::tag('label', get_string('grade', 'adaptivequiz') . ' ' . $questionspan,
+            array('class' => 'conditionelement'));
         $comparatorspan = \html_writer::tag('span', $this->comparator_selector($index, $part));
-        $condition .= ' ' . \html_writer::tag('label', get_string('mustbe', 'adaptivequiz') . ' ' . $comparatorspan, array('class' => 'conditionelement'));
+        $condition .= ' ' . \html_writer::tag('label', get_string('mustbe', 'adaptivequiz') . ' ' . $comparatorspan,
+            array('class' => 'conditionelement'));
         $value = 0;
         if ($part) {
             $value = $part->get_grade();
         }
-        $condition .= ' ' . \html_writer::tag('input', '', array('class' => 'conditionelement conditionpoints', 'name' => 'conditionparts[' . $index . '][points]', 'type' => 'number', 'value' => $value));
+        $condition .= ' ' . \html_writer::tag('input', '',
+            array('class' => 'conditionelement conditionpoints', 'name' => 'conditionparts[' . $index . '][points]',
+                'type' => 'number', 'value' => $value));
 
         $strdelete = get_string('delete');
         $image = $this->pix_icon('t/delete', $strdelete);
@@ -348,7 +366,8 @@ class edit_renderer extends \plugin_renderer_base {
             }
             $options .= \html_writer::tag('option', $element->get_name(), $attributes);
         }
-        return \html_writer::tag('select', $options, array('class' => 'conditionquestion', 'name' => 'conditionparts[' . $index . '][question]'));
+        return \html_writer::tag('select', $options,
+            array('class' => 'conditionquestion', 'name' => 'conditionparts[' . $index . '][question]'));
     }
 
     /**
@@ -377,8 +396,7 @@ class edit_renderer extends \plugin_renderer_base {
             $options .= \html_writer::tag('option', '&ge;', $attributes[\block_condition_part::GREATER_OR_EQUAL]);
             $options .= \html_writer::tag('option', '=', $attributes[\block_condition_part::EQUAL]);
             $options .= \html_writer::tag('option', '&ne;', $attributes[\block_condition_part::NOT_EQUAL]);
-        }
-        else {
+        } else {
             $options = \html_writer::tag('option', '<', array('value' => \block_condition_part::LESS));
             $options .= \html_writer::tag('option', '&le;', array('value' => \block_condition_part::LESS_OR_EQUAL));
             $options .= \html_writer::tag('option', '>', array('value' => \block_condition_part::GREATER));
@@ -386,7 +404,8 @@ class edit_renderer extends \plugin_renderer_base {
             $options .= \html_writer::tag('option', '=', array('value' => \block_condition_part::EQUAL));
             $options .= \html_writer::tag('option', '&ne;', array('value' => \block_condition_part::NOT_EQUAL));
         }
-        return \html_writer::tag('select', $options, array('class' => 'conditiontype', 'name' => 'conditionparts[' . $index . '][type]'));
+        return \html_writer::tag('select', $options,
+            array('class' => 'conditiontype', 'name' => 'conditionparts[' . $index . '][type]'));
     }
 
     /**
@@ -397,8 +416,45 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML of the dialogue.
      */
     public function question_chooser(\moodle_url $returnurl, $category) {
-        $container = html_writer::div(print_choose_qtype_to_add_form(array('returnurl' => $returnurl->out_as_local_url(false), 'cmid' => $returnurl->get_param('cmid'), 'appendqnumstring' => 'addquestion', 'category' => $category), null, false), '',
-            array('id' => 'qtypechoicecontainer'));
+        $container = html_writer::div(print_choose_qtype_to_add_form(array('returnurl' => $returnurl->out_as_local_url(false),
+            'cmid' => $returnurl->get_param('cmid'), 'appendqnumstring' => 'addquestion', 'category' => $category),
+            null, false), '', array('id' => 'qtypechoicecontainer'));
         return html_writer::div($container, 'createnewquestion');
+    }
+
+    /**
+     * Renders the HTML for the question bank loading icon.
+     *
+     * @return string the HTML div of the icon.
+     */
+    public function questionbank_loading() {
+        return html_writer::div(html_writer::div(html_writer::empty_tag('img',
+            array('alt' => 'loading', 'class' => 'loading-icon', 'src' => $this->pix_url('i/loading'))),
+            'questionbankloading'), 'questionbankloadingcontainer');
+    }
+
+
+
+    /**
+     * Return the contents of the question bank, to be displayed in the question-bank pop-up.
+     *
+     * @param \mod_adaptivequiz\question\bank\custom_view $questionbank the question bank view object.
+     * @param array $pagevars the variables from {@link \question_edit_setup()}.
+     * @return string HTML to output / send back in response to an AJAX request.
+     */
+    public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
+        return $questionbank->render('editq', $pagevars['page'], $pagevars['qperpage'], $pagevars['cat'], true, false, false);
+    }
+
+    /**
+     * Render the feedback edit page
+     *
+     * @param \feedback_block $block object containing all the feedback block information.
+     * @param \moodle_url $pageurl The URL of the page.
+     * @param array $pagevars the variables from {@link question_edit_setup()}.
+     * @return string HTML to output.
+     */
+    public function edit_feedback_page(\feedback_block $block, \moodle_url $pageurl, array $pagevars) {
+        return '';
     }
 }
