@@ -39,7 +39,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attempt_submitted extends \core\event\base {
+class attempt_finished extends \core\event\base {
 
     /**
      * Init method.
@@ -66,7 +66,7 @@ class attempt_submitted extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventadaptivequizattemptsubmitted', 'adaptivequiz');
+        return get_string('eventadaptivequizattemptfinished', 'adaptivequiz');
     }
 
     /**

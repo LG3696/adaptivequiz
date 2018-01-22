@@ -298,6 +298,7 @@ class attempt {
         // TODO in later userstory
         // quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
         
+        
         // Trigger event.
         $params = array(
             'context' => $this->get_quiz()->get_context(),
@@ -305,13 +306,13 @@ class attempt {
             'objectid' => $this->get_attemptid(),
             'relateduserid' => $this->get_userid(),
             'other' => array(
-                'submitterid' => CLI_SCRIPT ? null : $USER->id,
+                //'submitterid' => CLI_SCRIPT ? null : $USER->id,
                 'quizid' => $this->get_quiz()->get_id()
             )
         );
         
-        $event = $event = \mod_adaptivequiz\event\attempt_submitted::create($params);
-        $event_trigger;
+        $event = $event = \mod_adaptivequiz\event\attempt_finished::create($params);
+        $event->trigger();
 
         $transaction->allow_commit();
     }
