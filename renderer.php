@@ -163,12 +163,46 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Builds the review page.
      * 
      * @param question_usage_by_activity $quba the question usage.
-     * @param int $slot the slot of the question.
+     * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
      * @return $output containing HTML data.
      */
-    public function review_page(question_usage_by_activity $quba, $slot, $options) {
-        return $quba->render_question($slot, $options);
+    public function review_page(question_usage_by_activity $quba, attempt $attempt, $options) {
+        $output = '';
+        $output .= $this->review_question($quba, $attempt, $options);
+        $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
+        
+        return $output;
+    }
+    
+    /**
+     * Renders each question.
+     * 
+     * @param question_usage_by_activity $quba the question usage.
+     * @param attempt $attempt the attempt this review belongs to.
+     * @param question_display_options $options the display options.
+     * @return string HTML to output.
+     */
+    public function review_question(question_usage_by_activity $quba, attempt $attempt, $options) {
+        $output = '';
+        while(!$attempt->is_finished()) {
+            $output .= $quba->render_question($attempt->get_current_slot(), $options);
+            $attempt->next_slot();
+        }
+        return $output;
+    }
+    
+    /**
+     * Generates the finish review button.
+     * 
+     * @param int $cmid the course module id.
+     * @return string HTML fragment.
+     */
+    public function finish_review_button($cmid) {
+        $url = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
+        $buttontext = get_string('finishreview', 'adaptivequiz');
+        $button = new single_button($url, $buttontext);
+        return $this->render($button);
     }
 }
 

@@ -54,6 +54,5 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2018011800, 'adaptivequiz');
     }
-
     return true;
 }
