@@ -315,16 +315,16 @@ class edit_renderer extends \plugin_renderer_base {
      * Renders the HTML for a condition part.
      *
      * @param \block $block the block to render the condition part for.
-     * @param \block_condition_part $part the part of the condition to render.
+     * @param \condition_part $part the part of the condition to render.
      *
      * @return string the HTML of the condition part.
      */
-    protected function condition_part(\block $block, \block_condition_part $part) {
+    protected function condition_part(\block $block, \condition_part $part) {
         static $index = 0;
         $index += 1;
         $conditionpart = '';
         switch ($part->get_type()) {
-            case \block_condition_part::WAS_DISPLAYED:
+            case \condition_part::WAS_DISPLAYED:
                 // TODO: .
                 break;
             default:
@@ -340,7 +340,7 @@ class edit_renderer extends \plugin_renderer_base {
      *
      * @param \block $block the block to render the condition for.
      * @param string $index the index into the conditionparts array for this condition.
-     * @param \block_condition_part|null $part hte condtion part to fill in or null.
+     * @param \condition_part|null $part hte condtion part to fill in or null.
      *
      * @return string the HTML of the points condition.
      */
@@ -373,7 +373,7 @@ class edit_renderer extends \plugin_renderer_base {
      *
      * @param \block $block the block to render the selector for.
      * @param string $index the index into the conditionparts array for this condition.
-     * @param \block_condition_part|null $part the condition part used to fill in a value or null.
+     * @param \condition_part|null $part the condition part used to fill in a value or null.
      *
      * @return string the HTML of the dropdownbox.
      */
@@ -394,35 +394,35 @@ class edit_renderer extends \plugin_renderer_base {
      * Renders the HTML for a dropdownbox of all comparators that can be used in conditions.
      *
      * @param string $index the index into the conditionparts array for this condition.
-     * @param \block_condition_part|null $part the condition part used to fill in a value or null.
+     * @param \condition_part|null $part the condition part used to fill in a value or null.
      *
      * @return string the HTML of the dropdownbox.
      */
     protected function comparator_selector($index, $part = null) {
         if ($part) {
             $attributes = array();
-            $attributes[\block_condition_part::LESS] = array('value' => \block_condition_part::LESS);
-            $attributes[\block_condition_part::LESS_OR_EQUAL] = array('value' => \block_condition_part::LESS_OR_EQUAL);
-            $attributes[\block_condition_part::GREATER] = array('value' => \block_condition_part::GREATER);
-            $attributes[\block_condition_part::GREATER_OR_EQUAL] = array('value' => \block_condition_part::GREATER_OR_EQUAL);
-            $attributes[\block_condition_part::EQUAL] = array('value' => \block_condition_part::EQUAL);
-            $attributes[\block_condition_part::NOT_EQUAL] = array('value' => \block_condition_part::NOT_EQUAL);
+            $attributes[\condition_part::LESS] = array('value' => \condition_part::LESS);
+            $attributes[\condition_part::LESS_OR_EQUAL] = array('value' => \condition_part::LESS_OR_EQUAL);
+            $attributes[\condition_part::GREATER] = array('value' => \condition_part::GREATER);
+            $attributes[\condition_part::GREATER_OR_EQUAL] = array('value' => \condition_part::GREATER_OR_EQUAL);
+            $attributes[\condition_part::EQUAL] = array('value' => \condition_part::EQUAL);
+            $attributes[\condition_part::NOT_EQUAL] = array('value' => \condition_part::NOT_EQUAL);
 
             $attributes[$part->get_type()]['selected'] = '';
 
-            $options = \html_writer::tag('option', '<', $attributes[\block_condition_part::LESS]);
-            $options .= \html_writer::tag('option', '&le;', $attributes[\block_condition_part::LESS_OR_EQUAL]);
-            $options .= \html_writer::tag('option', '>', $attributes[\block_condition_part::GREATER]);
-            $options .= \html_writer::tag('option', '&ge;', $attributes[\block_condition_part::GREATER_OR_EQUAL]);
-            $options .= \html_writer::tag('option', '=', $attributes[\block_condition_part::EQUAL]);
-            $options .= \html_writer::tag('option', '&ne;', $attributes[\block_condition_part::NOT_EQUAL]);
+            $options = \html_writer::tag('option', '<', $attributes[\condition_part::LESS]);
+            $options .= \html_writer::tag('option', '&le;', $attributes[\condition_part::LESS_OR_EQUAL]);
+            $options .= \html_writer::tag('option', '>', $attributes[\condition_part::GREATER]);
+            $options .= \html_writer::tag('option', '&ge;', $attributes[\condition_part::GREATER_OR_EQUAL]);
+            $options .= \html_writer::tag('option', '=', $attributes[\condition_part::EQUAL]);
+            $options .= \html_writer::tag('option', '&ne;', $attributes[\condition_part::NOT_EQUAL]);
         } else {
-            $options = \html_writer::tag('option', '<', array('value' => \block_condition_part::LESS));
-            $options .= \html_writer::tag('option', '&le;', array('value' => \block_condition_part::LESS_OR_EQUAL));
-            $options .= \html_writer::tag('option', '>', array('value' => \block_condition_part::GREATER));
-            $options .= \html_writer::tag('option', '&ge;', array('value' => \block_condition_part::GREATER_OR_EQUAL));
-            $options .= \html_writer::tag('option', '=', array('value' => \block_condition_part::EQUAL));
-            $options .= \html_writer::tag('option', '&ne;', array('value' => \block_condition_part::NOT_EQUAL));
+            $options = \html_writer::tag('option', '<', array('value' => \condition_part::LESS));
+            $options .= \html_writer::tag('option', '&le;', array('value' => \condition_part::LESS_OR_EQUAL));
+            $options .= \html_writer::tag('option', '>', array('value' => \condition_part::GREATER));
+            $options .= \html_writer::tag('option', '&ge;', array('value' => \condition_part::GREATER_OR_EQUAL));
+            $options .= \html_writer::tag('option', '=', array('value' => \condition_part::EQUAL));
+            $options .= \html_writer::tag('option', '&ne;', array('value' => \condition_part::NOT_EQUAL));
         }
         return \html_writer::tag('select', $options,
             array('class' => 'conditiontype', 'name' => 'conditionparts[' . $index . '][type]'));
