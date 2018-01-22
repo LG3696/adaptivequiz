@@ -63,6 +63,7 @@ $string['eventattemptpreviewstarted'] = 'Adaptive Quiz attempt preview started';
 $string['eventattemptreviewed'] = 'Attempt reviewed';
 $string['eventeditpageviewed'] = 'Adaptive Quiz edit page viewed';
 $string['endtest'] = 'Finish attempt';
+$string['finishreview'] = 'Finish review';
 $string['grade'] = 'Grade';
 $string['mustbe'] = 'must be';
 $string['mustfullfill'] = 'A student must fullfill';
