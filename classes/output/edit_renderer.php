@@ -106,10 +106,30 @@ class edit_renderer extends \plugin_renderer_base {
         $elementhtml = '';
         $edithtml = '';
 
-        $elementhtml = $blockelem->get_name();
+        $elementhtml = \html_writer::div($this->block_elem_desc($blockelem), 'blockelement');
         $edithtml = $this->element_edit_button($blockelem, $pageurl, $cmid);
         $removehtml = $this->element_remove_button($blockelem, $pageurl);
-        return html_writer::tag('li', $elementhtml . $edithtml . $removehtml);
+        $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
+        return html_writer::tag('li', html_writer::div($elementhtml . $buttons, 'blockelementline'));
+    }
+
+    /**
+     * Render the description
+     * @param \block_element $blockelem
+     */
+    protected function block_elem_desc(\block_element $blockelem) {
+        $output = \html_writer::div($blockelem->get_name(), 'blockelementdescriptionname');
+        if ($blockelem->is_block()) {
+            $childrendescription = '';
+            foreach ($blockelem->get_element()->get_children() as $child) {
+                $childrendescription .= $this->block_elem_desc($child);
+            }
+            $output .= \html_writer::div($childrendescription, 'blockelementchildrendescription');
+            return html_writer::div($output, 'blockelementdescription blockelementblock');
+        }
+        else {
+            return html_writer::div($output, 'blockelementdescription');
+        }
     }
 
     /**
@@ -154,7 +174,7 @@ class edit_renderer extends \plugin_renderer_base {
      * Outputs the remove button HTML for an element.
      *
      * @param \block_element $element the element to get the button for.
-     * @param \moodle_url $pageurl The URL of the page. 
+     * @param \moodle_url $pageurl The URL of the page.
      * @return string HTML to output.
      */
     public function element_remove_button($element, $pageurl) {
@@ -239,7 +259,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML of the chooser.
      */
     protected function conjunction_chooser(\block $block) {
-        if ($block->get_condition()->get_use_and()) {
+        if ($block->get_condition()->get_useand()) {
             $options = \html_writer::tag('option', get_string('all', 'adaptivequiz'), array('value' => 1, 'selected' => ''));
             $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'), array('value' => 0));
         } else {
