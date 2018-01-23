@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/adaptivequiz/db" VERSION="20180122" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
+<XMLDB PATH="mod/adaptivequiz/db" VERSION="20180123" COMMENT="XMLDB file for Moodle mod/adaptivequiz"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -112,6 +112,32 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="on_qinstance" TYPE="foreign" FIELDS="on_qinstance" REFTABLE="adaptivequiz_qinstance" REFFIELDS="id" COMMENT="the block_element this condition refers to"/>
         <KEY NAME="conditionid" TYPE="foreign" FIELDS="conditionid" REFTABLE="adaptivequiz_condition" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="adaptivequiz_feedback_block" COMMENT="A block for specialized feedback.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The quiz this feedback block belongs to."/>
+        <FIELD NAME="conditionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="the condition under which to use this feedback"/>
+        <FIELD NAME="feedbacktext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The text of the adaptive feedback."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="quizid" TYPE="foreign" FIELDS="quizid" REFTABLE="adaptivequiz" REFFIELDS="id"/>
+        <KEY NAME="conditionid" TYPE="foreign" FIELDS="conditionid" REFTABLE="adaptivequiz_condition" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="adaptivequiz_feedback_uses" COMMENT="Stores for which question instances a feedback block replaces the standard feedback.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="feedbackblockid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="questioninstanceid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="feedbackblockid" TYPE="foreign" FIELDS="feedbackblockid" REFTABLE="adaptivequiz_feedbackblock" REFFIELDS="id"/>
+        <KEY NAME="questioninstanceid" TYPE="foreign" FIELDS="questioninstanceid" REFTABLE="adaptivequiz_qinstance" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
