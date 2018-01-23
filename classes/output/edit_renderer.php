@@ -450,7 +450,8 @@ class edit_renderer extends \plugin_renderer_base {
     public function questionbank_loading() {
         return html_writer::div(html_writer::div(html_writer::empty_tag('img',
             array('alt' => 'loading', 'class' => 'loading-icon', 'src' => $this->pix_url('i/loading'))),
-            'questionbankloading'), 'questionbankloadingcontainer');
+            'questionbankloading'), 'questionbankloadingcontainer',
+            array('data-title' => get_string('addfromquestionbank', 'adaptivequiz')));
     }
 
 
