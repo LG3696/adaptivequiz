@@ -31,7 +31,6 @@ $attemptid = required_param('attempt', PARAM_INT);
 
 $attempt = attempt::load($attemptid);
 $cmid = $attempt->get_quiz()->get_cmid();
-$quba = $attempt->get_quba();
 
 if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
     print_error('invalidcoursemodule');
@@ -51,8 +50,6 @@ $options->correctness = question_display_options::VISIBLE;
 $options->flags = question_display_options::HIDDEN;
 $options->rightanswer = question_display_options::VISIBLE;
 
-$attempt->set_current_slot(1);
-
 $adaptivequiz = adaptivequiz::load($cm->instance);
 $PAGE->set_url($attempt->review_url());
 $PAGE->set_pagelayout('incourse');
@@ -62,6 +59,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-echo $output->review_page($quba, $attempt, $options);
+echo $output->review_page($attempt, $options);
 
 echo $OUTPUT->footer();

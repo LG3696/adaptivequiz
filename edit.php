@@ -109,7 +109,12 @@ if ($addquestion) {
 }
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
+if ($block->is_main_block()) {
+    $PAGE->set_title(get_string('editingquizx', 'adaptivequiz', format_string($quiz->name)));
+}
+else {
+    $PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
+}
 
 $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 

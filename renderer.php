@@ -161,33 +161,41 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     
     /**
      * Builds the review page.
-     * 
-     * @param question_usage_by_activity $quba the question usage.
+     *
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
      * @return $output containing HTML data.
      */
-    public function review_page(question_usage_by_activity $quba, attempt $attempt, $options) {
+    public function review_page(attempt $attempt, $options) {
         $output = '';
-        $output .= $this->review_question($quba, $attempt, $options);
+        $output .= $this->heading(get_string('quizfinished', 'adaptivequiz'));
+        $output .= $this->review_block($attempt->get_quiz()->get_main_block(), $attempt, $options);
         $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
         
         return $output;
     }
     
     /**
-     * Renders each question.
+     * Renders the feedback for a block.
      * 
-     * @param question_usage_by_activity $quba the question usage.
+     * @param block $block the block to generate the feedback for.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
      * @return string HTML to output.
-     */
-    public function review_question(question_usage_by_activity $quba, attempt $attempt, $options) {
+     */    
+    protected function review_block(block $block, attempt $attempt, $options) {
         $output = '';
-        while(!$attempt->is_finished()) {
-            $output .= $quba->render_question($attempt->get_current_slot(), $options);
-            $attempt->next_slot();
+        foreach ($block->get_children() as $child) {
+            if ($child->is_block()) {
+                $childblock = $child->get_element();
+                $condition = $childblock->get_condition();
+                if ($condition->is_fullfilled($attempt)) {
+                    $output .= $this->review_block($childblock, $attempt, $options);
+                }
+            } else if ($child->is_question()) {
+                $slot = $block->get_slot_for_element($child->get_id());
+                $output .= $attempt->get_quba()->render_question($slot, $options);
+            }
         }
         return $output;
     }
