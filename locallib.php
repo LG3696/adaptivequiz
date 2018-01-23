@@ -86,6 +86,7 @@ class adaptivequiz {
     public function get_main_block() {
         if (!$this->mainblock) {
             $this->mainblock = block::load($this, $this->mainblockid);
+            $this->enumerate();
         }
         return $this->mainblock;
     }

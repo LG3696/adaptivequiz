@@ -53,9 +53,15 @@ class edit_renderer extends \plugin_renderer_base {
             array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
-        $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
-        $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
-
+        if ($block->is_main_block()) {
+            $output .= $this->heading(get_string('editingquizx', 'adaptivequiz', format_string($block->get_name())));
+            $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockname', 'value' => $block->get_name()));
+        }
+        else {
+            $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
+            $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
+        }
+     
         if (!$block->is_main_block()) {
             $output .= $this->condition_block($block);
         }
