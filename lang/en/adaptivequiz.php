@@ -42,6 +42,7 @@ $string['add'] = 'Add';
 $string['addablock'] = 'a new block';
 $string['addaquestion'] = 'a new question';
 $string['addacondition'] = 'Add a condition';
+$string['addfromquestionbank'] = 'Add from questionbank';
 $string['addpointscondition'] = 'Points at question';
 $string['addtoblock'] = 'Add to block';
 $string['all'] = 'all';
