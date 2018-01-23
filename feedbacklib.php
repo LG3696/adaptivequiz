@@ -79,16 +79,28 @@ class feedback_block {
     protected $id = 0;
     /** @var adaptivequiz the quiz, this block belongs to. */
     protected $quiz = null;
+    /** @var string the name of this feedback. */
+    protected $name = '';
+    /** @var condition the condition under which to use this feedback instead of the standard feedback. */
+    protected $condition = null;
+    /** @var string the feedbacktext. */
+    protected $feedbacktext = '';
 
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the feedback block.
      * @param adaptivequiz $quiz the id of the quiz, this block belongs to.
+     * @param string $name the name of this feedback.
+     * @param condition $condition the condition under which to use this feedback instead of the standard feedback.
+     * @param string $feedbacktext the feedbacktext.
      */
-    public function __construct($id, $quiz) {
+    public function __construct($id, $quiz, $name, condition $condition, $feedbacktext) {
         $this->id = $id;
         $this->quiz = $quiz;
+        $this->name = $name;
+        $this->condition = $condition;
+        $this->feedbacktext = $feedbacktext;
     }
 
     /**
@@ -99,19 +111,57 @@ class feedback_block {
      * @return feedback_block the new feedback block object.
      */
     public static function load($blockid, adaptivequiz $quiz) {
-        return new feedback_block($blockid, $quiz);
+        global $DB;
+
+        $feedback = $DB->get_record('adaptivequiz_feedback_block', array('id' => $blockid));
+
+        $condition = condition::load($feedback->conditionid);
+
+        return new feedback_block($blockid, $quiz, $feedback->name, $condition, $feedback->feedbacktext);
     }
 
     /**
      * Creates a new feedback block in the database.
      *
      * @param adaptivequiz $quiz the quiz this feedbackblock belongs to.
+     * @param string $name the name of the feedback block.
      * @return feedback_block the created feedback block.
      */
-    public static function create(adaptivequiz $quiz) {
+    public static function create(adaptivequiz $quiz, $name) {
         global $DB;
-        // TODO
+
+        $condition = condition::create();
+
+        $record = new stdClass();
+        $record->name = $name;
+        $record->quizid = $quiz->get_id();
+        $record->conditionid = $condition->get_id();
+        $record->feedbacktext = '';
+
+        $blockid = $DB->insert_record('adaptivequiz_feedback_block', $record);
+
+        return new feedback_block($blockid, $quiz, $name, $condition, '');
     }
+
+    /**
+     * Updates the values of this feedback.
+     *
+     * @param string $name the new name.
+     * @param string $feedbacktext the new feedback text.
+     */
+    public function update($name, $feedbacktext) {
+        if ($this->name != $name || $this->feedbacktext != $feedbacktext) {
+            global $DB;
+
+            $record = new stdClass();
+            $record->id = $this->id;
+            $record->name = $name;
+            $record->feedbacktext = $feedbacktext;
+
+            $DB->update_record('adaptivequiz_feedback_block', $record);
+        }
+    }
+
 
     /**
      * Returns the id of the feedbackblock.
@@ -120,5 +170,32 @@ class feedback_block {
      */
     public function get_id() {
         return $this->id;
+    }
+
+    /**
+     * Gets the name of this feedback.
+     *
+     * @return string the name.
+     */
+    public function get_name() {
+        return $this->name;
+    }
+
+    /**
+     * Gets the condition under which to display this feedback.
+     *
+     * @return condition the condition.
+     */
+    public function get_condition() {
+        return $this->condition;
+    }
+
+    /**
+     * Gets the feedback text.
+     *
+     * @return string the feedback text.
+     */
+    public function get_feedback_text() {
+        return $this->feedbacktext;
     }
 }

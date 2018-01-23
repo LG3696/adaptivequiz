@@ -35,7 +35,7 @@ list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
 require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 
 $adaptivequiz = adaptivequiz::load($quiz->id);
-$feedbackblock = feedback_block::load($adaptivequiz, $blockid);
+$feedbackblock = feedback_block::load($blockid, $adaptivequiz);
 
 $thispageurl->param('bid', $blockid);
 
