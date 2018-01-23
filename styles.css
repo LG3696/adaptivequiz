@@ -54,6 +54,13 @@
 	padding: 22px;
 }
 
+.feedbackblock {
+	margin: 22px;
+	border: 1px solid;
+	border-radius: 10px;
+	padding: 22px;
+}
+
 .pointsconditioncontainer {
 	display: none;
 }

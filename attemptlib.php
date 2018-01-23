@@ -336,6 +336,7 @@ class attempt {
             $this->set_current_slot($nextslot);
         } else {
             $this->set_current_slot($this->quiz->get_main_block()->get_slotcount() + 1);
+            //TODO: finish attempt
         }
         return $nextslot;
     }

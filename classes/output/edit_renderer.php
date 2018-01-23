@@ -78,6 +78,10 @@ class edit_renderer extends \plugin_renderer_base {
         $addmenu = $this->add_menu($block, $pageurl, $category);
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
+        
+        if ($block->is_main_block()) {
+            $output .= $this->feedback_block();
+        }
 
         $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
             array('type' => 'submit', 'name' => 'done', 'value' => 1));
@@ -471,6 +475,17 @@ class edit_renderer extends \plugin_renderer_base {
      */
     public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
         return $questionbank->render('editq', $pagevars['page'], $pagevars['qperpage'], $pagevars['cat'], true, false, false);
+    }
+    
+    /**
+     * 
+     */
+    public function feedback_block() {
+        $header = html_writer::tag('h3', get_string('feedback', 'mod_adaptivequiz'), array('class' => 'feedbackheader'));
+        $addbutton = html_writer::tag('button', get_string('addfeedback', 'adaptivequiz'),
+            array('type' => 'submit', 'name' => 'addfeedback', 'value' => 1));
+        $container = $header . $addbutton;
+        return html_writer::div($container, 'feedbackblock');
     }
 
     /**
