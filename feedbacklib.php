@@ -35,11 +35,14 @@ defined('MOODLE_INTERNAL') || die();
  * @since      Moodle 3.1
  */
 class feedback {
+    /** @var array the feedback blocks of this feedback. */
+    protected $feedbackblocks = null;
+
     /**
      * Constructor, assuming we already have the necessary data loaded.
      */
-    public function __construct() {
-        //TODO
+    public function __construct(array $feedbackblocks) {
+        $this->feedbackblocks = $feedbackblocks;
     }
 
     /**
@@ -50,8 +53,12 @@ class feedback {
      * @return feedback the feedback for this quiz.
      */
     public static function get_feedback(adaptivequiz $quiz) {
-        //TODO
-        return new feedback();
+        global $DB;
+        $records = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $quiz->get_id()));
+        $blocks = array_map(function ($block) {
+            return feedback_block::load($block->id, $quiz);
+            }, $records);
+        return new feedback($blocks);
     }
 
     /**
@@ -62,7 +69,13 @@ class feedback {
      * @return bool true if specialized feedback for the block element exists.
      */
     public function has_specialized_feedback(block_element $blockelement) {
-        //TODO
+        foreach ($this->feedbackblocks as $block) {
+            foreach ($block->get_used_question_instances() as $qi) {
+                if ($qi == $blockelement->get_id()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 }
@@ -85,6 +98,8 @@ class feedback_block {
     protected $condition = null;
     /** @var string the feedbacktext. */
     protected $feedbacktext = '';
+    /** @var array the ids of the question instances for which the feedback is replaced by this block. */
+    protected $uses = null;
 
     /**
      * Constructor, assuming we already have the necessary data loaded.
@@ -197,5 +212,38 @@ class feedback_block {
      */
     public function get_feedback_text() {
         return $this->feedbacktext;
+    }
+
+    /**
+     * Returns the ids of the question instances whos feedback is replaced by this block.
+     *
+     * @return array the ids of the question instances.
+     */
+    public function get_used_question_instances() {
+        if (!$this->uses) {
+            global $DB;
+            $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id', array('id', 'questioninstanceid'));
+            $this->uses = array_map(function ($obj) {
+                return $obj->questioninstanceid;
+            }, $records);
+        }
+        return $this->uses;
+    }
+
+    /**
+     * Adds a question instance to the ones used by this feedback.
+     *
+     * @param int $questioninstanceid the id of the question instance.
+     */
+    public function add_question_instance($questioninstanceid) {
+        global $DB;
+
+        $record = new stdClass();
+        $record->feedbackblockid = $this->id;
+        $record->questioninstanceid = $questioninstanceid;
+
+        $DB->insert_record('adaptivequiz_feedback_uses', $record);
+
+        array_push($this->uses, $questioninstanceid);
     }
 }

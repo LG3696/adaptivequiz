@@ -30,7 +30,7 @@ $blockid = required_param('bid', PARAM_INT);
 $save = optional_param('save', 0, PARAM_INT);
 
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
-    question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
+    question_edit_setup('editq', '/mod/adaptivequiz/editfeedback.php', true);
 
 require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 
@@ -42,6 +42,12 @@ $thispageurl->param('bid', $blockid);
 $PAGE->set_url($thispageurl);
 
 $adaptivequiz = adaptivequiz::load($quiz->id);
+
+if (optional_param('save', 0, PARAM_INT)) {
+    // TODO: do some saving...
+    $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
+    redirect($nexturl);
+}
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('editingfeedback', 'adaptivequiz'));
