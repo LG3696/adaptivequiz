@@ -98,15 +98,14 @@ class attempt {
      * @param int $attemptnumber the number of this attempt.
      * @param int $currentslot the current slot of this attempt.
      */
-    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1, $timestart, $state) {
+    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1) {
         $this->id = $id;
         $this->quba = $quba;
         $this->quiz = $quiz;
         $this->userid = $userid;
         $this->attemptnumber = $attemptnumber;
         $this->currentslot = $currentslot;
-        $this->timestart = $timestart;
-        $this->state = $state;
+        $this->timestart = time();
     }
 
 
@@ -124,7 +123,7 @@ class attempt {
         $quiz = adaptivequiz::load($attemptrow->quiz);
 
         return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt, 
-            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state);
+            $attemptrow->currentslot);
     }
 
     /**
@@ -146,6 +145,7 @@ class attempt {
         $attemptrow->currentslot = 1;
         $attemptrow->timestart = time();
         $attemptrow->state = self::IN_PROGRESS;
+        $attemptrow->timefinish = 0;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
@@ -175,7 +175,7 @@ class attempt {
         $event->trigger();
 
         $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt, 
-            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state);
+            $attemptrow->currentslot);
         return $attempt;
     }
 
@@ -255,7 +255,7 @@ class attempt {
     }
     
     /**
-     * Return the finish time of the attempt.
+     * Returns the finish time of the attempt.
      * 
      * @return int the finish time.
      */
@@ -325,6 +325,8 @@ class attempt {
         $quba->finish_all_questions($timenow);
 
         question_engine::save_questions_usage_by_activity($quba);
+        
+        $this->timefinish = $timenow;
 
         $attempt = new stdClass();
         $attempt->id = $this->get_attemptid();
@@ -353,7 +355,7 @@ class attempt {
             )
         );
         
-        $event = $event = \mod_adaptivequiz\event\attempt_finished::create($params);
+        $event = \mod_adaptivequiz\event\attempt_finished::create($params);
         $event->trigger();
 
         $transaction->allow_commit();
