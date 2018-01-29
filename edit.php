@@ -98,6 +98,10 @@ if ($save) {
             'returnurl' => $thispageurl->out_as_local_url(false),
             'appendqnumstring' => 'addquestion'
         ));
+    } else if (optional_param('addfeedback', 0, PARAM_INT)) {
+        $feedbackblock = feedback_block::create($adaptivequiz, '');
+        $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
+            array('cmid' => $cmid, 'bid' => $feedbackblock->get_id()));
     } else {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
     }
@@ -109,7 +113,12 @@ if ($addquestion) {
 }
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
+if ($block->is_main_block()) {
+    $PAGE->set_title(get_string('editingquizx', 'adaptivequiz', format_string($quiz->name)));
+}
+else {
+    $PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
+}
 
 $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 

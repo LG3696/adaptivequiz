@@ -53,11 +53,17 @@ class edit_renderer extends \plugin_renderer_base {
             array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
-        $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
-        $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
+        if ($block->is_main_block()) {
+            $output .= $this->heading(get_string('editingquizx', 'adaptivequiz', format_string($block->get_name())));
+            $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockname', 'value' => $block->get_name()));
+        }
+        else {
+            $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
+            $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
+        }
 
         if (!$block->is_main_block()) {
-            $output .= $this->condition_block($block);
+            $output .= $this->condition_block($block->get_condition(), $block->get_condition_candidates());
         }
 
         $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
@@ -73,6 +79,10 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::tag('li', $addmenu);
         $output .= html_writer::end_tag('ul');
 
+        if ($block->is_main_block()) {
+            $output .= $this->feedback_block();
+        }
+
         $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
             array('type' => 'submit', 'name' => 'done', 'value' => 1));
         $output .= html_writer::end_tag('form');
@@ -86,7 +96,7 @@ class edit_renderer extends \plugin_renderer_base {
         $this->page->requires->js_call_amd('mod_adaptivequiz/addnewblock', 'init');
 
         if (!$block->is_main_block()) {
-            $output .= $this->condition_type_chooser($block);
+            $output .= $this->condition_type_chooser($block->get_condition_candidates());
             $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
         }
 
@@ -237,14 +247,15 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition block.
      *
-     * @param \block $block the block for which to render the conditions.
+     * @param \condition $condition the condition to be rendered.
+     * @param array $candidates the block_elements the condition can depend on.
      *
      * @return string the HTML of the condition block.
      */
-    public function condition_block(\block $block) {
+    public function condition_block(\condition $condition, $candidates) {
         $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
-        $conjunctionchooser = $this->conjunction_chooser($block);
-        $conditionlist = \html_writer::div($this->condition($block), 'conditionpartslist');
+        $conjunctionchooser = $this->conjunction_chooser($condition);
+        $conditionlist = \html_writer::div($this->condition($condition, $candidates), 'conditionpartslist');
         $addcondition = \html_writer::tag('a', get_string('addacondition', 'mod_adaptivequiz'),
             array('href' => '#', 'class' => 'addblockcondition'));
         $container = $header . $conjunctionchooser . $conditionlist . $addcondition;
@@ -254,12 +265,12 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the conjunction type chooser.
      *
-     * @param \block $block the block to render this chooser for.
+     * @param \condition $condition the condition to render this chooser for.
      *
      * @return string the HTML of the chooser.
      */
-    protected function conjunction_chooser(\block $block) {
-        if ($block->get_condition()->get_useand()) {
+    protected function conjunction_chooser(\condition $condition) {
+        if ($condition->get_useand()) {
             $options = \html_writer::tag('option', get_string('all', 'adaptivequiz'), array('value' => 1, 'selected' => ''));
             $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'), array('value' => 0));
         } else {
@@ -277,11 +288,11 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition type chooser.
      *
-     * @param \block $block the block to render the condition type chooser for.
+     * @param array $candidates the block_elements the condition can depend on.
      *
      * @return string the HTML of the condtion type chooser.
      */
-    protected function condition_type_chooser(\block $block) {
+    protected function condition_type_chooser($candidates) {
         $output = \html_writer::start_tag('form', array('action' => new \moodle_url('/mod/adaptivequiz/view.php'),
             'id' => 'chooserform', 'method' => 'get'));
         $output .= \html_writer::tag('input', '',
@@ -293,20 +304,22 @@ class edit_renderer extends \plugin_renderer_base {
         $dialogue = $header . \html_writer::div(\html_writer::div($formdiv, 'choosercontainer'), 'chooserdialogue');
         $container = html_writer::div($dialogue, '',
             array('id' => 'conditiontypechoicecontainer'));
-        return html_writer::div($container, 'addcondition') . \html_writer::div(\html_writer::div($this->points_condition($block), 'conditionpart'), 'pointsconditioncontainer');
+        return html_writer::div($container, 'addcondition') .
+            \html_writer::div(\html_writer::div($this->points_condition($candidates), 'conditionpart'), 'pointsconditioncontainer');
     }
 
     /**
      * Renders the HTML for a condition.
      *
-     * @param \block $block the block to render the condition for.
+     * @param \condition $condition the condition to render.
+     * @param array $candidates the block_elements the condition can depend on.
      *
      * @return string the HTML of the condition.
      */
-    protected function condition(\block $block) {
+    protected function condition(\condition $condition, $candidates) {
         $output = '';
-        foreach ($block->get_condition()->get_parts() as $part) {
-            $output .= $this->condition_part($block, $part);
+        foreach ($condition->get_parts() as $part) {
+            $output .= $this->condition_part($candidates, $part);
         }
         return $output;
     }
@@ -314,12 +327,12 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for a condition part.
      *
-     * @param \block $block the block to render the condition part for.
+     * @param array $candidates the block_elements the condition can depend on.
      * @param \condition_part $part the part of the condition to render.
      *
      * @return string the HTML of the condition part.
      */
-    protected function condition_part(\block $block, \condition_part $part) {
+    protected function condition_part($candidates, \condition_part $part) {
         static $index = 0;
         $index += 1;
         $conditionpart = '';
@@ -328,7 +341,7 @@ class edit_renderer extends \plugin_renderer_base {
                 // TODO: .
                 break;
             default:
-                $conditionpart = $this->points_condition($block, 'part' . $index, $part);
+                $conditionpart = $this->points_condition($candidates, 'part' . $index, $part);
         }
         $conditionpart .= \html_writer::tag('input', '',
             array('class' => 'conditionid', 'name' => 'conditionparts[part' . $index . '][id]', 'value' => $part->get_id()));
@@ -338,14 +351,14 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for the condition over question points.
      *
-     * @param \block $block the block to render the condition for.
+     * @param array $candidates the block_elements the condition can depend on.
      * @param string $index the index into the conditionparts array for this condition.
      * @param \condition_part|null $part hte condtion part to fill in or null.
      *
      * @return string the HTML of the points condition.
      */
-    protected function points_condition(\block $block, $index = '', $part = null) {
-        $questionspan = \html_writer::tag('span', $this->question_selector($block, $index, $part));
+    protected function points_condition($candidates, $index = '', $part = null) {
+        $questionspan = \html_writer::tag('span', $this->question_selector($candidates, $index, $part));
         $condition = \html_writer::tag('label', get_string('grade', 'adaptivequiz') . ' ' . $questionspan,
             array('class' => 'conditionelement'));
         $comparatorspan = \html_writer::tag('span', $this->comparator_selector($index, $part));
@@ -371,15 +384,15 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Renders the HTML for a dropdownbox of all questions, that this block can have conditions on.
      *
-     * @param \block $block the block to render the selector for.
+     * @param array $candidates the block_elements the condition can depend on.
      * @param string $index the index into the conditionparts array for this condition.
      * @param \condition_part|null $part the condition part used to fill in a value or null.
      *
      * @return string the HTML of the dropdownbox.
      */
-    protected function question_selector(\block $block, $index, $part) {
+    protected function question_selector($candidates, $index, $part) {
         $options = '';
-        foreach ($block->get_condition_candidates() as $element) {
+        foreach ($candidates as $element) {
             $attributes = array('value' => $element->get_id());
             if ($part && $part->get_elementid() == $element->get_id()) {
                 $attributes['selected'] = '';
@@ -450,7 +463,8 @@ class edit_renderer extends \plugin_renderer_base {
     public function questionbank_loading() {
         return html_writer::div(html_writer::div(html_writer::empty_tag('img',
             array('alt' => 'loading', 'class' => 'loading-icon', 'src' => $this->pix_url('i/loading'))),
-            'questionbankloading'), 'questionbankloadingcontainer');
+            'questionbankloading'), 'questionbankloadingcontainer',
+            array('data-title' => get_string('addfromquestionbank', 'adaptivequiz')));
     }
 
 
@@ -467,6 +481,17 @@ class edit_renderer extends \plugin_renderer_base {
     }
 
     /**
+     *
+     */
+    public function feedback_block() {
+        $header = html_writer::tag('h3', get_string('feedback', 'mod_adaptivequiz'), array('class' => 'feedbackheader'));
+        $addbutton = html_writer::tag('button', get_string('addfeedback', 'adaptivequiz'),
+            array('type' => 'submit', 'name' => 'addfeedback', 'value' => 1));
+        $container = $header . $addbutton;
+        return html_writer::div($container, 'feedbackblock');
+    }
+
+    /**
      * Render the feedback edit page
      *
      * @param \feedback_block $block object containing all the feedback block information.
@@ -475,6 +500,28 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function edit_feedback_page(\feedback_block $block, \moodle_url $pageurl, array $pagevars) {
-        return '';
+        $candidates = array();
+        $output = '';
+
+        $output .= html_writer::start_tag('form',
+            array('method' => 'POST', 'id' => 'blockeditingform', 'action' => $pageurl->out()));
+        $output .= html_writer::tag('input', '',
+            array('type' => 'hidden', 'name' => 'cmid', 'value' => $pageurl->get_param('cmid')));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
+
+        $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
+        $output .= $this->heading(get_string('editingfeedback', 'adaptivequiz') . ' ' . $namefield);
+
+        $output .= $this->condition_block($block->get_condition(), $candidates);
+
+        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
+            array('type' => 'submit', 'name' => 'done', 'value' => 1));
+        $output .= html_writer::end_tag('form');
+
+        $output .= $this->condition_type_chooser($candidates);
+        $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
+
+        return $output;
     }
 }

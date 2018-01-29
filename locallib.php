@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
 require_once($CFG->dirroot . '/mod/adaptivequiz/conditionlib.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/feedbackblocklib.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/feedbacklib.php');
 require_once($CFG->dirroot . '/mod/adaptivequiz/attemptlib.php');
 
 /**
@@ -86,6 +86,7 @@ class adaptivequiz {
     public function get_main_block() {
         if (!$this->mainblock) {
             $this->mainblock = block::load($this, $this->mainblockid);
+            $this->enumerate();
         }
         return $this->mainblock;
     }

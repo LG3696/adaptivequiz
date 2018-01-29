@@ -36,7 +36,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
             }
             
             var params = {
-                    headerContent : 'TODO',
+                    headerContent : $('div.questionbankloadingcontainer').data('title'),
                     bodyContent : $('div.questionbankloading').parent().html(),
                     draggable : true,
                     modal: true,
