@@ -67,4 +67,13 @@ class attempt_started extends \core\event\base {
     public static function get_name() {
         return get_string('eventadaptivequizattemptstarted', 'adaptivequiz');
     }
+    
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->objectid));
+    }
 }
