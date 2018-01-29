@@ -108,6 +108,12 @@ class adaptivequiz {
     public function get_cmid() {
         return $this->cmid;
     }
+    
+    //TODO: Doku
+    public function get_course_id() {
+        list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        return $course->id;
+    }
 
     /**
      * Get the context of this module.
