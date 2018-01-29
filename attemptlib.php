@@ -312,7 +312,7 @@ class attempt {
             )
         );
         
-        $event = $event = \mod_adaptivequiz\event\attempt_finished::create($params);
+        $event = \mod_adaptivequiz\event\attempt_finished::create($params);
         $event->trigger();
 
         $transaction->allow_commit();
