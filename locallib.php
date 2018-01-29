@@ -108,6 +108,12 @@ class adaptivequiz {
     public function get_cmid() {
         return $this->cmid;
     }
+    
+    //TODO: Doku
+    public function get_course_id() {
+        list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        return $course->id;
+    }
 
     /**
      * Get the context of this module.
@@ -164,5 +170,21 @@ class adaptivequiz {
      */
     public function add_questions_to_quba(question_usage_by_activity $quba) {
         $this->get_main_block()->add_questions_to_quba($quba);
+    }
+    
+    /**
+     * Returns the number of attainable marks.
+     * 
+     * @return int the attainable marks.
+     */
+    public function get_max_marks(question_usage_by_activity $quba) {
+        $maxmarks = 0;
+        foreach ($this->mainblock->get_children() as $child) {
+            if ($child->is_question()) {
+                $mark = $quba->get_question_max_mark($this->get_slot_for_element($child->get_id()));
+                $maxmarks += $mark;
+            }
+        }
+        return $maxmarks;
     }
 }

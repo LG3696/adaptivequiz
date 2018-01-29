@@ -55,10 +55,19 @@ $PAGE->set_url($attempt->review_url());
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(format_string($adaptivequiz->get_main_block()->get_name()));
 $PAGE->set_heading($course->fullname);
+
+$summarydata = array();
+$a = new stdClass();
+$a->grade = $attempt->get_quba()->get_total_mark();
+$a->maxgrade = $adaptivequiz->get_max_marks($attempt->get_quba());
+$summarydata['marks'] = array(
+    'title'   => get_string('marks', 'adaptivequiz'),
+    'content' => get_string('outofshort', 'adaptivequiz', $a));
+
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-echo $output->review_page($attempt, $options);
+echo $output->review_page($attempt, $options, $summarydata);
 
 echo $OUTPUT->footer();

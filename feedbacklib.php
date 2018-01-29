@@ -62,10 +62,18 @@ class feedback {
     }
 
     /**
+     * Returns the feedback blocks of this feedback.
+     *
+     * @return array the feedback_blocks.
+     */
+    public function get_blocks() {
+        return $this->feedbackblocks;
+    }
+
+    /**
      * Checks whether specialized feedback exist for a block element.
      *
      * @param block_element $blockelement the block element to check.
-     *
      * @return bool true if specialized feedback for the block element exists.
      */
     public function has_specialized_feedback(block_element $blockelement) {
@@ -203,6 +211,15 @@ class feedback_block {
      */
     public function get_condition() {
         return $this->condition;
+    }
+
+    /**
+     * Returns the quiz this block belongs to.
+     *
+     * @return adaptivequiz the quiz this block belongs to.
+     */
+    public function get_quiz() {
+        return $this->quiz;
     }
 
     /**

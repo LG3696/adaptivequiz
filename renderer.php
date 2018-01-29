@@ -164,14 +164,55 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      *
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
+     * @param array $summarydata contains all table data
      * @return $output containing HTML data.
      */
-    public function review_page(attempt $attempt, $options) {
+    public function review_page(attempt $attempt, $options, $summarydata) {
         $output = '';
         $output .= $this->heading(get_string('quizfinished', 'adaptivequiz'));
+        $output .= $this->review_summary_table($summarydata);
         $output .= $this->review_block($attempt->get_quiz()->get_main_block(), $attempt, $options);
         $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
         
+        return $output;
+    }
+    
+    /**
+     * Outputs the table containing data from summary data array
+     *
+     * @param array $summarydata contains row data for table
+     * @return $output containing HTML data.
+     */
+    public function review_summary_table($summarydata) {
+        if (empty($summarydata)) {
+            return '';
+        }
+        
+        $output = '';
+        $output .= html_writer::start_tag('table', array(
+            'class' => 'generaltable generalbox quizreviewsummary'));
+        $output .= html_writer::start_tag('tbody');
+        foreach ($summarydata as $rowdata) {
+            if ($rowdata['title'] instanceof renderable) {
+                $title = $this->render($rowdata['title']);
+            } else {
+                $title = $rowdata['title'];
+            }
+            
+            if ($rowdata['content'] instanceof renderable) {
+                $content = $this->render($rowdata['content']);
+            } else {
+                $content = $rowdata['content'];
+            }
+            
+            $output .= html_writer::tag('tr',
+                html_writer::tag('th', $title, array('class' => 'cell', 'scope' => 'row')) .
+                html_writer::tag('td', $content, array('class' => 'cell'))
+                );
+        }
+        
+        $output .= html_writer::end_tag('tbody');
+        $output .= html_writer::end_tag('table');
         return $output;
     }
     

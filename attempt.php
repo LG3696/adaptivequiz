@@ -44,6 +44,8 @@ require_login($course, false, $cm);
 
 // TODO: clean handling
 if ($attempt->is_finished()) {
+    $timenow = time();
+    $attempt->finish_attempt($timenow);
     redirect($attempt->review_url());
 }
 

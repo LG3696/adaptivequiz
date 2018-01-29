@@ -140,11 +140,12 @@ class attempt {
 
         $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
 
+        $quiz->get_cmid();
         // Params used by the events below.
         $params = array(
             'objectid' => $attemptid,
             'relateduserid' => $userid,
-            'courseid' => 2, // TODO: get_courseid() .
+            'courseid' => $quiz->get_course_id(),
             'context' => $quiz->get_context()
         );
 
@@ -298,20 +299,21 @@ class attempt {
         // TODO in later userstory
         // quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
         
+        
         // Trigger event.
         $params = array(
             'context' => $this->get_quiz()->get_context(),
-            'courseid' => 2, // TODO: course id .
+            'courseid' => $this->get_quiz()->get_course_id(),
             'objectid' => $this->get_attemptid(),
             'relateduserid' => $this->get_userid(),
             'other' => array(
-                'submitterid' => CLI_SCRIPT ? null : $USER->id,
+                //'submitterid' => CLI_SCRIPT ? null : $USER->id,
                 'quizid' => $this->get_quiz()->get_id()
             )
         );
         
-        $event = $event = \mod_adaptivequiz\event\attempt_submitted::create($params);
-        $event_trigger;
+        $event = \mod_adaptivequiz\event\attempt_finished::create($params);
+        $event->trigger();
 
         $transaction->allow_commit();
     }
