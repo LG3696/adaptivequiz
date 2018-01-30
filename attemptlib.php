@@ -41,11 +41,14 @@ class attempt {
 
 
     /** @var string to identify the in progress state. */
-    // ... const IN_PROGRESS = 'inprogress'; .
+    const IN_PROGRESS = 'inprogress'; 
+    
     /** @var string to identify the overdue state. */
     // ... const OVERDUE     = 'overdue'; .
+    
     /** @var string to identify the finished state. */
-    // ... const FINISHED    = 'finished'; .
+    const FINISHED = 'finished';
+    
     /** @var string to identify the abandoned state. */
     // ... const ABANDONED   = 'abandoned'; .
 
@@ -71,11 +74,14 @@ class attempt {
     // /** @var float the sum of the grades. */
     // protected $sumgrades;
 
-    // /** @var int time of starting this attempt. */
-    // protected $timestart;
+    /** @var int time of starting this attempt. */
+    protected $timestart;
+    
+    /** @var string state of the attempt. */
+    protected $state;
 
-    // /** @var int time of finishing this attempt. */
-    // protected $timefinish;
+    /** @var int time of finishing this attempt. */
+    protected $timefinish;
 
     // /** @var int time of last modification of this attempt. */
     // protected $timemodified;
@@ -92,13 +98,16 @@ class attempt {
      * @param int $attemptnumber the number of this attempt.
      * @param int $currentslot the current slot of this attempt.
      */
-    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1) {
+    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish) {
         $this->id = $id;
         $this->quba = $quba;
         $this->quiz = $quiz;
         $this->userid = $userid;
         $this->attemptnumber = $attemptnumber;
         $this->currentslot = $currentslot;
+        $this->state = $state;
+        $this->timestart = $timestart;
+        $this->timefinish = $timefinish;
     }
 
 
@@ -115,7 +124,8 @@ class attempt {
         $quba = question_engine::load_questions_usage_by_activity($attemptrow->quba);
         $quiz = adaptivequiz::load($attemptrow->quiz);
 
-        return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt, $attemptrow->currentslot);
+        return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt, 
+            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state, $attemptrow->timefinish);
     }
 
     /**
@@ -135,6 +145,9 @@ class attempt {
         $attemptrow->quiz = $quiz->get_id();
         $attemptrow->userid = $userid;
         $attemptrow->currentslot = 1;
+        $attemptrow->timestart = time();
+        $attemptrow->state = self::IN_PROGRESS;
+        $attemptrow->timefinish = 0;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
@@ -163,7 +176,8 @@ class attempt {
         // Trigger the event.
         $event->trigger();
 
-        $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt);
+        $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt, 
+            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state, $attemptrow->timefinish);
         return $attempt;
     }
 
@@ -222,6 +236,33 @@ class attempt {
      */
     public function get_attempt_number() {
         return $this->attemptnumber;
+    }
+    
+    /**
+     * Returns the start time of the attempt.
+     * 
+     * @return int the start time.
+     */
+    public function get_start_time() {
+        return $this->timestart;
+    }
+    
+    /**
+     * Returns the state of the attempt.
+     * 
+     * @return string the state.
+     */
+    public function get_state() {
+        return $this->state;
+    }
+    
+    /**
+     * Returns the finish time of the attempt.
+     * 
+     * @return int the finish time.
+     */
+    public function get_finish_time() {
+        return $this->timefinish;
     }
 
     /**
@@ -287,14 +328,16 @@ class attempt {
 
         question_engine::save_questions_usage_by_activity($quba);
 
-        $attempt = new stdClass();
-        $attempt->id = $this->get_attemptid();
-        $attempt->quba = $this->get_quba()->get_id();
-        $attempt->quiz = $this->get_quiz()->get_id();
-        $attempt->userid = $this->get_userid();
-        $attempt->attempt = $this->get_attempt_number();
-        $attempt->sumgrades = $this->quba->get_total_mark();
-        $DB->update_record('adaptivequiz_attempts', $attempt);
+        $attemptrow = new stdClass();
+        $attemptrow->id = $this->get_attemptid();
+        $attemptrow->quba = $this->get_quba()->get_id();
+        $attemptrow->quiz = $this->get_quiz()->get_id();
+        $attemptrow->userid = $this->get_userid();
+        $attemptrow->attempt = $this->get_attempt_number();
+        $attemptrow->sumgrades = $this->quba->get_total_mark();
+        $attemptrow->timefinish = $timenow;
+        $attemptrow->state = self::FINISHED;
+        $DB->update_record('adaptivequiz_attempts', $attemptrow);
 
         // TODO in later userstory
         // quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
