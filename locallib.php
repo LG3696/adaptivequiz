@@ -165,4 +165,14 @@ class adaptivequiz {
     public function add_questions_to_quba(question_usage_by_activity $quba) {
         $this->get_main_block()->add_questions_to_quba($quba);
     }
+
+
+    /**
+     * Returns all questions of this quiz.
+     *
+     * @return array the block_elements representing the questions.
+     */
+    public function get_questions() {
+        return $this->get_main_block()->get_questions();
+    }
 }

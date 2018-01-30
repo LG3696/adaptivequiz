@@ -46,6 +46,7 @@ $string['addfeedback'] = 'Add feedback';
 $string['addfromquestionbank'] = 'Add from questionbank';
 $string['addpointscondition'] = 'Points at question';
 $string['addtoblock'] = 'Add to block';
+$string['addusedquestion'] = 'Add question';
 $string['all'] = 'all';
 $string['atleastone'] = 'at least one';
 $string['attemptquiznow'] = 'Attempt quiz now';
@@ -79,3 +80,5 @@ $string['previewquiznow'] = 'Preview quiz now';
 $string['questionbank'] = 'from question bank';
 $string['quizfinished'] = 'Quiz finished';
 $string['reattemptquiz'] = 'Re-attempt quiz';
+$string['usesquestions'] = 'This feedback replaces the feedback of the following questions';
+

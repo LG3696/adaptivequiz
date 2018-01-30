@@ -240,9 +240,10 @@ class feedback_block {
     public function get_used_question_instances() {
         if (!$this->uses) {
             global $DB;
-            $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id', array('id', 'questioninstanceid'));
+            $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
+            $quiz = $this->quiz;
             $this->uses = array_map(function ($obj) {
-                return $obj->questioninstanceid;
+                return block_element::load($quiz, $obj->questioninstanceid);
             }, $records);
         }
         return $this->uses;
