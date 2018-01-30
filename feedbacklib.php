@@ -74,7 +74,6 @@ class feedback {
      * Checks whether specialized feedback exist for a block element.
      *
      * @param block_element $blockelement the block element to check.
-     *
      * @return bool true if specialized feedback for the block element exists.
      */
     public function has_specialized_feedback(block_element $blockelement) {

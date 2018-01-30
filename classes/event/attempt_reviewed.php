@@ -15,57 +15,58 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_adaptivequiz attempt started event.
+ * The mod_adaptivequiz attempt reviewed event.
  *
  * @package    mod_adaptivequiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_adaptivequiz\event;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quiz attempt started event class.
+ * The mod_quiz attempt reviewed event class.
  *
  * @property-read array $other {
  *      Extra information about event.
  *
- *      - int quizid: (optional) the id of the quiz.
+ *      - int quizid: the id of the quiz.
  * }
  *
  * @package    mod_adaptivequiz
- * @since      Moodle 2.6
+ * @since      Moodle 2.7
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attempt_started extends \core\event\base {
+class attempt_reviewed extends \core\event\base {
 
     /**
      * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'adaptivequiz_attempts';
-        $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'quiz_attempts';
+        $this->data['crud'] = 'r';
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
-
+    
     /**
      * Returns description of what happened.
      *
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->relateduserid' has started the attempt with id '$this->objectid' for the " .
-        "quiz with course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' has had their attempt with id '$this->objectid' reviewed by the user " .
+        "with id '$this->relateduserid' for the quiz with course module id '$this->contextinstanceid'.";
     }
-
+    
     /**
      * Returns localised general event name.
      *
      * @return string
      */
     public static function get_name() {
-        return get_string('eventadaptivequizattemptstarted', 'adaptivequiz');
+        return get_string('eventattemptreviewed', 'adaptivequiz');
     }
     
     /**

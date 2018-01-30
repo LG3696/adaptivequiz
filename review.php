@@ -55,10 +55,39 @@ $PAGE->set_url($attempt->review_url());
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(format_string($adaptivequiz->get_main_block()->get_name()));
 $PAGE->set_heading($course->fullname);
+
+$timestart = $attempt->get_start_time();
+$timefinish = $attempt->get_finish_time();
+$timetaken = format_time($timefinish - $timestart);
+
+$summarydata = array();
+$summarydata['startedon'] = array(
+    'title'   => get_string('startedon', 'adaptivequiz'),
+    'content' => userdate($timestart));
+
+$summarydata['state'] = array(
+    'title'   => get_string('attemptstate', 'adaptivequiz'),
+    'content' => $attempt->get_state());
+
+$summarydata['completedon'] = array(
+    'title'   => get_string('completedon', 'adaptivequiz'),
+    'content' => userdate($timefinish));
+
+$summarydata['timetaken'] = array(
+    'title'   => get_string('timetaken', 'adaptivequiz'),
+    'content' => $timetaken);
+
+$a = new stdClass();
+$a->grade = $attempt->get_quba()->get_total_mark();
+$a->maxgrade = $adaptivequiz->get_grade();
+$summarydata['marks'] = array(
+    'title'   => get_string('marks', 'adaptivequiz'),
+    'content' => get_string('outofshort', 'adaptivequiz', $a));
+
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 echo $OUTPUT->header();
 
-echo $output->review_page($attempt, $options);
+echo $output->review_page($attempt, $options, $summarydata);
 
 echo $OUTPUT->footer();
