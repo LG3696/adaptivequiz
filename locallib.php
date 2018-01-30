@@ -175,6 +175,7 @@ class adaptivequiz {
     /**
      * Returns the number of attainable marks.
      * 
+     * @param question_usage_by_activity $quba the question usage.
      * @return int the attainable marks.
      */
     public function get_max_marks(question_usage_by_activity $quba) {

@@ -98,14 +98,16 @@ class attempt {
      * @param int $attemptnumber the number of this attempt.
      * @param int $currentslot the current slot of this attempt.
      */
-    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1) {
+    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish) {
         $this->id = $id;
         $this->quba = $quba;
         $this->quiz = $quiz;
         $this->userid = $userid;
         $this->attemptnumber = $attemptnumber;
         $this->currentslot = $currentslot;
-        $this->timestart = time();
+        $this->state = $state;
+        $this->timestart = $timestart;
+        $this->timefinish = $timefinish;
     }
 
 
@@ -123,7 +125,7 @@ class attempt {
         $quiz = adaptivequiz::load($attemptrow->quiz);
 
         return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt, 
-            $attemptrow->currentslot);
+            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state, $attemptrow->timefinish);
     }
 
     /**
@@ -175,7 +177,7 @@ class attempt {
         $event->trigger();
 
         $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt, 
-            $attemptrow->currentslot);
+            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state, $attemptrow->timefinish);
         return $attempt;
     }
 
@@ -325,19 +327,17 @@ class attempt {
         $quba->finish_all_questions($timenow);
 
         question_engine::save_questions_usage_by_activity($quba);
-        
-        $this->timefinish = $timenow;
 
-        $attempt = new stdClass();
-        $attempt->id = $this->get_attemptid();
-        $attempt->quba = $this->get_quba()->get_id();
-        $attempt->quiz = $this->get_quiz()->get_id();
-        $attempt->userid = $this->get_userid();
-        $attempt->attempt = $this->get_attempt_number();
-        $attempt->sumgrades = $this->quba->get_total_mark();
-        $attempt->timefinish = $timenow;
-        $attempt->state = self::FINISHED;
-        $DB->update_record('adaptivequiz_attempts', $attempt);
+        $attemptrow = new stdClass();
+        $attemptrow->id = $this->get_attemptid();
+        $attemptrow->quba = $this->get_quba()->get_id();
+        $attemptrow->quiz = $this->get_quiz()->get_id();
+        $attemptrow->userid = $this->get_userid();
+        $attemptrow->attempt = $this->get_attempt_number();
+        $attemptrow->sumgrades = $this->quba->get_total_mark();
+        $attemptrow->timefinish = $timenow;
+        $attemptrow->state = self::FINISHED;
+        $DB->update_record('adaptivequiz_attempts', $attemptrow);
 
         // TODO in later userstory
         // quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);

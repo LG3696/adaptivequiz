@@ -85,3 +85,4 @@ $string['questionbank'] = 'from question bank';
 $string['quizfinished'] = 'Quiz finished';
 $string['reattemptquiz'] = 'Re-attempt quiz';
 $string['startedon'] = 'Started on';
+$string['timetaken'] = 'Time taken';
