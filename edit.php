@@ -73,7 +73,7 @@ if ($save) {
         if ($parentid = $block->get_parentid()) {
             $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $parentid));
         } else {
-            $maxgrade = $adaptivequiz->get_max_mark();
+            $adaptivequiz->calculate_grade();
             $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
         }
     } else if ($delete = optional_param('delete', 0, PARAM_INT)) {
