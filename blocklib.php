@@ -448,6 +448,23 @@ class block {
             $element->add_questions_to_quba($quba);
         }
     }
+
+    /**
+     * Returns all questions of this block and its descendants.
+     *
+     * @return array the block_elements representing the questions.
+     */
+    public function get_questions() {
+        $questions = array();
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                array_push($questions, $child);
+            } else if ($child->is_block()) {
+                $questions = array_merge($questions, $child->get_element()->get_questions());
+            }
+        }
+        return $questions;
+    }
 }
 
 

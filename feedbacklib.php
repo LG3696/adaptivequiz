@@ -171,8 +171,9 @@ class feedback_block {
      *
      * @param string $name the new name.
      * @param string $feedbacktext the new feedback text.
+     * @param array $usesquestions the questions used by this feedback.
      */
-    public function update($name, $feedbacktext) {
+    public function update($name, $feedbacktext, $usesquestions) {
         if ($this->name != $name || $this->feedbacktext != $feedbacktext) {
             global $DB;
 
@@ -182,6 +183,39 @@ class feedback_block {
             $record->feedbacktext = $feedbacktext;
 
             $DB->update_record('adaptivequiz_feedback_block', $record);
+        }
+
+        $old = $this->get_used_question_instances();
+        // Delete removed instances
+        foreach ($old as $existing) {
+            $deleted = true;
+            foreach ($usesquestions as $id) {
+                if ($id == $existing->get_id()) {
+                    $deleted = false;
+                    break;
+                }
+            }
+            if ($deleted) {
+                global $DB;
+                $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $existing->get_id()));
+            }
+        }
+        // Add new instances
+        foreach ($usesquestions as $id) {
+            $exists = false;
+            foreach ($old as $existing) {
+                if ($existing->get_id() == $id) {
+                    $exists = true;
+                }
+            }
+            if(!$exists) {
+                global $DB;
+
+                $record = new stdClass();
+                $record->feedbackblockid = $this->id;
+                $record->questioninstanceid = $id;
+                $DB->insert_record('adaptivequiz_feedback_uses', $record);
+            }
         }
     }
 
@@ -240,9 +274,8 @@ class feedback_block {
         if (!$this->uses) {
             global $DB;
             $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
-            $quiz = $this->quiz;
             $this->uses = array_map(function ($obj) {
-                return block_element::load($quiz, $obj->questioninstanceid);
+                return block_element::load($this->quiz, $obj->questioninstanceid);
             }, $records);
         }
         return $this->uses;

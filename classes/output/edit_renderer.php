@@ -26,6 +26,7 @@ namespace mod_adaptivequiz\output;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/lib/editorlib.php');
 
 use \html_writer;
 
@@ -500,7 +501,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function edit_feedback_page(\feedback_block $block, \moodle_url $pageurl, array $pagevars) {
-        $candidates = array();
+        $candidates = $block->get_quiz()->get_questions();
         $output = '';
 
         $output .= html_writer::start_tag('form',
@@ -513,7 +514,11 @@ class edit_renderer extends \plugin_renderer_base {
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
         $output .= $this->heading(get_string('editingfeedback', 'adaptivequiz') . ' ' . $namefield);
 
+        $output .= $this->uses_block($block);
+
         $output .= $this->condition_block($block->get_condition(), $candidates);
+
+        $output .= $this->feedback_editor($block->get_feedback_text());
 
         $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
             array('type' => 'submit', 'name' => 'done', 'value' => 1));
@@ -523,5 +528,93 @@ class edit_renderer extends \plugin_renderer_base {
         $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
 
         return $output;
+    }
+
+    /**
+     * Outputs the HTML to choose which questions feedback is replaced by the feedback block.
+     *
+     * @param \feedback_block $block the block for which to generate the HTML.
+     *
+     * @return string HTML to output.
+     */
+    public function uses_block(\feedback_block $block) {
+        $output = '';
+
+        $output .= \html_writer::tag('h3', get_string('usesquestions', 'mod_adaptivequiz'), array('class' => 'usesquestionblockheader'));
+
+        $output .= \html_writer::start_div('usedquestions');
+        foreach ($block->get_used_question_instances() as $instance) {
+            $output .= $this->uses_question($block, $instance);
+        }
+        $output .= \html_writer::end_div();
+
+        $output .= \html_writer::link('#', get_string('addusedquestion', 'adaptivequiz'), array('class' =>'addusedquestion'));
+
+        $output .= \html_writer::div($this->uses_question($block), 'usesquestioncontainer');
+
+        $this->page->requires->js_call_amd('mod_adaptivequiz/feedback', 'init');
+        return $output;
+    }
+
+    /**
+     * Outputs the HTML for a question whose feedback is replaced by the feedback block.
+     *
+     * @param \feedback_block $block the block for which to generate the HTML.
+     * @param int $index the index this selector should have.
+     * @param null|\block_element $selected the question for which to generate the HTML.
+     *
+     * @return string HTML to output.
+     */
+    public function uses_question(\feedback_block $block, \block_element $question = null) {
+        static $index = 64; // 'A' - 1
+        $index += 1;
+
+        $content = '';
+        $content .= \html_writer::div(chr($index), 'usesquestionletter');
+        $content .= $this->uses_selector($block, $question);
+        return \html_writer::div($content, 'usesquestion');
+    }
+
+    /**
+     * Outputs the HTML to choose a question whose feedback is replaced by the feedback block.
+     *
+     * @param \feedback_block $block the block for which to generate the HTML.
+     * @param null|\block_element $selected the selected option.
+     *
+     * @return string HTML to output.
+     */
+    public function uses_selector(\feedback_block $block, \block_element $selected = null) {
+        $options = '';
+
+        static $index = 0;
+        $index += 1;
+
+        foreach ($block->get_quiz()->get_questions() as $element) {
+            $attributes = array('value' => $element->get_id());
+            if ($selected && $selected->get_id() == $element->get_id()) {
+                $attributes['selected'] = '';
+            }
+            $options .= \html_writer::tag('option', $element->get_name(), $attributes);
+        }
+        return \html_writer::tag('select', $options,
+            array('class' => 'usesquestionselector', 'name' => 'usesquestions[' . $index . ']'));
+    }
+
+    /**
+     * Generates the HTML for the feeback text editor.
+     *
+     * @param string $feedbacktext the feedback text to put in at the start.
+     *
+     * @return string the HTML output.
+     */
+    public function feedback_editor($feedbacktext = '') {
+        $heading = $this->heading_with_help(get_string('feedbacktext', 'adaptivequiz'), 'feedbackquestion', 'adaptivequiz');
+        //$heading = $this->heading(get_string('feedbacktext', 'adaptivequiz'));
+        $editor = editors_get_preferred_editor();
+        $editor->set_text($feedbacktext);
+        $editor->use_editor('feedbacktext');
+        $editorhtml = \html_writer::tag('textarea', s($feedbacktext),
+            array('id' => 'feedbacktext', 'name' => 'feedbacktext', 'rows' => 15, 'cols' => 80));
+        return \html_writer::div($heading . \html_writer::div($editorhtml), 'feedbacktext');
     }
 }

@@ -204,7 +204,7 @@ class adaptivequiz {
         $grade = 0;
         foreach ($this->mainblock->get_children() as $child) {
             if ($child->is_question()) {
-                $question = question_bank::load_question($child->get_id(), false);
+                $question = question_bank::load_question($child->get_element()->id, false);
                 $mark = $question->defaultmark;
                 $grade += $mark;
             }
