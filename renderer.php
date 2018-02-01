@@ -59,7 +59,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output = '';
         $url = new \moodle_url('/mod/adaptivequiz/startattempt.php', array('cmid' => $viewobj->cmid));
         if ($viewobj->buttontext) {
-            $output .= $this->start_attempt_button($viewobj->buttontext, $url);
+            if ($viewobj->unfinishedattempt) {
+                $attempturl = new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $viewobj->unfinishedattempt));
+                $output .= $this->start_attempt_button($viewobj->buttontext, $attempturl);
+            }
+            else {
+                $output .= $this->start_attempt_button($viewobj->buttontext, $url);
+            }
             if ($viewobj->canmanage) {
                 $output .= $this->edit_quiz_button($viewobj);
             }
@@ -125,7 +131,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         // Some hidden fields to track what is going on.
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
-           'value' => $attempt->get_attemptid()));
+           'value' => $attempt->get_id()));
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
            'value' => $slot));
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
@@ -282,4 +288,8 @@ class mod_adaptivequiz_view_object {
     public $cmid;
     /** @var bool $canmanage whether the user is authorized to manage the quiz. */
     public $canmanage;
+    /** @var int $unfinishedattempt the id of the unfinished attempt. */
+    public $unfinishedattempt;
+    /** @var array $attempts contains all the user's attempts at this quiz. */
+    public $attempts;
 }

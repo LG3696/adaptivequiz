@@ -58,20 +58,25 @@ $quiz = adaptivequiz::load($adaptivequiz->id);
 $mainblock = $quiz->get_main_block();
 $canpreview = has_capability('mod/adaptivequiz:preview', $context);
 $canattempt = has_capability('mod/adaptivequiz:attempt', $context);
+
 $viewobj = new mod_adaptivequiz_view_object();
 
 $viewobj->cmid = $id;
 $viewobj->quizhasquestions = $mainblock->has_questions();
 $viewobj->preventmessages = array();
 $viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
+$attempts = attempt::get_user_attempts($adaptivequiz->id, $USER->id, 'finished');
+$viewobj->attempts = $attempts;
+$viewobj->numattempts = count($attempts);
 
-// TODO: unfinished check
-$unfinished = false;
+$unfinishedattempts = attempt::get_user_attempts($adaptivequiz->id, $USER->id, 'inprogress');
+$unfinished = end($unfinishedattempts);
 
 if (!$viewobj->quizhasquestions) {
     $viewobj->buttontext = '';
 } else {
     if ($unfinished) {
+        $viewobj->unfinishedattempt = $unfinished->get_id();
         if ($canattempt) {
             $viewobj->buttontext = get_string('continueattemptquiz', 'adaptivequiz');
         } else if ($canpreview) {

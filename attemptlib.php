@@ -188,7 +188,7 @@ class attempt {
      *
      * @return int the id of this attempt. 
      */
-    public function get_attemptid() {
+    public function get_id() {
         return $this->id;
     }
 
@@ -329,7 +329,7 @@ class attempt {
         question_engine::save_questions_usage_by_activity($quba);
 
         $attemptrow = new stdClass();
-        $attemptrow->id = $this->get_attemptid();
+        $attemptrow->id = $this->get_id();
         $attemptrow->quba = $this->get_quba()->get_id();
         $attemptrow->quiz = $this->get_quiz()->get_id();
         $attemptrow->userid = $this->get_userid();
@@ -347,7 +347,7 @@ class attempt {
         $params = array(
             'context' => $this->get_quiz()->get_context(),
             'courseid' => $this->get_quiz()->get_course_id(),
-            'objectid' => $this->get_attemptid(),
+            'objectid' => $this->get_id(),
             'relateduserid' => $this->get_userid(),
             'other' => array(
                 //'submitterid' => CLI_SCRIPT ? null : $USER->id,
@@ -404,6 +404,26 @@ class attempt {
      */
     public function review_url() {
         return new moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->id));
+    }
+    
+    /**
+     * Returns the attempts of a quiz for a user.
+     * 
+     * @return 
+     */
+    public static function get_user_attempts($quizid, $userid, $state = 'all') {
+        global $DB;
+        if ($state == 'all') {
+            $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid), 'id');
+        }
+        else {
+            $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
+        }
+        $attempts = array_map(function($attempt) {
+                            return attempt::load($attempt->id); 
+        }, 
+                            array_values($attemptrows));
+        return $attempts;
     }
 
     /**
