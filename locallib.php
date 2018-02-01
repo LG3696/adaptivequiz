@@ -48,8 +48,9 @@ class adaptivequiz {
     protected $mainblock = null;
     /** @var int the id of the main block of this adaptive quiz. */
     protected $mainblockid = 0;
-    /** @var float the grade of this quiz. */
-    protected $grade = 0;
+    /** @var int the total sum of the max grades of the main questions instances 
+     * (that is without any questions inside blocks) in the adaptive quiz */
+    protected $maxgrade = 0;
 
     // Constructor =============================================================
     /**
@@ -57,14 +58,14 @@ class adaptivequiz {
      * @param int $id the id of this quiz.
      * @param int $cmid the course module id for this quiz.
      * @param int $mainblockid the id of the main block of this adaptive quiz.
-     * @param float $grade the grade of this quiz.
+     * @param int $maxgrade the best attainable grade of this quiz.
      */
-    public function __construct($id, $cmid, $mainblockid, $grade) {
+    public function __construct($id, $cmid, $mainblockid, $maxgrade) {
         $this->id = $id;
         $this->cmid = $cmid;
         $this->mainblock = null;
         $this->mainblockid = $mainblockid;
-        $this->grade = $grade;
+        $this->maxgrade = $maxgrade;
     }
 
     /**
@@ -79,7 +80,7 @@ class adaptivequiz {
         $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
         $cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
 
-        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock, $quiz->grade);
+        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock, $quiz->maxgrade);
     }
 
     /**
@@ -113,20 +114,23 @@ class adaptivequiz {
         return $this->cmid;
     }
 
-    //TODO: Doku
+     /**
+     * Returns the number of course id.
+     *
+     * @return int the course id.
+     */
     public function get_course_id() {
         list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
         return $course->id;
     }
 
     /**
-     * Returns the number of attainable marks.
+     * Returns the maximum grade for this quiz.
      *
-     * @param question_usage_by_activity $quba the question usage.
-     * @return int the attainable marks.
+     * @return int the maximum grade.
      */
-    public function get_grade() {
-        return $this->grade;
+    public function get_maxgrade() {
+        return $this->maxgrade;
     }
 
     /**
@@ -196,9 +200,9 @@ class adaptivequiz {
     }
 
     /**
-     * calculates the best attainable grade for this quiz and sets it
+     * Updates the maximum grade.
      */
-    public function calculate_grade() {
+    public function update_maxgrade() {
         global $DB;
 
         $grade = 0;
@@ -212,9 +216,9 @@ class adaptivequiz {
 
         $record = new stdClass();
         $record->id = $this->id;
-        $record->grade = $grade;
+        $record->maxgrade = $grade;
         $DB->update_record('adaptivequiz', $record);
 
-        $this->grade = $grade;
+        $this->maxgrade = $grade;
     }
 }

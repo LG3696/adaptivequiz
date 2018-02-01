@@ -79,7 +79,7 @@ $summarydata['timetaken'] = array(
 
 $a = new stdClass();
 $a->grade = $attempt->get_quba()->get_total_mark();
-$a->maxgrade = $adaptivequiz->get_grade();
+$a->maxgrade = $adaptivequiz->get_maxgrade();
 $summarydata['marks'] = array(
     'title'   => get_string('marks', 'adaptivequiz'),
     'content' => get_string('outofshort', 'adaptivequiz', $a));
