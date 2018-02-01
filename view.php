@@ -65,7 +65,7 @@ $viewobj->cmid = $id;
 $viewobj->quizhasquestions = $mainblock->has_questions();
 $viewobj->preventmessages = array();
 $viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
-$attempts = attempt::get_user_attempts($adaptivequiz->id, $USER->id, 'finished');
+$attempts = attempt::get_user_attempts($adaptivequiz->id, $USER->id);
 $viewobj->attempts = $attempts;
 $viewobj->numattempts = count($attempts);
 
@@ -114,7 +114,7 @@ $output = $PAGE->get_renderer('mod_adaptivequiz');
 // Output starts here.
 echo $OUTPUT->header();
 
-echo $output->view_page($adaptivequiz, $viewobj);
+echo $output->view_page($quiz, $viewobj);
 
 // Finish the page.
 echo $OUTPUT->footer();

@@ -140,3 +140,8 @@ input[type=number].conditionelement {
     opacity: 0.5;
     padding-top: 50px;
 }
+
+.path-mod-adaptivequiz .statedetails {
+    display: block;
+    font-size: 0.9em;
+}

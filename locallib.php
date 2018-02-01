@@ -141,6 +141,15 @@ class adaptivequiz {
     public function get_context() {
         return context_module::instance($this->cmid);
     }
+    
+    /**
+     * Get the name of the quiz.
+     * 
+     * @return string the name.
+     */
+    public function get_name() {
+        return $this->get_main_block()->get_name();
+    }
 
     /**
      * Returns the number of slots in this quiz.
