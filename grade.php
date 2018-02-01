@@ -34,7 +34,7 @@ $cm = get_coursemodule_from_id('adaptivequiz', $id);
 $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
 // Check login.
-require_login($course, false, $cm); // TODO: $cm???
+require_login($course, false, $cm);
 
 // In the simplest case just redirect to the view page.
 redirect('view.php?id='.$id);
