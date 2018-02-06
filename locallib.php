@@ -109,7 +109,11 @@ class adaptivequiz {
         return $this->cmid;
     }
     
-    //TODO: Doku
+    /**
+     * Gets the course id.
+     *
+     * @return int the course id.
+     */
     public function get_course_id() {
         list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
         return $course->id;

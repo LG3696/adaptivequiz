@@ -190,6 +190,17 @@ class feedback_block {
             $DB->update_record('adaptivequiz_feedback_block', $record);
         }
     }
+    
+    /**
+     * Removes the child with the give adaptivequiz_qinstance id.
+     *
+     * @param int $id the id of the child to remove.
+     */
+    public function remove_child($id) {
+        global $DB;
+        
+        $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
+    }
 
     /**
      * Returns the id of the feedbackblock.
