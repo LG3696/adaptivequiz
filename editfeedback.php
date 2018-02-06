@@ -37,7 +37,7 @@ require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $feedbackblock = feedback_block::load($blockid, $adaptivequiz);
 
-$thispageurl->param('bid', $blockid);
+$thispageurl->param('bid', $blockid);  // hier vielleicht auch feedbackblick id?
 
 $PAGE->set_url($thispageurl);
 
@@ -45,6 +45,8 @@ $adaptivequiz = adaptivequiz::load($quiz->id);
 
 if (optional_param('save', 0, PARAM_INT)) {
     $name = required_param('blockname', PARAM_TEXT);
+    $feedbackblock->set_name($name);
+
     $feedbacktext = optional_param('feedbacktext', '', PARAM_RAW);
     $uses = optional_param_array('usesquestions', array(), PARAM_INT);
 
@@ -58,8 +60,10 @@ if (optional_param('save', 0, PARAM_INT)) {
     if (!is_null($useand)) {
         $feedbackblock->get_condition()->set_use_and($useand);
     }
+    if (optional_param('done', 0, PARAM_INT)) {
     $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
     redirect($nexturl);
+    }
 }
 
 $PAGE->set_pagelayout('incourse');
