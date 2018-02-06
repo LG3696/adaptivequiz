@@ -95,5 +95,20 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2018012400, 'adaptivequiz');
     }
+    
+    if ($oldversion < 2018020100) {
+
+        // Define field maxgrade to be added to adaptivequiz.
+        $table = new xmldb_table('adaptivequiz');
+        $field = new xmldb_field('maxgrade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'grade');
+        
+        // Conditionally launch add field maxgrade.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Adaptivequiz savepoint reached.
+        upgrade_mod_savepoint(true, 2018020100, 'adaptivequiz');
+    }
     return true;
 }

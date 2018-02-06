@@ -42,9 +42,96 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function view_page($quiz, $viewobj) {
         $output = '';
-        $output .= $this->heading($quiz->name);
+        $output .= $this->heading($quiz->get_name());
+        $output .= $this->view_table($quiz, $viewobj);
         $output .= $this->view_page_buttons($viewobj);
         return $output;
+    }
+    
+    /**
+     * Generates the table of data
+     *
+     * @param array $quiz Array contining quiz data
+     * @param mod_quiz_view_object $viewobj
+     */
+    public function view_table($quiz, $viewobj) {
+        if (!$viewobj->attempts) {
+            return '';
+        }
+        
+        // Prepare table header.
+        $table = new html_table();
+        $table->attributes['class'] = 'generaltable quizattemptsummary';
+        $table->head = array();
+        $table->align = array();
+        $table->size = array();
+        
+        $table->head[] = get_string('attemptnumber', 'adaptivequiz');
+        $table->align[] = 'left';
+        $table->size[] = '';
+        
+        $table->head[] = get_string('attemptstate', 'quiz');
+        $table->align[] = 'left';
+        $table->size[] = '';
+        
+        $table->head[] = get_string('marks', 'adaptivequiz') . ' / ' . $quiz->get_maxgrade();
+        $table->align[] = 'center';
+        $table->size[] = '';
+        
+        $table->head[] = get_string('review', 'adaptivequiz');
+        $table->align[] = 'center';
+        $table->size[] = '';
+        
+        // One row for each attempt.
+        foreach($viewobj->attempts as $attempt) {
+            $row = array();
+            
+            $row[] = $attempt->get_attempt_number();
+            $row[] = $this->attempt_state($attempt);
+            
+            if ($attempt->get_state() == attempt::IN_PROGRESS) {
+                $row[] = '';
+                $row[] = '';
+            }
+            else {
+                $row[] = $attempt->get_quba()->get_total_mark();
+                $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
+                    array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
+            }
+            
+            $table->data[$attempt->get_attempt_number()] = $row;
+        }
+        
+        $output = '';
+        $output .= $this->view_table_heading();
+        $output .= html_writer::table($table);
+        return $output;
+    }
+    
+    /**
+     * Generates the table heading.
+     */
+    public function view_table_heading() {
+        return $this->heading(get_string('summaryofattempts', 'adaptivequiz'), 3);
+    }
+    
+    /**
+     * Generate a brief textual desciption of the current state of an attempt.
+     * 
+     * @param attempt $attempt the attempt.
+     * @return string the appropriate lang string to describe the state.
+     */
+    public function attempt_state(attempt $attempt) {
+        switch ($attempt->get_state()) {
+            case attempt::IN_PROGRESS:
+                return get_string('stateinprogress', 'adaptivequiz');
+                
+            case attempt::FINISHED:
+                return get_string('statefinished', 'adaptivequiz') . html_writer::tag('span',
+                get_string('statefinisheddetails', 'adaptivequiz',
+                userdate($attempt->get_finish_time())),
+                array('class' => 'statedetails'));
+        }
     }
 
     /**
@@ -59,7 +146,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output = '';
         $url = new \moodle_url('/mod/adaptivequiz/startattempt.php', array('cmid' => $viewobj->cmid));
         if ($viewobj->buttontext) {
-            $output .= $this->start_attempt_button($viewobj->buttontext, $url);
+            if ($viewobj->unfinishedattempt) {
+                $attempturl = new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $viewobj->unfinishedattempt));
+                $output .= $this->start_attempt_button($viewobj->buttontext, $attempturl);
+            }
+            else {
+                $output .= $this->start_attempt_button($viewobj->buttontext, $url);
+            }
             if ($viewobj->canmanage) {
                 $output .= $this->edit_quiz_button($viewobj);
             }
@@ -125,7 +218,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         // Some hidden fields to track what is going on.
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'attempt',
-           'value' => $attempt->get_attemptid()));
+           'value' => $attempt->get_id()));
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slot',
            'value' => $slot));
         $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid',
@@ -282,4 +375,8 @@ class mod_adaptivequiz_view_object {
     public $cmid;
     /** @var bool $canmanage whether the user is authorized to manage the quiz. */
     public $canmanage;
+    /** @var int $unfinishedattempt the id of the unfinished attempt. */
+    public $unfinishedattempt;
+    /** @var array $attempts contains all the user's attempts at this quiz. */
+    public $attempts;
 }

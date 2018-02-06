@@ -48,6 +48,9 @@ class adaptivequiz {
     protected $mainblock = null;
     /** @var int the id of the main block of this adaptive quiz. */
     protected $mainblockid = 0;
+    /** @var int the total sum of the max grades of the main questions instances 
+     * (that is without any questions inside blocks) in the adaptive quiz */
+    protected $maxgrade = 0;
 
     // Constructor =============================================================
     /**
@@ -55,12 +58,14 @@ class adaptivequiz {
      * @param int $id the id of this quiz.
      * @param int $cmid the course module id for this quiz.
      * @param int $mainblockid the id of the main block of this adaptive quiz.
+     * @param int $maxgrade the best attainable grade of this quiz.
      */
-    public function __construct($id, $cmid, $mainblockid) {
+    public function __construct($id, $cmid, $mainblockid, $maxgrade) {
         $this->id = $id;
         $this->cmid = $cmid;
         $this->mainblock = null;
         $this->mainblockid = $mainblockid;
+        $this->maxgrade = $maxgrade;
     }
 
     /**
@@ -75,7 +80,7 @@ class adaptivequiz {
         $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
         $cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
 
-        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock);
+        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock, $quiz->maxgrade);
     }
 
     /**
@@ -120,12 +125,30 @@ class adaptivequiz {
     }
 
     /**
+     * Returns the maximum grade for this quiz.
+     *
+     * @return int the maximum grade.
+     */
+    public function get_maxgrade() {
+        return $this->maxgrade;
+    }
+
+    /**
      * Get the context of this module.
      *
      * @return context_module the context for this module.
      */
     public function get_context() {
         return context_module::instance($this->cmid);
+    }
+    
+    /**
+     * Get the name of the quiz.
+     * 
+     * @return string the name.
+     */
+    public function get_name() {
+        return $this->get_main_block()->get_name();
     }
 
     /**
@@ -175,20 +198,36 @@ class adaptivequiz {
     public function add_questions_to_quba(question_usage_by_activity $quba) {
         $this->get_main_block()->add_questions_to_quba($quba);
     }
-    
+
     /**
-     * Returns the number of attainable marks.
-     * 
-     * @return int the attainable marks.
+     * Returns all questions of this quiz.
+     *
+     * @return array the block_elements representing the questions.
      */
-    public function get_max_marks(question_usage_by_activity $quba) {
-        $maxmarks = 0;
+    public function get_questions() {
+        return $this->get_main_block()->get_questions();
+    }
+
+    /**
+     * Updates the maximum grade.
+     */
+    public function update_maxgrade() {
+        global $DB;
+
+        $grade = 0;
         foreach ($this->mainblock->get_children() as $child) {
             if ($child->is_question()) {
-                $mark = $quba->get_question_max_mark($this->get_slot_for_element($child->get_id()));
-                $maxmarks += $mark;
+                $question = question_bank::load_question($child->get_element()->id, false);
+                $mark = $question->defaultmark;
+                $grade += $mark;
             }
         }
-        return $maxmarks;
+
+        $record = new stdClass();
+        $record->id = $this->id;
+        $record->maxgrade = $grade;
+        $DB->update_record('adaptivequiz', $record);
+
+        $this->maxgrade = $grade;
     }
 }

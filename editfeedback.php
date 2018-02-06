@@ -47,6 +47,19 @@ if (optional_param('save', 0, PARAM_INT)) {
     $name = required_param('blockname', PARAM_TEXT);
     $feedbackblock->set_name($name);
 
+    $feedbacktext = optional_param('feedbacktext', '', PARAM_RAW);
+    $uses = optional_param_array('usesquestions', array(), PARAM_INT);
+
+    $feedbackblock->update($name, $feedbacktext, $uses);
+
+    // condition
+    if (array_key_exists('conditionparts', $_POST)) {
+        $feedbackblock->get_condition()->update($_POST['conditionparts']);
+    }
+    $useand = optional_param('use_and', null, PARAM_INT);
+    if (!is_null($useand)) {
+        $feedbackblock->get_condition()->set_use_and($useand);
+    }
     if (optional_param('done', 0, PARAM_INT)) {
     $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
     redirect($nexturl);

@@ -57,6 +57,7 @@ $PAGE->set_heading($course->fullname);
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
 $options = new question_display_options();
+$options->flags = question_display_options::HIDDEN;
 
 echo $OUTPUT->header();
 echo $output->attempt_page($attempt, $attempt->get_current_slot(), $options, $cmid);
