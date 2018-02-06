@@ -58,7 +58,6 @@ if (optional_param('save', 0, PARAM_INT)) {
     if (!is_null($useand)) {
         $feedbackblock->get_condition()->set_use_and($useand);
     }
-    // TODO: do some more saving...
     $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
     redirect($nexturl);
 }

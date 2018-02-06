@@ -101,6 +101,8 @@ class edit_renderer extends \plugin_renderer_base {
             $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
         }
 
+        $this->page->requires->js_call_amd('mod_adaptivequiz/dragdrop', 'init');
+
         return $output;
     }
 
@@ -117,11 +119,27 @@ class edit_renderer extends \plugin_renderer_base {
         $elementhtml = '';
         $edithtml = '';
 
-        $elementhtml = \html_writer::div($this->block_elem_desc($blockelem), 'blockelement');
-        $edithtml = $this->element_edit_button($blockelem, $pageurl, $cmid);
+        $elementhtml .= $this->question_move_icon();
+        $elementhtml .= html_writer::tag('input', '',
+            array('type' => 'hidden', 'name' => 'elementsorder[]', 'value' => $blockelem->get_id()));
+        $elementhtml .= \html_writer::div($this->block_elem_desc($blockelem), 'blockelement');
+        $edithtml .= $this->element_edit_button($blockelem, $pageurl, $cmid);
         $removehtml = $this->element_remove_button($blockelem, $pageurl);
         $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
+
         return html_writer::tag('li', html_writer::div($elementhtml . $buttons, 'blockelementline'));
+    }
+
+    /**
+     * Renders the icon to move questions and blocks.
+     *
+     * @return string the HTML of the move icon.
+     */
+    public function question_move_icon() {
+        return html_writer::link(new \moodle_url('#'),
+            $this->pix_icon('i/dragdrop', get_string('move'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
+            array('class' => 'editing_move', 'data-action' => 'move')
+            );
     }
 
     /**

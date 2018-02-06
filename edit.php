@@ -59,8 +59,11 @@ $PAGE->set_url($thispageurl);
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $block = block::load($adaptivequiz, $blockid);
 if ($save) {
+    // Save the name.
     $name = required_param('blockname', PARAM_TEXT);
     $block->set_name($name);
+
+    // Save the condition.
     if (array_key_exists('conditionparts', $_POST)) {
         $block->get_condition()->update($_POST['conditionparts']);
     }
@@ -68,6 +71,11 @@ if ($save) {
     if (!is_null($useand)) {
         $block->get_condition()->set_use_and($useand);
     }
+
+    // Update the order of the elements.
+    $order = required_param_array('elementsorder', PARAM_INT);
+    $block->update_order($order);
+
     // Take different actions, depending on which submit button was clicked.
     if (optional_param('done', 0, PARAM_INT)) {
         if ($parentid = $block->get_parentid()) {

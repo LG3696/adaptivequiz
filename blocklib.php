@@ -465,6 +465,21 @@ class block {
         }
         return $questions;
     }
+
+    /**
+     * Updates the elements of this block to match a given order.
+     *
+     * @param array $order an array holding the ids of the block_elements of this block in the desired order.
+     */
+    public function update_order($order) {
+        foreach($this->get_children() as $child) {
+            for($i = 0; $i < count($order); $i++) {
+                if ($child->get_id() == $order[$i]) {
+                    $child->update_slot($i);
+                }
+            }
+        }
+    }
 }
 
 
@@ -486,6 +501,8 @@ class block_element {
     protected $elementid = 0;
     /** @var object the {@link block} or question, this element refers to. */
     protected $element = null;
+    /** @var int the slot of this element. */
+    protected $slot = 0;
 
     // Constructor =============================================================
     /**
@@ -496,13 +513,15 @@ class block_element {
      * @param int $type the type of this block_element.
      * @param int $elementid the id of the element referenced.
      * @param object $element the element referenced by this block.
+     * @param int $slot the slot of this element.
      */
-    public function __construct($id, adaptivequiz $quiz, $type, $elementid, $element) {
+    public function __construct($id, adaptivequiz $quiz, $type, $elementid, $element, $slot) {
         $this->id = $id;
         $this->quiz = $quiz;
         $this->type = $type;
         $this->elementid = $elementid;
         $this->element = $element;
+        $this->slot = $slot;
     }
 
     /**
@@ -526,7 +545,7 @@ class block_element {
             return null;
         }
         return new block_element($blockelementid, $quiz, (int)$questioninstance->type,
-            (int)$questioninstance->blockelement, $element);
+            (int)$questioninstance->blockelement, $element, $questioninstance->slot);
     }
 
     /**
@@ -662,6 +681,23 @@ class block_element {
             $quba->add_question($question);
         } else if ($this->is_block()) {
             $this->get_element()->add_questions_to_quba($quba);
+        }
+    }
+
+    /**
+     * Updates this element to reside at a new slot.
+     *
+     * @param int $slot the new slot for this element.
+     */
+    public function update_slot($slot) {
+        if ($slot != $this->slot) {
+            global $DB;
+
+            $record = new stdClass();
+            $record->id = $this->id;
+            $record->slot = $slot;
+
+            $DB->update_record('adaptivequiz_qinstance', $record);
         }
     }
 }
