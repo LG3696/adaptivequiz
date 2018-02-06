@@ -37,12 +37,13 @@ defined('MOODLE_INTERNAL') || die();
 class feedback {
     /** @var array the feedback blocks of this feedback. */
     protected $feedbackblocks = null;
+    protected $quiz = null;
 
     /**
      * Constructor, assuming we already have the necessary data loaded.
      */
-    public function __construct(array $feedbackblocks) {
-        $this->feedbackblocks = $feedbackblocks;
+    public function __construct($quiz) {
+        $this->quiz = $quiz;
     }
 
     /**
@@ -53,12 +54,7 @@ class feedback {
      * @return feedback the feedback for this quiz.
      */
     public static function get_feedback(adaptivequiz $quiz) {
-        global $DB;
-        $records = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $quiz->get_id()));
-        $blocks = array_map(function ($block) {
-            return feedback_block::load($block->id, $quiz);
-            }, $records);
-        return new feedback($blocks);
+        return new feedback($quiz);
     }
 
     /**
@@ -67,6 +63,16 @@ class feedback {
      * @return array the feedback_blocks.
      */
     public function get_blocks() {
+        if (is_null($this->feedbackblocks)) {
+            global $DB;
+            
+            $records = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $this->quiz->get_id()));
+            $blocks = array_map(function ($block) {
+                return feedback_block::load($block->id, $this->quiz);
+            }, $records);
+            
+            $this->feedbackblocks = $blocks;
+        }
         return $this->feedbackblocks;
     }
 
@@ -185,7 +191,6 @@ class feedback_block {
         }
     }
 
-
     /**
      * Returns the id of the feedbackblock.
      *
@@ -202,6 +207,22 @@ class feedback_block {
      */
     public function get_name() {
         return $this->name;
+    }
+    
+    /**
+     * Sets the name of the feedbackblock.
+     *
+     * @param string $name new name of the block.
+     */
+    public function set_name($name) {
+        global $DB;
+        
+        $this->name = $name;
+        
+        $record = new stdClass();
+        $record->id = $this->id;
+        $record->name = $name;
+        $DB->update_record('adaptivequiz_feedback_block', $record);
     }
 
     /**
