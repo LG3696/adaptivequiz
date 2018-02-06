@@ -45,7 +45,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @param array $pagevars the variables from {@link question_edit_setup()}.
      * @return string HTML to output.
      */
-    public function edit_page(\block $block, \moodle_url $pageurl, array $pagevars) {
+    public function edit_page(\block $block, \moodle_url $pageurl, array $pagevars, $feedback) {
         $output = '';
 
         $output .= html_writer::start_tag('form',
@@ -57,8 +57,7 @@ class edit_renderer extends \plugin_renderer_base {
         if ($block->is_main_block()) {
             $output .= $this->heading(get_string('editingquizx', 'adaptivequiz', format_string($block->get_name())));
             $output .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockname', 'value' => $block->get_name()));
-        }
-        else {
+        } else {
             $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
             $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
         }
@@ -71,7 +70,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         $children = $block->get_children();
         foreach ($children as $child) {
-            $output .= $this->block_elem($child, $pageurl, $pageurl->get_param('cmid'));
+            $output .= $this->block_elem($child, $pageurl);
         }
 
         $category = question_get_category_id_from_pagevars($pagevars);
@@ -81,7 +80,7 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::end_tag('ul');
 
         if ($block->is_main_block()) {
-            $output .= $this->feedback_block();
+            $output .= $this->feedback_block($feedback, $pageurl);
         }
 
         $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
@@ -114,7 +113,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @param int $cmid the course module id of the quiz.
      * @return string HTML to display this element.
      */
-    public function block_elem(\block_element $blockelem, $pageurl, $cmid) {
+    public function block_elem(\block_element $blockelem, $pageurl) {
         // Description of the element.
         $elementhtml = '';
         $edithtml = '';
@@ -144,6 +143,7 @@ class edit_renderer extends \plugin_renderer_base {
 
     /**
      * Render the description
+     *
      * @param \block_element $blockelem
      */
     protected function block_elem_desc(\block_element $blockelem) {
@@ -169,7 +169,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @param int $cmid the ID of the course.
      * @return string HTML to output.
      */
-    public function element_edit_button($element, $returnurl, $cmid) {
+    public function element_edit_button($element, $returnurl) {
         global $OUTPUT, $CFG;
         // Minor efficiency saving. Only get strings once, even if there are a lot of icons on one page.
         static $stredit = null;
@@ -193,7 +193,36 @@ class edit_renderer extends \plugin_renderer_base {
         if ($action) {
             return html_writer::tag('button',
                 '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />',
-                array('type' => 'submit', 'name' => 'edit', 'value' => $element->get_id()));
+                array('type' => 'submit', 'name' => 'feedbackedit', 'value' => $element->get_id()));
+        } else {
+            return '';
+        }
+    }
+    
+    /**
+     * Outputs the edit button HTML for a feedbackelement.
+     *
+     * @param \feedback_block $element the element to get the button for.
+     * @param \moodle_url $returnurl the URL of the page.
+     * @param int $cmid the ID of the course.
+     * @return string HTML to output.
+     */
+    public function feedback_edit_button($element, $returnurl) {
+        global $OUTPUT, $CFG;
+        // Minor efficiency saving. Only get strings once, even if there are a lot of icons on one page.
+        static $stredit = null;
+        if ($stredit === null) {
+            $stredit = get_string('edit');
+        }
+        
+        $action = $stredit;
+        $icon = '/t/edit';
+
+        // Build the icon.
+        if ($action) {
+            return html_writer::tag('button',
+                '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />',
+                array('type' => 'submit', 'name' => 'feedbackedit', 'value' => $element->get_id()));
         } else {
             return '';
         }
@@ -210,6 +239,19 @@ class edit_renderer extends \plugin_renderer_base {
         $image = $this->pix_icon('t/delete', get_string('delete'));
         return html_writer::tag('button', $image,
             array('type' => 'submit', 'name' => 'delete', 'value' => $element->get_id()));
+    }
+    
+    /**
+     * Outputs the remove button HTML for a feedbackelement.
+     *
+     * @param \feedback_block $element the element to get the button for.
+     * @param \moodle_url $pageurl The URL of the page.
+     * @return string HTML to output.
+     */
+    public function feedback_element_remove_button($element, $pageurl) {
+        $image = $this->pix_icon('t/delete', get_string('delete'));
+        return html_writer::tag('button', $image,
+            array('type' => 'submit', 'name' => 'feedbackdelete', 'value' => $element->get_id()));
     }
 
     /**
@@ -500,18 +542,46 @@ class edit_renderer extends \plugin_renderer_base {
     }
 
     /**
-     *
+     * Render the feedback block.
      */
-    public function feedback_block() {
+    public function feedback_block($feedback, $pageurl) {
         $header = html_writer::tag('h3', get_string('feedback', 'mod_adaptivequiz'), array('class' => 'feedbackheader'));
+        $output = '';
+        
+        $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
+        
+        $blocks = $feedback->get_blocks();
+        foreach ($blocks as $block) {
+            $output .= $this->feedback_block_elem($block, $pageurl); 
+        }
         $addbutton = html_writer::tag('button', get_string('addfeedback', 'adaptivequiz'),
             array('type' => 'submit', 'name' => 'addfeedback', 'value' => 1));
-        $container = $header . $addbutton;
+        $container = $header . $output . $addbutton;
         return html_writer::div($container, 'feedbackblock');
+    }
+    
+    /**
+     * Render one element of a feedbackbblock.
+     *
+     * @param \feedback_block $blockelem An element of a block.
+     * @param \moodle_url $pageurl The URL of the page.
+     * @param int $cmid the course module id of the quiz.
+     * @return string HTML to display this element.
+     */
+    public function feedback_block_elem(\feedback_block $feedbackelem, $pageurl) {
+        // Description of the element.
+        $elementhtml = '';
+        $edithtml = '';
+
+        $elementhtml = \html_writer::div($feedbackelem->get_name(), 'blockelement');
+        $edithtml = $this->feedback_edit_button($feedbackelem, $pageurl);
+        $removehtml = $this->element_remove_button($feedbackelem, $pageurl);
+        $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
+        return html_writer::tag('li', html_writer::div($elementhtml . $buttons, 'blockelementline'));
     }
 
     /**
-     * Render the feedback edit page
+     * Render the feedback edit page.
      *
      * @param \feedback_block $block object containing all the feedback block information.
      * @param \moodle_url $pageurl The URL of the page.
