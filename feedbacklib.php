@@ -92,6 +92,25 @@ class feedback {
         }
         return false;
     }
+
+    /**
+     * Returns the specialized feedback to be displayed in turn of the feedback for a blockelement.
+     *
+     * @param block_element $blockelement the element to get the replacement feedback for.
+     * @param attempt $attempt the attempt for which to get the specialized feedback.
+     *
+     * @return array an array of specialized_feedback objects.
+     */
+    public function get_specialized_feedback_at_element(block_element $blockelement, attempt $attempt) {
+        $ret = array();
+        foreach ($this->feedbackblocks as $block) {
+            if ($block->get_condition()->is_fullfilled($attempt) &&
+                $block->get_used_question_instances()[0] == $blockelement->get_id()) {
+                array_push($ret, new specialized_feedback($block));
+            }
+        }
+        return $ret;
+    }
 }
 
 /**
@@ -328,5 +347,63 @@ class feedback_block {
         $DB->insert_record('adaptivequiz_feedback_uses', $record);
 
         array_push($this->uses, $questioninstanceid);
+    }
+}
+
+/**
+ * A class encapsulating a specialized feedback.
+ *
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
+ */
+class specialized_feedback {
+    /** @var feedback_block the feedback block this feedback is constructed from. */
+    protected $block = null;
+    /**
+     * Constructor.
+     *
+     * @param feedback_block $block the block to get the specialized feedback from.
+     */
+    public function __construct(feedback_block $block) {
+        $this->block = $block;
+    }
+
+    /**
+     * Returns the parts this feedback consists of.
+     *
+     * @return array an array of strings and block_elements being the parts of this feedback.
+     */
+    public function get_parts() {
+        $ret = array();
+
+        $raw = $this->block->get_feedback_text();
+        $parts = explode(']]', $raw);
+
+        array_map(function ($part) {
+            if (substr($part, 0, 2) == '[[') {
+                return $this->block_element_from_char(substr($part, 2, 1));
+            } else {
+                return $part;
+            }
+        }, $parts);
+    }
+
+    /**
+     * Gets the block element represented by a character.
+     *
+     * @param string $char the character to get the block element for.
+     *
+     * @return block_element the block element represented by the char.
+     */
+    protected function block_element_from_char($char) {
+        $order = ord(strtoupper($char));
+        $index = $ord - ord('A');
+        $usedqinstances = $this->block->get_used_question_instances();
+        if (ord('A') <= $ord && $ord <= ord('Z') && $index < count($usedqinstances)) {
+            return block_element::load($this->block->get_quiz(), $usedqinstances[$index]);
+        } else {
+            return null;
+        }
     }
 }
