@@ -1,4 +1,9 @@
-.block-children-list {
+#block-children-list {
+	list-style: none;
+	margin: 22px;
+}
+
+#feedbackblock-children-list {
 	list-style: none;
 	margin: 22px;
 }
@@ -25,6 +30,7 @@
 .feedbackblockelementline {
 	
 }
+
 .blockelementblock {
 	margin: 7px;
 	margin-left: 0;

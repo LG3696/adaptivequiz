@@ -65,12 +65,12 @@ class feedback {
     public function get_blocks() {
         if (is_null($this->feedbackblocks)) {
             global $DB;
-            
+
             $records = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $this->quiz->get_id()));
             $blocks = array_map(function ($block) {
                 return feedback_block::load($block->id, $this->quiz);
             }, $records);
-            
+
             $this->feedbackblocks = $blocks;
         }
         return $this->feedbackblocks;
@@ -110,6 +110,19 @@ class feedback {
             }
         }
         return $ret;
+    }
+
+    /**
+     * Removes a feedbackblock from this feedback.
+     *
+     * @param int $id the id of the block to remove.
+     */
+    public function remove_block($id) {
+        global $DB;
+
+        $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
+
+        $this->feedbackblocks = null;
     }
 }
 
@@ -243,17 +256,6 @@ class feedback_block {
             }
         }
     }
-    
-    /**
-     * Removes the child with the give adaptivequiz_qinstance id.
-     *
-     * @param int $id the id of the child to remove.
-     */
-    public function remove_child($id) {
-        global $DB;
-        
-        $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
-    }
 
     /**
      * Returns the id of the feedbackblock.
@@ -272,7 +274,7 @@ class feedback_block {
     public function get_name() {
         return $this->name;
     }
-    
+
     /**
      * Sets the name of the feedbackblock.
      *
@@ -280,9 +282,9 @@ class feedback_block {
      */
     public function set_name($name) {
         global $DB;
-        
+
         $this->name = $name;
-        
+
         $record = new stdClass();
         $record->id = $this->id;
         $record->name = $name;
