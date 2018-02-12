@@ -83,9 +83,9 @@ class feedback {
      * @return bool true if specialized feedback for the block element exists.
      */
     public function has_specialized_feedback(block_element $blockelement) {
-        foreach ($this->feedbackblocks as $block) {
+        foreach ($this->get_blocks() as $block) {
             foreach ($block->get_used_question_instances() as $qi) {
-                if ($qi == $blockelement->get_id()) {
+                if ($qi->get_id() == $blockelement->get_id()) {
                     return true;
                 }
             }
@@ -103,10 +103,11 @@ class feedback {
      */
     public function get_specialized_feedback_at_element(block_element $blockelement, attempt $attempt) {
         $ret = array();
-        foreach ($this->feedbackblocks as $block) {
+        foreach ($this->get_blocks() as $block) {
+            $qi = array_values($block->get_used_question_instances())[0];
             if ($block->get_condition()->is_fullfilled($attempt) &&
-                $block->get_used_question_instances()[0] == $blockelement->get_id()) {
-                array_push($ret, new specialized_feedback($block));
+                $qi->get_id() == $blockelement->get_id()) {
+                    array_push($ret, new specialized_feedback($block));
             }
         }
         return $ret;
@@ -319,9 +320,9 @@ class feedback_block {
     }
 
     /**
-     * Returns the ids of the question instances whos feedback is replaced by this block.
+     * Returns the block elements of the question instances whos feedback is replaced by this block.
      *
-     * @return array the ids of the question instances.
+     * @return array the block_elements of the question instances.
      */
     public function get_used_question_instances() {
         if (!$this->uses) {
@@ -380,15 +381,26 @@ class specialized_feedback {
         $ret = array();
 
         $raw = $this->block->get_feedback_text();
-        $parts = explode(']]', $raw);
+        $parts = explode('[[', $raw);
+        
+        foreach ($parts as $part) {
+            if (substr($part, 1, 2) == ']]') {
+                array_push($ret, $this->block_element_from_char(substr($part, 0, 1)));
+                array_push($ret, substr($part, 3));
+            } else {
+                array_push($ret, $part);
+            }
+        }
 
-        array_map(function ($part) {
+        /*return array_map(function ($part) {
             if (substr($part, 0, 2) == '[[') {
                 return $this->block_element_from_char(substr($part, 2, 1));
             } else {
                 return $part;
             }
         }, $parts);
+        return array($raw);*/
+        return $ret;
     }
 
     /**
@@ -400,10 +412,10 @@ class specialized_feedback {
      */
     protected function block_element_from_char($char) {
         $order = ord(strtoupper($char));
-        $index = $ord - ord('A');
+        $index = $order - ord('A');
         $usedqinstances = $this->block->get_used_question_instances();
-        if (ord('A') <= $ord && $ord <= ord('Z') && $index < count($usedqinstances)) {
-            return block_element::load($this->block->get_quiz(), $usedqinstances[$index]);
+        if (ord('A') <= $order && $order <= ord('Z') && $index < count($usedqinstances)) {
+            return $usedqinstances[array_keys($usedqinstances)[$index]];
         } else {
             return null;
         }

@@ -100,8 +100,10 @@ $summarydata['marks'] = array(
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
+$feedback = feedback::get_feedback($attempt->get_quiz());
+
 echo $OUTPUT->header();
 
-echo $output->review_page($attempt, $options, $summarydata);
+echo $output->review_page($attempt, $options, $summarydata, $feedback);
 
 echo $OUTPUT->footer();
