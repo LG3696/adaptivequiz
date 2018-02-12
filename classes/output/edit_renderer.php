@@ -122,7 +122,7 @@ class edit_renderer extends \plugin_renderer_base {
         $elementhtml .= html_writer::tag('input', '',
             array('type' => 'hidden', 'name' => 'elementsorder[]', 'value' => $blockelem->get_id()));
         $elementhtml .= \html_writer::div($this->block_elem_desc($blockelem), 'blockelement');
-        $edithtml .= $this->element_edit_button($blockelem, $pageurl, $cmid);
+        $edithtml .= $this->element_edit_button($blockelem, $pageurl);
         $removehtml = $this->element_remove_button($blockelem, $pageurl);
         $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
 
