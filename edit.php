@@ -37,6 +37,7 @@ require_login($cm->course, false, $cm);
 
 require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 
+// Trigger event.
 $params = array(
     'courseid' => $cm->course,
     'context' => $contexts->lowest(),
@@ -58,9 +59,14 @@ $PAGE->set_url($thispageurl);
 
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $block = block::load($adaptivequiz, $blockid);
+$feedback = feedback::get_feedback($adaptivequiz);
+
 if ($save) {
+    // Save the name.
     $name = required_param('blockname', PARAM_TEXT);
     $block->set_name($name);
+
+    // Save the condition.
     if (array_key_exists('conditionparts', $_POST)) {
         $block->get_condition()->update($_POST['conditionparts']);
     }
@@ -68,6 +74,11 @@ if ($save) {
     if (!is_null($useand)) {
         $block->get_condition()->set_use_and($useand);
     }
+
+    // Update the order of the elements.
+    $order = required_param_array('elementsorder', PARAM_INT);
+    $block->update_order($order);
+
     // Take different actions, depending on which submit button was clicked.
     if (optional_param('done', 0, PARAM_INT)) {
         if ($parentid = $block->get_parentid()) {
@@ -79,10 +90,17 @@ if ($save) {
     } else if ($delete = optional_param('delete', 0, PARAM_INT)) {
         $block->remove_child($delete);
         $nexturl = $thispageurl;
+    } else if ($feedbackdelete = optional_param('feedbackdelete', 0, PARAM_INT)) {
+        $feedback->remove_block($feedbackdelete);
+        $nexturl = $thispageurl;
     } else if ($edit = optional_param('edit', 0, PARAM_INT)) {
         $element = block_element::load($adaptivequiz, $edit);
         $elementparams = array('cmid' => $cmid, 'returnurl' => $thispageurl->out_as_local_url(false));
         $nexturl = $element->get_edit_url($elementparams);
+    } else if ($feedbackedit = optional_param('feedbackedit', 0, PARAM_INT)) {
+        $feedbackblock = feedback_block::load($feedbackedit, $adaptivequiz);
+        $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
+            array('cmid' => $cmid, 'bid' => $feedbackedit));
     } else if ($questionid = optional_param('addfromquestionbank', 0, PARAM_INT)) {
         $block->add_question($questionid);
         $nexturl = $thispageurl;
@@ -125,6 +143,6 @@ $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 
 echo $OUTPUT->header();
 
-echo $output->edit_page($block, $thispageurl, $pagevars);
+echo $output->edit_page($block, $thispageurl, $pagevars, $feedback);
 
 echo $OUTPUT->footer();

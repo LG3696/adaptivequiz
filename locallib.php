@@ -113,9 +113,9 @@ class adaptivequiz {
     public function get_cmid() {
         return $this->cmid;
     }
-
-     /**
-     * Returns the number of course id.
+    
+    /**
+     * Gets the course id.
      *
      * @return int the course id.
      */

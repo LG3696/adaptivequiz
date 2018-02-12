@@ -42,6 +42,20 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 // Check login.
 require_login($course, false, $cm);
 
+// Trigger event.
+$params = array(
+    'objectid' => $attemptid,
+    'relateduserid' => $attempt->get_userid(),
+    'courseid' => $attempt->get_quiz()->get_course_id(),
+    'context' => $attempt->get_quiz()->get_context(),
+    'other' => array(
+        'quizid' => $attempt->get_quiz()->get_id()
+    )
+);
+
+$event = \mod_adaptivequiz\event\attempt_reviewed::create($params);
+$event->trigger();
+
 $options = new question_display_options();
 $options->feedback = question_display_options::VISIBLE;
 $options->generalfeedback = question_display_options::VISIBLE;
@@ -86,8 +100,10 @@ $summarydata['marks'] = array(
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
+$feedback = feedback::get_feedback($attempt->get_quiz());
+
 echo $OUTPUT->header();
 
-echo $output->review_page($attempt, $options, $summarydata);
+echo $output->review_page($attempt, $options, $summarydata, $feedback);
 
 echo $OUTPUT->footer();

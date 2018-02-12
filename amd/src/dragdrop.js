@@ -14,29 +14,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Javascript for the edit feedback page. Enables a user to add questions whose feedback is to be replaced.
+ * Javascript for enabling a user to change the order of block elements when editing a block.
  *
  * @package    mod_adaptivequiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
-    var index = 0;
-    
+define(['jquery', 'jqueryui'], function($) { 
     return {
-        
         init: function() {
-            $('.addusedquestion').click(function (e) {
-                e.preventDefault();
-                var newusespart = $('.usesquestioncontainer').find('.usesquestion').clone();
-                $('.usedquestions').append(newusespart);
-                // Upcounting letters
-                var lastletter = $('.usesquestioncontainer').find('.usesquestionletter').html();
-                $('.usesquestioncontainer').find('.usesquestionletter').html(String.fromCharCode(lastletter.charCodeAt(0) + 1));
-                // Increase submit index
-                index++;
-                newusespart.find('.usesquestionselector').attr('name', 'usesquestions[newparts' + index + ']');
+            $('#block-children-list').sortable({
+                handle: '.editing_move'
             });
         }
     };
