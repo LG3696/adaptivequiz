@@ -193,12 +193,12 @@ class edit_renderer extends \plugin_renderer_base {
         if ($action) {
             return html_writer::tag('button',
                 '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />',
-                array('type' => 'submit', 'name' => 'feedbackedit', 'value' => $element->get_id()));
+                array('type' => 'submit', 'name' => 'edit', 'value' => $element->get_id()));
         } else {
             return '';
         }
     }
-    
+
     /**
      * Outputs the edit button HTML for a feedbackelement.
      *
@@ -214,18 +214,13 @@ class edit_renderer extends \plugin_renderer_base {
         if ($stredit === null) {
             $stredit = get_string('edit');
         }
-        
-        $action = $stredit;
+
         $icon = '/t/edit';
 
         // Build the icon.
-        if ($action) {
-            return html_writer::tag('button',
-                '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $action . '" />',
-                array('type' => 'submit', 'name' => 'feedbackedit', 'value' => $element->get_id()));
-        } else {
-            return '';
-        }
+        return html_writer::tag('button',
+            '<img src="' . $OUTPUT->pix_url($icon) . '" alt="' . $stredit . '" />',
+            array('type' => 'submit', 'name' => 'feedbackedit', 'value' => $element->get_id()));
     }
 
     /**
@@ -240,7 +235,7 @@ class edit_renderer extends \plugin_renderer_base {
         return html_writer::tag('button', $image,
             array('type' => 'submit', 'name' => 'delete', 'value' => $element->get_id()));
     }
-    
+
     /**
      * Outputs the remove button HTML for a feedbackelement.
      *
@@ -543,23 +538,28 @@ class edit_renderer extends \plugin_renderer_base {
 
     /**
      * Render the feedback block.
+     *
+     * @param \feedback $feedback the feedback for which to render the block.
+     * @param \moodle_url $pageurl the url of this page.
+     *
+     * @return string the HTML of the feedback block.
      */
     public function feedback_block($feedback, $pageurl) {
         $header = html_writer::tag('h3', get_string('feedback', 'mod_adaptivequiz'), array('class' => 'feedbackheader'));
         $output = '';
-        
-        $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
-        
+
+        $output .= html_writer::start_tag('ul', array('id' => 'feedbackblock-children-list'));
+
         $blocks = $feedback->get_blocks();
         foreach ($blocks as $block) {
-            $output .= $this->feedback_block_elem($block, $pageurl); 
+            $output .= $this->feedback_block_elem($block, $pageurl);
         }
         $addbutton = html_writer::tag('button', get_string('addfeedback', 'adaptivequiz'),
             array('type' => 'submit', 'name' => 'addfeedback', 'value' => 1));
         $container = $header . $output . $addbutton;
         return html_writer::div($container, 'feedbackblock');
     }
-    
+
     /**
      * Render one element of a feedbackbblock.
      *
@@ -575,7 +575,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         $elementhtml = \html_writer::div($feedbackelem->get_name(), 'blockelement');
         $edithtml = $this->feedback_edit_button($feedbackelem, $pageurl);
-        $removehtml = $this->element_remove_button($feedbackelem, $pageurl);
+        $removehtml = $this->feedback_element_remove_button($feedbackelem, $pageurl);
         $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
         return html_writer::tag('li', html_writer::div($elementhtml . $buttons, 'blockelementline'));
     }
