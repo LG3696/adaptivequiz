@@ -71,8 +71,8 @@ class attempt {
     /** @var int the current slot of the attempt. */
     protected $currentslot;
 
-    // /** @var float the sum of the grades. */
-    // protected $sumgrades;
+    /** @var float the sum of the grades. */
+    protected $sumgrades;
 
     /** @var int time of starting this attempt. */
     protected $timestart;
@@ -98,7 +98,9 @@ class attempt {
      * @param int $attemptnumber the number of this attempt.
      * @param int $currentslot the current slot of this attempt.
      */
-    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz, $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish) {
+    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz,
+            $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish,
+            $sumgrades) {
         $this->id = $id;
         $this->quba = $quba;
         $this->quiz = $quiz;
@@ -108,6 +110,7 @@ class attempt {
         $this->state = $state;
         $this->timestart = $timestart;
         $this->timefinish = $timefinish;
+        $this->sumgrades = $sumgrades;
     }
 
 
@@ -125,7 +128,8 @@ class attempt {
         $quiz = adaptivequiz::load($attemptrow->quiz);
 
         return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt, 
-            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state, $attemptrow->timefinish);
+            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
+            $attemptrow->timefinish, $attemptrow->sumgrades);
     }
 
     /**
@@ -148,6 +152,7 @@ class attempt {
         $attemptrow->timestart = time();
         $attemptrow->state = self::IN_PROGRESS;
         $attemptrow->timefinish = 0;
+        $attemptrow->sumgrades = NULL;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
 
@@ -177,7 +182,8 @@ class attempt {
         $event->trigger();
 
         $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt, 
-            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state, $attemptrow->timefinish);
+            $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
+            $attemptrow->timefinish, $attemptrow->sumgrades);
         return $attempt;
     }
 
@@ -273,6 +279,15 @@ class attempt {
     public function get_current_slot() {
         return $this->currentslot;
     }
+    
+    /**
+     * Gets the sum of the grades of this attempt.
+     * 
+     * @return float the sum of the grades.
+     */
+    public function get_sumgrades(){
+        return $this->sumgrades;
+    }
 
     /**
      * Sets the current slot of this attempt.
@@ -339,9 +354,7 @@ class attempt {
         $attemptrow->state = self::FINISHED;
         $DB->update_record('adaptivequiz_attempts', $attemptrow);
 
-        // TODO in later userstory
-        // quiz_save_best_grade($this->get_quiz(), $this->attempt->userid);
-        
+        $this->get_quiz()->save_best_grade();
         
         // Trigger event.
         $params = array(

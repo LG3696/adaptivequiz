@@ -92,7 +92,7 @@ $summarydata['timetaken'] = array(
     'content' => $timetaken);
 
 $a = new stdClass();
-$a->grade = $attempt->get_quba()->get_total_mark();
+$a->grade = round($attempt->get_sumgrades(), 2);
 $a->maxgrade = $adaptivequiz->get_maxgrade();
 $summarydata['marks'] = array(
     'title'   => get_string('marks', 'adaptivequiz'),
@@ -100,8 +100,10 @@ $summarydata['marks'] = array(
 
 $output = $PAGE->get_renderer('mod_adaptivequiz');
 
+$feedback = feedback::get_feedback($attempt->get_quiz());
+
 echo $OUTPUT->header();
 
-echo $output->review_page($attempt, $options, $summarydata);
+echo $output->review_page($attempt, $options, $summarydata, $feedback);
 
 echo $OUTPUT->footer();

@@ -94,7 +94,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $row[] = '';
             }
             else {
-                $row[] = $attempt->get_quba()->get_total_mark();
+                $row[] = round($attempt->get_quba()->get_total_mark(),2);
                 $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
                     array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
             }
@@ -258,13 +258,14 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
      * @param array $summarydata contains all table data
+     * @param feedback the feedback for the quiz.
      * @return $output containing HTML data.
      */
-    public function review_page(attempt $attempt, $options, $summarydata) {
+    public function review_page(attempt $attempt, $options, $summarydata, $feedback) {
         $output = '';
         $output .= $this->heading(get_string('quizfinished', 'adaptivequiz'));
         $output .= $this->review_summary_table($summarydata);
-        $output .= $this->review_block($attempt->get_quiz()->get_main_block(), $attempt, $options);
+        $output .= $this->review_block($attempt->get_quiz()->get_main_block(), $attempt, $options, $feedback);
         $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
         
         return $output;
@@ -315,20 +316,85 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block $block the block to generate the feedback for.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
+     * @param feedback the specialized feedback.
      * @return string HTML to output.
      */    
-    protected function review_block(block $block, attempt $attempt, $options) {
+    protected function review_block(block $block, attempt $attempt, $options, $feedback) {
         $output = '';
         foreach ($block->get_children() as $child) {
-            if ($child->is_block()) {
-                $childblock = $child->get_element();
-                $condition = $childblock->get_condition();
-                if ($condition->is_fullfilled($attempt)) {
-                    $output .= $this->review_block($childblock, $attempt, $options);
-                }
-            } else if ($child->is_question()) {
-                $slot = $block->get_slot_for_element($child->get_id());
-                $output .= $attempt->get_quba()->render_question($slot, $options);
+            $output .= $this->review_block_element($block, $child, $attempt, $options, $feedback);
+            }
+        return $output;
+    }
+    
+    /**
+     * 
+     * Renders the feedback for an element of the block.
+     * 
+     * @param block $block the block to generate the feedback for.
+     * @param block_element $blockelem the element of the block.
+     * @param attempt $attempt the attempt this review belongs to.
+     * @param question_display_options $options the display options.
+     * @param feedback the specialized feedback.
+     * @return string HTML to output.
+     */
+    protected function review_block_element($block, $blockelem, $attempt, $options, $feedback) {
+        $output = '';
+        if ($feedback->has_specialized_feedback($blockelem)) {
+            $specialfeedback = $feedback->get_specialized_feedback_at_element($blockelem, $attempt);
+            foreach ($specialfeedback as $sf) {
+                $parts = $sf->get_parts();
+                $output .= $this->review_parts($parts, $block, $attempt, $options, $feedback);
+            }
+        } else {
+            $output .= $this->review_block_element_render($block, $blockelem, $attempt, $options, $feedback);
+        }
+        return $output;
+    }
+    
+    /**
+     * Used to surpass the has_specialized_feedback check.
+     * 
+     * @param block $block the block to generate the feedback for.
+     * @param block_element $blockelem the element of the block.
+     * @param attempt $attempt the attempt this review belongs to.
+     * @param question_display_options $options the display options.
+     * @param feedback the specialized feedback.
+     * @return string HTML to output.
+     */
+    protected function review_block_element_render($block, $blockelem, $attempt, $options, $feedback) {
+        $output = '';
+        if ($blockelem->is_block()) {
+            $childblock = $blockelem->get_element();
+            $condition = $childblock->get_condition();
+            if ($condition->is_fullfilled($attempt)) {
+                $output .= $this->review_block($childblock, $attempt, $options, $feedback);
+            }
+        } else if ($blockelem->is_question()) {
+            $slot = $block->get_slot_for_element($blockelem->get_id());
+            $output .= $attempt->get_quba()->render_question($slot, $options);
+        }
+        return $output;
+    }
+    
+    /**
+     * Renders the parts of the specialized feedback.
+     * 
+     * @param array $parts the parts of the specialized feedback.
+     * @param block $block the block to get the feedback for.
+     * @param attempt $attempt the current attempt.
+     * @param question_display_options $options the display options.
+     * @param feedback the specialized feedback.
+     * 
+     * @return string HTML to output.
+     */
+    protected function review_parts($parts, $block, $attempt, $options, $feedback) {
+        $output = '';
+        foreach ($parts as $part) {
+            if (is_string($part)) {
+                $output .= $part;
+            } else if ($part instanceof block_element) {
+                $output .= $this->review_block_element_render($block, $part, $attempt, $options, $feedback);
             }
         }
         return $output;

@@ -472,8 +472,8 @@ class block {
      * @param array $order an array holding the ids of the block_elements of this block in the desired order.
      */
     public function update_order($order) {
-        foreach($this->get_children() as $child) {
-            for($i = 0; $i < count($order); $i++) {
+        foreach ($this->get_children() as $child) {
+            for ($i = 0; $i < count($order); $i++) {
                 if ($child->get_id() == $order[$i]) {
                     $child->update_slot($i);
                 }

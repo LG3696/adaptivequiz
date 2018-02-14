@@ -230,4 +230,42 @@ class adaptivequiz {
 
         $this->maxgrade = $grade;
     }
+    
+    /**
+     * Save the overall grade for a user at a quiz to the adaptivequiz_grades table
+     *
+     * @return bool Indicates success or failure.
+     */
+    public function save_best_grade() {
+        global $DB, $USER;
+
+        $quiz = $DB->get_record('adaptivequiz', array('id' => $this->get_id()), '*', MUST_EXIST);
+        $userid = $USER->id;
+    
+        // Get all the attempts made by the user.
+        $attempts = attempt::get_user_attempts($this->get_id(), $userid, 'finished');
+    
+        // Calculate the best grade.
+        //TODO: wie die beste Note berechnen?
+        $bestgrade = end($attempts)->get_sumgrades();
+        $bestgrade = $bestgrade * $quiz->grade / $this->get_maxgrade();
+    
+        // Save the best grade in the database.
+        if ($grade = $DB->get_record('adaptivequiz_grades',
+                array('quiz' => $quiz->id, 'userid' => $userid))) {
+            $grade->grade = $bestgrade;
+            $grade->timemodified = time();
+            $DB->update_record('adaptivequiz_grades', $grade);
+    
+        } else {
+            $grade = new stdClass();
+            $grade->quiz = $quiz->id;
+            $grade->userid = $userid;
+            $grade->grade = $bestgrade;
+            $grade->timemodified = time();
+            $DB->insert_record('adaptivequiz_grades', $grade);
+        }
+    
+        adaptivequiz_update_grades($quiz, $userid);
+    }
 }

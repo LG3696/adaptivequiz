@@ -65,12 +65,12 @@ class feedback {
     public function get_blocks() {
         if (is_null($this->feedbackblocks)) {
             global $DB;
-            
+
             $records = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $this->quiz->get_id()));
             $blocks = array_map(function ($block) {
                 return feedback_block::load($block->id, $this->quiz);
             }, $records);
-            
+
             $this->feedbackblocks = $blocks;
         }
         return $this->feedbackblocks;
@@ -83,25 +83,47 @@ class feedback {
      * @return bool true if specialized feedback for the block element exists.
      */
     public function has_specialized_feedback(block_element $blockelement) {
-        foreach ($this->feedbackblocks as $block) {
+        foreach ($this->get_blocks() as $block) {
             foreach ($block->get_used_question_instances() as $qi) {
-                if ($qi == $blockelement->get_id()) {
+                if ($qi->get_id() == $blockelement->get_id()) {
                     return true;
                 }
             }
         }
         return false;
     }
-    
+
     /**
-     * Removes the feedbackblock with the give adaptivequiz_qinstance id.
+     * Returns the specialized feedback to be displayed in turn of the feedback for a blockelement.
      *
-     * @param int $id the id of the child to remove.
+     * @param block_element $blockelement the element to get the replacement feedback for.
+     * @param attempt $attempt the attempt for which to get the specialized feedback.
+     *
+     * @return array an array of specialized_feedback objects.
      */
-    public function remove_feedback_block($id) {
+    public function get_specialized_feedback_at_element(block_element $blockelement, attempt $attempt) {
+        $ret = array();
+        foreach ($this->get_blocks() as $block) {
+            $qi = array_values($block->get_used_question_instances())[0];
+            if ($block->get_condition()->is_fullfilled($attempt) &&
+                $qi->get_id() == $blockelement->get_id()) {
+                    array_push($ret, new specialized_feedback($block));
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * Removes a feedbackblock from this feedback.
+     *
+     * @param int $id the id of the block to remove.
+     */
+    public function remove_block($id) {
         global $DB;
-        
+
         $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
+
+        $this->feedbackblocks = null;
     }
 }
 
@@ -253,7 +275,7 @@ class feedback_block {
     public function get_name() {
         return $this->name;
     }
-    
+
     /**
      * Sets the name of the feedbackblock.
      *
@@ -261,9 +283,9 @@ class feedback_block {
      */
     public function set_name($name) {
         global $DB;
-        
+
         $this->name = $name;
-        
+
         $record = new stdClass();
         $record->id = $this->id;
         $record->name = $name;
@@ -298,9 +320,9 @@ class feedback_block {
     }
 
     /**
-     * Returns the ids of the question instances whos feedback is replaced by this block.
+     * Returns the block elements of the question instances whos feedback is replaced by this block.
      *
-     * @return array the ids of the question instances.
+     * @return array the block_elements of the question instances.
      */
     public function get_used_question_instances() {
         if (!$this->uses) {
@@ -328,5 +350,74 @@ class feedback_block {
         $DB->insert_record('adaptivequiz_feedback_uses', $record);
 
         array_push($this->uses, $questioninstanceid);
+    }
+}
+
+/**
+ * A class encapsulating a specialized feedback.
+ *
+ * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
+ */
+class specialized_feedback {
+    /** @var feedback_block the feedback block this feedback is constructed from. */
+    protected $block = null;
+    /**
+     * Constructor.
+     *
+     * @param feedback_block $block the block to get the specialized feedback from.
+     */
+    public function __construct(feedback_block $block) {
+        $this->block = $block;
+    }
+
+    /**
+     * Returns the parts this feedback consists of.
+     *
+     * @return array an array of strings and block_elements being the parts of this feedback.
+     */
+    public function get_parts() {
+        $ret = array();
+
+        $raw = $this->block->get_feedback_text();
+        $parts = explode('[[', $raw);
+        
+        foreach ($parts as $part) {
+            if (substr($part, 1, 2) == ']]') {
+                array_push($ret, $this->block_element_from_char(substr($part, 0, 1)));
+                array_push($ret, substr($part, 3));
+            } else {
+                array_push($ret, $part);
+            }
+        }
+
+        /*return array_map(function ($part) {
+            if (substr($part, 0, 2) == '[[') {
+                return $this->block_element_from_char(substr($part, 2, 1));
+            } else {
+                return $part;
+            }
+        }, $parts);
+        return array($raw);*/
+        return $ret;
+    }
+
+    /**
+     * Gets the block element represented by a character.
+     *
+     * @param string $char the character to get the block element for.
+     *
+     * @return block_element the block element represented by the char.
+     */
+    protected function block_element_from_char($char) {
+        $order = ord(strtoupper($char));
+        $index = $order - ord('A');
+        $usedqinstances = $this->block->get_used_question_instances();
+        if (ord('A') <= $order && $order <= ord('Z') && $index < count($usedqinstances)) {
+            return $usedqinstances[array_keys($usedqinstances)[$index]];
+        } else {
+            return null;
+        }
     }
 }

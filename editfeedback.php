@@ -61,8 +61,8 @@ if (optional_param('save', 0, PARAM_INT)) {
         $feedbackblock->get_condition()->set_use_and($useand);
     }
     if (optional_param('done', 0, PARAM_INT)) {
-    $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
-    redirect($nexturl);
+        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
+        redirect($nexturl);
     }
 }
 

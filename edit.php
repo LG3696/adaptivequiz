@@ -53,7 +53,7 @@ if (!$blockid) {
     $blockid = $quiz->mainblock;
 }
 
-$thispageurl->param('bid', $blockid);  
+$thispageurl->param('bid', $blockid);
 
 $PAGE->set_url($thispageurl);
 
@@ -91,7 +91,7 @@ if ($save) {
         $block->remove_child($delete);
         $nexturl = $thispageurl;
     } else if ($feedbackdelete = optional_param('feedbackdelete', 0, PARAM_INT)) {
-        $feedback->remove_feedback_block($feedbackdelete);
+        $feedback->remove_block($feedbackdelete);
         $nexturl = $thispageurl;
     } else if ($edit = optional_param('edit', 0, PARAM_INT)) {
         $element = block_element::load($adaptivequiz, $edit);
@@ -100,7 +100,7 @@ if ($save) {
     } else if ($feedbackedit = optional_param('feedbackedit', 0, PARAM_INT)) {
         $feedbackblock = feedback_block::load($feedbackedit, $adaptivequiz);
         $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
-            array('cmid' => $cmid, 'bid' => $feedbackblock->get_id()));
+            array('cmid' => $cmid, 'bid' => $feedbackedit));
     } else if ($questionid = optional_param('addfromquestionbank', 0, PARAM_INT)) {
         $block->add_question($questionid);
         $nexturl = $thispageurl;
