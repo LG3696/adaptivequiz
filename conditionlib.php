@@ -57,8 +57,7 @@ class condition {
     /**
      * Loads the condition for one block from the database.
      *
-     * @param block $block the block to get the condition for.
-     *
+     * @param int $id the id of the block to get the condition for.
      * @return condition the loaded condition.
      */
     public static function load($id) {

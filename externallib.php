@@ -47,7 +47,8 @@ class mod_adaptivequiz_external extends external_api {
         return new external_function_parameters(
             array('cmid' => new external_value(PARAM_INT, 'the course module id'),
                 'page' => new external_value(PARAM_INT, 'the page of the question bank view', VALUE_DEFAULT, 0),
-                'qperpage' => new external_value(PARAM_INT, 'the number of questions per page', VALUE_DEFAULT, DEFAULT_QUESTIONS_PER_PAGE),
+                'qperpage' => new external_value(PARAM_INT, 'the number of questions per page', VALUE_DEFAULT,
+                    DEFAULT_QUESTIONS_PER_PAGE),
                 'category' => new external_value(PARAM_TEXT, 'the question category', VALUE_DEFAULT, null)
             )
         );
@@ -56,6 +57,10 @@ class mod_adaptivequiz_external extends external_api {
     /**
      * Renders the questionbank view HTML.
      *
+     * @param int $cmid the id of the course module.
+     * @param int $page the page of the questionbank view.
+     * @param int $qperpage the number of questions per page.
+     * @param string $category the category of the question. 
      * @return string the questionbank view HTML.
      */
     public static function get_questionbank($cmid, $page, $qperpage, $category) {
@@ -77,7 +82,7 @@ class mod_adaptivequiz_external extends external_api {
 
         if (!$category) {
             $defaultcategory = question_make_default_categories($contexts->all());
-            $category =  "{$defaultcategory->id},{$defaultcategory->contextid}";
+            $category = "{$defaultcategory->id},{$defaultcategory->contextid}";
         }
         $pagevars['cat'] = $category;
 
@@ -91,7 +96,8 @@ class mod_adaptivequiz_external extends external_api {
         $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 
         // Output.
-        return external_api::clean_returnvalue(mod_adaptivequiz_external::get_questionbank_returns(), $output->question_bank_contents($questionbank, $pagevars));
+        return external_api::clean_returnvalue(mod_adaptivequiz_external::get_questionbank_returns(),
+            $output->question_bank_contents($questionbank, $pagevars));
     }
 
     /**

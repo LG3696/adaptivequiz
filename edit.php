@@ -134,8 +134,7 @@ if ($addquestion) {
 $PAGE->set_pagelayout('incourse');
 if ($block->is_main_block()) {
     $PAGE->set_title(get_string('editingquizx', 'adaptivequiz', format_string($quiz->name)));
-}
-else {
+} else {
     $PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
 }
 

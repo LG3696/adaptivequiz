@@ -29,8 +29,11 @@ require_once($CFG->dirroot . '/question/editlib.php');
 $blockid = required_param('bid', PARAM_INT);
 $save = optional_param('save', 0, PARAM_INT);
 
-list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
-    question_edit_setup('editq', '/mod/adaptivequiz/editfeedback.php', true);
+list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) = question_edit_setup('editq',
+    '/mod/adaptivequiz/editfeedback.php', true);
+
+// Check login.
+require_login($cm->course, false, $cm);
 
 require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 
@@ -52,7 +55,7 @@ if (optional_param('save', 0, PARAM_INT)) {
 
     $feedbackblock->update($name, $feedbacktext, $uses);
 
-    // condition
+    // Condition.
     if (array_key_exists('conditionparts', $_POST)) {
         $feedbackblock->get_condition()->update($_POST['conditionparts']);
     }

@@ -41,17 +41,16 @@ class attempt {
 
 
     /** @var string to identify the in progress state. */
-    const IN_PROGRESS = 'inprogress'; 
-    
+    const IN_PROGRESS = 'inprogress';
+
     /** @var string to identify the overdue state. */
     // ... const OVERDUE     = 'overdue'; .
-    
+
     /** @var string to identify the finished state. */
     const FINISHED = 'finished';
-    
+
     /** @var string to identify the abandoned state. */
     // ... const ABANDONED   = 'abandoned'; .
-
 
     /** @var int the id of this adaptivequiz_attempt. */
     protected $id;
@@ -76,7 +75,7 @@ class attempt {
 
     /** @var int time of starting this attempt. */
     protected $timestart;
-    
+
     /** @var string state of the attempt. */
     protected $state;
 
@@ -97,6 +96,10 @@ class attempt {
      * @param int $userid the id of the user this attempt belongs to.
      * @param int $attemptnumber the number of this attempt.
      * @param int $currentslot the current slot of this attempt.
+     * @param int $timestart the time the attempt was started.
+     * @param string $state the state of the attempt.
+     * @param int $timefinish the time the attempt was finished.
+     * @param float $sumgrades the sumof the grades.
      */
     public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz,
             $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish,
@@ -127,7 +130,7 @@ class attempt {
         $quba = question_engine::load_questions_usage_by_activity($attemptrow->quba);
         $quiz = adaptivequiz::load($attemptrow->quiz);
 
-        return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt, 
+        return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
             $attemptrow->timefinish, $attemptrow->sumgrades);
     }
@@ -181,7 +184,7 @@ class attempt {
         // Trigger the event.
         $event->trigger();
 
-        $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt, 
+        $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
             $attemptrow->timefinish, $attemptrow->sumgrades);
         return $attempt;
@@ -192,7 +195,7 @@ class attempt {
     /**
      * Returns the id of the attempt.
      *
-     * @return int the id of this attempt. 
+     * @return int the id of this attempt.
      */
     public function get_id() {
         return $this->id;
@@ -201,7 +204,7 @@ class attempt {
     /**
      * Returns the quba of this attempt.
      *
-     * @return question_usage_by_activity the quba of this attempt. 
+     * @return question_usage_by_activity the quba of this attempt.
      */
     public function get_quba() {
         return $this->quba;
@@ -210,7 +213,7 @@ class attempt {
     /**
      * Returns the quiz belonging to the attempt.
      *
-     * @return adaptivequiz the quiz this attempt belongs to. 
+     * @return adaptivequiz the quiz this attempt belongs to.
      */
     public function get_quiz() {
         return $this->quiz;
@@ -219,7 +222,7 @@ class attempt {
     /**
      * Returns the id of the user.
      *
-     * @return int the id of the user. 
+     * @return int the id of the user.
      */
     public function get_userid() {
         return $this->userid;
@@ -243,28 +246,28 @@ class attempt {
     public function get_attempt_number() {
         return $this->attemptnumber;
     }
-    
+
     /**
      * Returns the start time of the attempt.
-     * 
+     *
      * @return int the start time.
      */
     public function get_start_time() {
         return $this->timestart;
     }
-    
+
     /**
      * Returns the state of the attempt.
-     * 
+     *
      * @return string the state.
      */
     public function get_state() {
         return $this->state;
     }
-    
+
     /**
      * Returns the finish time of the attempt.
-     * 
+     *
      * @return int the finish time.
      */
     public function get_finish_time() {
@@ -279,13 +282,13 @@ class attempt {
     public function get_current_slot() {
         return $this->currentslot;
     }
-    
+
     /**
      * Gets the sum of the grades of this attempt.
-     * 
+     *
      * @return float the sum of the grades.
      */
-    public function get_sumgrades(){
+    public function get_sumgrades() {
         return $this->sumgrades;
     }
 
@@ -355,7 +358,7 @@ class attempt {
         $DB->update_record('adaptivequiz_attempts', $attemptrow);
 
         $this->get_quiz()->save_best_grade();
-        
+
         // Trigger event.
         $params = array(
             'context' => $this->get_quiz()->get_context(),
@@ -363,11 +366,11 @@ class attempt {
             'objectid' => $this->get_id(),
             'relateduserid' => $this->get_userid(),
             'other' => array(
-                //'submitterid' => CLI_SCRIPT ? null : $USER->id,
+                // 'submitterid' => CLI_SCRIPT ? null : $USER->id,
                 'quizid' => $this->get_quiz()->get_id()
             )
         );
-        
+
         $event = \mod_adaptivequiz\event\attempt_finished::create($params);
         $event->trigger();
 
@@ -394,7 +397,7 @@ class attempt {
             $this->set_current_slot($nextslot);
         } else {
             $this->set_current_slot($this->quiz->get_main_block()->get_slotcount() + 1);
-            //TODO: finish attempt
+            // TODO: finish attempt
         }
         return $nextslot;
     }
@@ -418,23 +421,25 @@ class attempt {
     public function review_url() {
         return new moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->id));
     }
-    
+
     /**
      * Returns the attempts of a quiz for a user.
-     * 
-     * @return 
+     *
+     * @param int $quizid the id of the quiz belonging to this attempt.
+     * @param int $userid the id of the user belonging to this attempt.
+     * @param string $state the state of the attempt.
+     * @return array the attempts of a quiz belonging to a specific user.
      */
     public static function get_user_attempts($quizid, $userid, $state = 'all') {
         global $DB;
         if ($state == 'all') {
             $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid), 'id');
-        }
-        else {
+        } else {
             $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
         }
         $attempts = array_map(function($attempt) {
-                            return attempt::load($attempt->id); 
-        }, 
+                            return attempt::load($attempt->id);
+        },
                             array_values($attemptrows));
         return $attempts;
     }
