@@ -92,6 +92,17 @@ class feedback {
         }
         return false;
     }
+    
+    /**
+     * Removes the feedbackblock with the give adaptivequiz_qinstance id.
+     *
+     * @param int $id the id of the child to remove.
+     */
+    public function remove_feedback_block($id) {
+        global $DB;
+        
+        $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
+    }
 }
 
 /**
@@ -223,17 +234,6 @@ class feedback_block {
                 $DB->insert_record('adaptivequiz_feedback_uses', $record);
             }
         }
-    }
-    
-    /**
-     * Removes the child with the give adaptivequiz_qinstance id.
-     *
-     * @param int $id the id of the child to remove.
-     */
-    public function remove_child($id) {
-        global $DB;
-        
-        $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
     }
 
     /**

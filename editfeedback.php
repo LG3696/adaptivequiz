@@ -37,7 +37,7 @@ require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $feedbackblock = feedback_block::load($blockid, $adaptivequiz);
 
-$thispageurl->param('bid', $blockid);  // hier vielleicht auch feedbackblick id?
+$thispageurl->param('bid', $blockid);
 
 $PAGE->set_url($thispageurl);
 
