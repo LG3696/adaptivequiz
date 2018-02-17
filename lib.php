@@ -322,9 +322,10 @@ function adaptivequiz_scale_used_anywhere($scaleid) {
  * Needed by {@link grade_update_mod_grades()}.
  *
  * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property.
- * @param bool $reset reset grades in the gradebook.
+ * @param mixed  $grades Grade (object, array) or several grades (arrays of arrays or objects),
+ *  NULL if updating grade_item definition only. If $grades equals 'reset'resets grades in the gradebook.
  */
-function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $reset=false) {
+function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades=null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
@@ -343,12 +344,12 @@ function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $reset=false) {
         $item['gradetype'] = GRADE_TYPE_NONE;
     }
 
-    if ($reset) {
+    if ($grades === 'reset') {
         $item['reset'] = true;
     }
 
     grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz',
-            $adaptivequiz->id, 0, null, $item);
+            $adaptivequiz->id, 0, $grades, $item);
 }
 
 /**
@@ -378,7 +379,7 @@ function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid = 0) {
     require_once($CFG->libdir.'/gradelib.php');
 
     // Populate array of grade objects indexed by userid.
-    $grades = array();
+    $grades = adaptivequiz_get_user_grades($adaptivequiz, $userid);
 
     grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz', $adaptivequiz->id, 0, $grades);
 }
@@ -506,4 +507,37 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
             new pix_icon('i/preview', ''));
         $adaptivequiznode->add_node($node, $beforekey);
     }
+}
+
+/**
+ * Return grade for given user or all users.
+ *
+ * @param int $quizid id of adaptivequiz
+ * @param int $userid optional user id, 0 means all users
+ * @return array array of grades, false if none.
+ */
+function adaptivequiz_get_user_grades(stdClass $adaptivequiz, $userid = 0) {
+    global $CFG, $DB;
+
+    $params = array($adaptivequiz->id);
+    $usertest = '';
+    if ($userid) {
+        $params[] = $userid;
+        $usertest = 'AND u.id = ?';
+    }
+    return $DB->get_records_sql("
+            SELECT
+                u.id,
+                u.id AS userid,
+                qg.grade AS rawgrade,
+                qg.timemodified AS dategraded,
+                MAX(qa.timefinish) AS datesubmitted
+
+            FROM {user} u
+            JOIN {adaptivequiz_grades} qg ON u.id = qg.userid
+            JOIN {adaptivequiz_attempts} qa ON qa.quiz = qg.quiz AND qa.userid = u.id
+
+            WHERE qg.quiz = ?
+            $usertest
+            GROUP BY u.id, qg.grade, qg.timemodified", $params);
 }

@@ -37,10 +37,13 @@ defined('MOODLE_INTERNAL') || die();
 class feedback {
     /** @var array the feedback blocks of this feedback. */
     protected $feedbackblocks = null;
+    /** @var int $quiz the quiz this feedback belongs to. */
     protected $quiz = null;
 
     /**
      * Constructor, assuming we already have the necessary data loaded.
+     *
+     * @param adaptivequiz $quiz the quiz the feedback nelongs to.
      */
     public function __construct($quiz) {
         $this->quiz = $quiz;
@@ -50,7 +53,6 @@ class feedback {
      * Gets the specialized feedback for an adaptivequiz.
      *
      * @param adaptivequiz $quiz the adaptivequiz to get the feedback for.
-     *
      * @return feedback the feedback for this quiz.
      */
     public static function get_feedback(adaptivequiz $quiz) {
@@ -98,7 +100,6 @@ class feedback {
      *
      * @param block_element $blockelement the element to get the replacement feedback for.
      * @param attempt $attempt the attempt for which to get the specialized feedback.
-     *
      * @return array an array of specialized_feedback objects.
      */
     public function get_specialized_feedback_at_element(block_element $blockelement, attempt $attempt) {
@@ -229,7 +230,6 @@ class feedback_block {
         }
 
         $old = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
-
         for ($i = 0; $i < max(array(count($usesquestions), count($old))); $i++) {
             if ($i >= count($old)) {
                 $record = new stdClass();
@@ -399,7 +399,6 @@ class specialized_feedback {
      * Gets the block element represented by a character.
      *
      * @param string $char the character to get the block element for.
-     *
      * @return block_element the block element represented by the char.
      */
     protected function block_element_from_char($char) {

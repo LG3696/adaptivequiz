@@ -94,7 +94,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $row[] = '';
             }
             else {
-                $row[] = $attempt->get_quba()->get_total_mark();
+                $row[] = round($attempt->get_quba()->get_total_mark(),2);
                 $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
                     array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
             }
