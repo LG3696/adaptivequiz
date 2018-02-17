@@ -47,7 +47,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $this->view_page_buttons($viewobj);
         return $output;
     }
-    
+
     /**
      * Generates the table of data
      *
@@ -58,37 +58,37 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         if (!$viewobj->attempts) {
             return '';
         }
-        
+
         // Prepare table header.
         $table = new html_table();
         $table->attributes['class'] = 'generaltable quizattemptsummary';
         $table->head = array();
         $table->align = array();
         $table->size = array();
-        
+
         $table->head[] = get_string('attemptnumber', 'adaptivequiz');
         $table->align[] = 'left';
         $table->size[] = '';
-        
+
         $table->head[] = get_string('attemptstate', 'quiz');
         $table->align[] = 'left';
         $table->size[] = '';
-        
+
         $table->head[] = get_string('marks', 'adaptivequiz') . ' / ' . $quiz->get_maxgrade();
         $table->align[] = 'center';
         $table->size[] = '';
-        
+
         $table->head[] = get_string('review', 'adaptivequiz');
         $table->align[] = 'center';
         $table->size[] = '';
-        
+
         // One row for each attempt.
         foreach($viewobj->attempts as $attempt) {
             $row = array();
-            
+
             $row[] = $attempt->get_attempt_number();
             $row[] = $this->attempt_state($attempt);
-            
+
             if ($attempt->get_state() == attempt::IN_PROGRESS) {
                 $row[] = '';
                 $row[] = '';
@@ -98,26 +98,26 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
                     array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
             }
-            
+
             $table->data[$attempt->get_attempt_number()] = $row;
         }
-        
+
         $output = '';
         $output .= $this->view_table_heading();
         $output .= html_writer::table($table);
         return $output;
     }
-    
+
     /**
      * Generates the table heading.
      */
     public function view_table_heading() {
         return $this->heading(get_string('summaryofattempts', 'adaptivequiz'), 3);
     }
-    
+
     /**
      * Generate a brief textual desciption of the current state of an attempt.
-     * 
+     *
      * @param attempt $attempt the attempt.
      * @return string the appropriate lang string to describe the state.
      */
@@ -125,7 +125,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         switch ($attempt->get_state()) {
             case attempt::IN_PROGRESS:
                 return get_string('stateinprogress', 'adaptivequiz');
-                
+
             case attempt::FINISHED:
                 return get_string('statefinished', 'adaptivequiz') . html_writer::tag('span',
                 get_string('statefinisheddetails', 'adaptivequiz',
@@ -251,7 +251,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         return $output;
     }
-    
+
     /**
      * Builds the review page.
      *
@@ -267,10 +267,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $this->review_summary_table($summarydata);
         $output .= $this->review_block($attempt->get_quiz()->get_main_block(), $attempt, $options, $feedback);
         $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
-        
+
         return $output;
     }
-    
+
     /**
      * Outputs the table containing data from summary data array
      *
@@ -281,7 +281,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         if (empty($summarydata)) {
             return '';
         }
-        
+
         $output = '';
         $output .= html_writer::start_tag('table', array(
             'class' => 'generaltable generalbox quizreviewsummary'));
@@ -292,45 +292,45 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             } else {
                 $title = $rowdata['title'];
             }
-            
+
             if ($rowdata['content'] instanceof renderable) {
                 $content = $this->render($rowdata['content']);
             } else {
                 $content = $rowdata['content'];
             }
-            
+
             $output .= html_writer::tag('tr',
                 html_writer::tag('th', $title, array('class' => 'cell', 'scope' => 'row')) .
                 html_writer::tag('td', $content, array('class' => 'cell'))
                 );
         }
-        
+
         $output .= html_writer::end_tag('tbody');
         $output .= html_writer::end_tag('table');
         return $output;
     }
-    
+
     /**
      * Renders the feedback for a block.
-     * 
+     *
      * @param block $block the block to generate the feedback for.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
      * @param feedback the specialized feedback.
      * @return string HTML to output.
-     */    
+     */
     protected function review_block(block $block, attempt $attempt, $options, $feedback) {
         $output = '';
         foreach ($block->get_children() as $child) {
             $output .= $this->review_block_element($block, $child, $attempt, $options, $feedback);
-            }
+        }
         return $output;
     }
-    
+
     /**
-     * 
+     *
      * Renders the feedback for an element of the block.
-     * 
+     *
      * @param block $block the block to generate the feedback for.
      * @param block_element $blockelem the element of the block.
      * @param attempt $attempt the attempt this review belongs to.
@@ -351,10 +351,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         }
         return $output;
     }
-    
+
     /**
      * Used to surpass the has_specialized_feedback check.
-     * 
+     *
      * @param block $block the block to generate the feedback for.
      * @param block_element $blockelem the element of the block.
      * @param attempt $attempt the attempt this review belongs to.
@@ -371,21 +371,21 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $output .= $this->review_block($childblock, $attempt, $options, $feedback);
             }
         } else if ($blockelem->is_question()) {
-            $slot = $block->get_slot_for_element($blockelem->get_id());
+            $slot = $block->get_quiz()->get_slot_for_element($blockelem->get_id());
             $output .= $attempt->get_quba()->render_question($slot, $options);
         }
         return $output;
     }
-    
+
     /**
      * Renders the parts of the specialized feedback.
-     * 
+     *
      * @param array $parts the parts of the specialized feedback.
      * @param block $block the block to get the feedback for.
      * @param attempt $attempt the current attempt.
      * @param question_display_options $options the display options.
      * @param feedback the specialized feedback.
-     * 
+     *
      * @return string HTML to output.
      */
     protected function review_parts($parts, $block, $attempt, $options, $feedback) {
@@ -399,10 +399,10 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         }
         return $output;
     }
-    
+
     /**
      * Generates the finish review button.
-     * 
+     *
      * @param int $cmid the course module id.
      * @return string HTML fragment.
      */
