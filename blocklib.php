@@ -467,6 +467,22 @@ class block {
     }
 
     /**
+     * Returns all elements of this block and its descendants.
+     *
+     * @return array the block_elements representing the elements.
+     */
+    public function get_elements() {
+        $elements = array();
+        foreach ($this->get_children() as $child) {
+            array_push($elements, $child);
+            if ($child->is_block()) {
+                $elements = array_merge($elements, $child->get_element()->get_elements());
+            }
+        }
+        return $elements;
+    }
+
+    /**
      * Updates the elements of this block to match a given order.
      *
      * @param array $order an array holding the ids of the block_elements of this block in the desired order.

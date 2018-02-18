@@ -48,7 +48,7 @@ class adaptivequiz {
     protected $mainblock = null;
     /** @var int the id of the main block of this adaptive quiz. */
     protected $mainblockid = 0;
-    /** @var int the total sum of the max grades of the main questions instances 
+    /** @var int the total sum of the max grades of the main questions instances
      * (that is without any questions inside blocks) in the adaptive quiz */
     protected $maxgrade = 0;
 
@@ -113,7 +113,7 @@ class adaptivequiz {
     public function get_cmid() {
         return $this->cmid;
     }
-    
+
     /**
      * Gets the course id.
      *
@@ -141,10 +141,10 @@ class adaptivequiz {
     public function get_context() {
         return context_module::instance($this->cmid);
     }
-    
+
     /**
      * Get the name of the quiz.
-     * 
+     *
      * @return string the name.
      */
     public function get_name() {
@@ -209,6 +209,15 @@ class adaptivequiz {
     }
 
     /**
+     * Returns all elements of this quiz.
+     *
+     * @return array the block_elements representing the elements.
+     */
+    public function get_elements() {
+        return $this->get_main_block()->get_elements();
+    }
+
+    /**
      * Updates the maximum grade.
      */
     public function update_maxgrade() {
@@ -229,5 +238,43 @@ class adaptivequiz {
         $DB->update_record('adaptivequiz', $record);
 
         $this->maxgrade = $grade;
+    }
+    
+    /**
+     * Save the overall grade for a user at a quiz to the adaptivequiz_grades table
+     *
+     * @return bool Indicates success or failure.
+     */
+    public function save_best_grade() {
+        global $DB, $USER;
+
+        $quiz = $DB->get_record('adaptivequiz', array('id' => $this->get_id()), '*', MUST_EXIST);
+        $userid = $USER->id;
+    
+        // Get all the attempts made by the user.
+        $attempts = attempt::get_user_attempts($this->get_id(), $userid, 'finished');
+    
+        // Calculate the best grade.
+        //TODO: wie die beste Note berechnen?
+        $bestgrade = end($attempts)->get_sumgrades();
+        $bestgrade = $bestgrade * $quiz->grade / $this->get_maxgrade();
+    
+        // Save the best grade in the database.
+        if ($grade = $DB->get_record('adaptivequiz_grades',
+                array('quiz' => $quiz->id, 'userid' => $userid))) {
+            $grade->grade = $bestgrade;
+            $grade->timemodified = time();
+            $DB->update_record('adaptivequiz_grades', $grade);
+    
+        } else {
+            $grade = new stdClass();
+            $grade->quiz = $quiz->id;
+            $grade->userid = $userid;
+            $grade->grade = $bestgrade;
+            $grade->timemodified = time();
+            $DB->insert_record('adaptivequiz_grades', $grade);
+        }
+    
+        adaptivequiz_update_grades($quiz, $userid);
     }
 }

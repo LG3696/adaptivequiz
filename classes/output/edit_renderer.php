@@ -632,28 +632,27 @@ class edit_renderer extends \plugin_renderer_base {
 
         $output .= \html_writer::start_div('usedquestions');
         foreach ($block->get_used_question_instances() as $instance) {
-            $output .= $this->uses_question($block, $instance);
+            $output .= $this->uses_element($block, $instance);
         }
         $output .= \html_writer::end_div();
 
         $output .= \html_writer::link('#', get_string('addusedquestion', 'adaptivequiz'), array('class' =>'addusedquestion'));
 
-        $output .= \html_writer::div($this->uses_question($block), 'usesquestioncontainer');
+        $output .= \html_writer::div($this->uses_element($block), 'usesquestioncontainer');
 
         $this->page->requires->js_call_amd('mod_adaptivequiz/feedback', 'init');
         return $output;
     }
 
     /**
-     * Outputs the HTML for a question whose feedback is replaced by the feedback block.
+     * Outputs the HTML for a element whose feedback is replaced by the feedback block.
      *
      * @param \feedback_block $block the block for which to generate the HTML.
-     * @param int $index the index this selector should have.
      * @param null|\block_element $selected the question for which to generate the HTML.
      *
      * @return string HTML to output.
      */
-    public function uses_question(\feedback_block $block, \block_element $question = null) {
+    public function uses_element(\feedback_block $block, \block_element $question = null) {
         static $index = 64; // 'A' - 1
         $index += 1;
 
@@ -677,15 +676,20 @@ class edit_renderer extends \plugin_renderer_base {
         static $index = 0;
         $index += 1;
 
-        foreach ($block->get_quiz()->get_questions() as $element) {
+        foreach ($block->get_quiz()->get_elements() as $element) {
             $attributes = array('value' => $element->get_id());
             if ($selected && $selected->get_id() == $element->get_id()) {
                 $attributes['selected'] = '';
             }
             $options .= \html_writer::tag('option', $element->get_name(), $attributes);
         }
-        return \html_writer::tag('select', $options,
-            array('class' => 'usesquestionselector', 'name' => 'usesquestions[' . $index . ']'));
+        if ($selected) {
+            return \html_writer::tag('select', $options,
+                array('class' => 'usesquestionselector', 'name' => 'usesquestions[' . $index . ']'));
+        } else {
+            return \html_writer::tag('select', $options,
+                array('class' => 'usesquestionselector'));
+        }
     }
 
     /**
