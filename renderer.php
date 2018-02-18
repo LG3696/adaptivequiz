@@ -344,7 +344,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $specialfeedback = $feedback->get_specialized_feedback_at_element($blockelem, $attempt);
             foreach ($specialfeedback as $sf) {
                 $parts = $sf->get_parts();
-                $output .= $this->review_parts($parts, $block, $attempt, $options, $feedback);
+                $review = $this->review_parts($parts, $block, $attempt, $options, $feedback);
+                $output .= html_writer::div($review, 'reviewblock');
             }
         } else {
             $output .= $this->review_block_element_render($block, $blockelem, $attempt, $options, $feedback);
@@ -392,7 +393,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output = '';
         foreach ($parts as $part) {
             if (is_string($part)) {
-                $output .= $part;
+                $output .= html_writer::div($part, 'specialfeedbacktext');
             } else if ($part instanceof block_element) {
                 $output .= $this->review_block_element_render($block, $part, $attempt, $options, $feedback);
             }

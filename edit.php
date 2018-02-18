@@ -118,7 +118,7 @@ if ($save) {
             'appendqnumstring' => 'addquestion'
         ));
     } else if (optional_param('addfeedback', 0, PARAM_INT)) {
-        $feedbackblock = feedback_block::create($adaptivequiz, '');
+        $feedbackblock = feedback_block::create($adaptivequiz, get_string('feedbackblockdefaultname', 'adaptivequiz'));
         $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
             array('cmid' => $cmid, 'bid' => $feedbackblock->get_id()));
     } else {
