@@ -76,7 +76,7 @@ if ($save) {
     }
 
     // Update the order of the elements.
-    $order = required_param_array('elementsorder', PARAM_INT);
+    $order = optional_param_array('elementsorder', array(), PARAM_INT);
     $block->update_order($order);
 
     // Take different actions, depending on which submit button was clicked.
