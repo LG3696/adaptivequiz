@@ -465,6 +465,22 @@ class block {
         }
         return $questions;
     }
+    
+    /**
+     * Returns all blocks of this block and its descendants.
+     *
+     * @return array the block_elements representing the blocks.
+     */
+    public function get_blocks() {
+        $blocks = array();
+        foreach ($this->get_children() as $child) {
+            if ($child->is_block()) {
+                array_push($blocks, $child);
+                $blocks = array_merge($blocks, $child->get_element()->get_blocks());
+            }
+        }
+        return $blocks;
+    }
 
     /**
      * Updates the elements of this block to match a given order.

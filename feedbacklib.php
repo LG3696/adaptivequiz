@@ -43,7 +43,7 @@ class feedback {
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
-     * @param adaptivequiz $quiz the quiz the feedback nelongs to.   
+     * @param adaptivequiz $quiz the quiz the feedback belongs to.   
      */
     public function __construct($quiz) {
         $this->quiz = $quiz;
