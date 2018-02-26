@@ -507,6 +507,25 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
             new pix_icon('i/preview', ''));
         $adaptivequiznode->add_node($node, $beforekey);
     }
+
+    // Report buttons
+    if (has_any_capability(array('mod/adaptivequiz:viewreports', 'mod/adaptivequiz:grade'), $PAGE->cm->context)) {
+        $url = new moodle_url('/mod/adaptivequiz/report.php',
+            array('id' => $PAGE->cm->id, 'mode' => 'overview'));
+        $reportnode = $adaptivequiznode->add_node(navigation_node::create(get_string('results', 'adaptivequiz'), $url,
+            navigation_node::TYPE_SETTING,
+            null, null, new pix_icon('i/report', '')), $beforekey);
+
+        $reportnode->add_node(navigation_node::create(get_string('grades', 'adaptivequiz'), $url,
+            navigation_node::TYPE_SETTING,
+            null, null, new pix_icon('i/item', '')));
+
+        $url = new moodle_url('/mod/adaptivequiz/report.php',
+            array('id' => $PAGE->cm->id, 'mode' => 'responses'));
+        $reportnode->add_node(navigation_node::create(get_string('responses', 'adaptivequiz'), $url,
+            navigation_node::TYPE_SETTING,
+            null, null, new pix_icon('i/item', '')));
+    }
 }
 
 /**

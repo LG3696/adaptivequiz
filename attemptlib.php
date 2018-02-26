@@ -374,6 +374,18 @@ class attempt {
     }
 
     /**
+     * Updates the grade of this attempt.
+     */
+    public function update_grade() {
+        global $DB;
+
+        $record = new stdClass();
+        $record->id = $this->get_id();
+        $record->sumgrades = $this->quba->get_total_mark();
+        $DB->update_record('adaptivequiz_attempts', $record);
+    }
+
+    /**
      * Checks if this attempt is finished.
      *
      * @return boolean wether this attempt is finished.
@@ -384,10 +396,11 @@ class attempt {
 
     /**
      * Determines the next slot based on the conditions of the blocks.
-     *
-     * @return null|int the number of the next slot that the student should work or null, if no such slot exists.
      */
     public function next_slot() {
+        if ($this->is_finished()) {
+            return;
+        }
         $nextslot = $this->get_quiz()->next_slot($this);
         if (!is_null($nextslot)) {
             $this->set_current_slot($nextslot);
@@ -396,7 +409,6 @@ class attempt {
             $timenow = time();
             $this->finish_attempt($timenow);
         }
-        return $nextslot;
     }
 
     // URL.
