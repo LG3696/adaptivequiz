@@ -348,10 +348,6 @@ class attempt {
 
         $attemptrow = new stdClass();
         $attemptrow->id = $this->get_id();
-        $attemptrow->quba = $this->get_quba()->get_id();
-        $attemptrow->quiz = $this->get_quiz()->get_id();
-        $attemptrow->userid = $this->get_userid();
-        $attemptrow->attempt = $this->get_attempt_number();
         $attemptrow->sumgrades = $this->quba->get_total_mark();
         $attemptrow->timefinish = $timenow;
         $attemptrow->state = self::FINISHED;
@@ -397,7 +393,8 @@ class attempt {
             $this->set_current_slot($nextslot);
         } else {
             $this->set_current_slot($this->quiz->get_main_block()->get_slotcount() + 1);
-            // TODO: finish attempt
+            $timenow = time();
+            $this->finish_attempt($timenow);
         }
         return $nextslot;
     }
@@ -420,6 +417,22 @@ class attempt {
      */
     public function review_url() {
         return new moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->id));
+    }
+
+    /**
+     * Get the human-readable name for an attempt state.
+     * @param string $state one of the state constants.
+     * @return string The lang string to describe that state.
+     */
+    public static function state_name($state) {
+        switch ($state) {
+            case attempt::IN_PROGRESS:
+                return get_string('stateinprogress', 'adaptivequiz');
+            case attempt::FINISHED:
+                return get_string('statefinished', 'adaptivequiz');
+            default:
+                throw new coding_exception('Unknown quiz attempt state.');
+        }
     }
 
     /**
