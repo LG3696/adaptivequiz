@@ -59,7 +59,7 @@ class overview extends attempts {
             $allowed = array();
         }
 
-        $questions = $this->get_significant_questions($quiz);
+        $questions = $this->get_significant_questions();
 
         // Prepare for downloading, if applicable.
         $courseshortname = format_string($course->shortname, true,
@@ -174,14 +174,6 @@ class overview extends attempts {
             }
         }*/
         return true;
-    }
-
-    /**
-     * Unlock the session and allow the regrading process to run in the background.
-     */
-    protected function unlock_session() {
-        \core\session\manager::write_close();
-        ignore_user_abort(true);
     }
 
     /**
@@ -437,27 +429,5 @@ class overview extends attempts {
     protected function get_base_url() {
         return new \moodle_url('/mod/adaptivequiz/report.php',
             array('id' => $this->context->instanceid, 'mode' => 'overview'));
-    }
-
-    /**
-     * Get the slots of real questions (not descriptions) in this quiz, in order.
-     *
-     * @param \adaptivequiz $quiz the quiz for which to retrieve the questions.
-     *
-     * @return array of slot => $question object with fields
-     *      ->slot, ->id, ->maxmark, ->number, ->length.
-     */
-    protected function get_significant_questions(\adaptivequiz $quiz) {
-        global $DB;
-
-        $questionsraw = $quiz->get_questions();
-        $questions = array();
-        for ($i = 0; $i < count($questionsraw); $i++) {
-            $question = clone $questionsraw[$i]->get_element();
-            $question->slot = $i + 1;
-            $question->number = $i + 1;
-            $questions[$i + 1] = $question;
-        }
-        return $questions;
     }
 }

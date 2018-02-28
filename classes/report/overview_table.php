@@ -53,7 +53,7 @@ class overview_table extends attempts_table {
      */
     public function __construct(\adaptivequiz $quiz, $context, $qmsubselect,
         overview_options $options, $groupstudents, $students, $questions, $reporturl) {
-            parent::__construct('mod-quiz-report-overview-report', $quiz , $context,
+            parent::__construct('mod-adaptivequiz-report-overview', $quiz , $context,
                 $qmsubselect, $options, $groupstudents, $students, $questions, $reporturl);
     }
 
@@ -63,13 +63,12 @@ class overview_table extends attempts_table {
         if (!$this->rawdata) {
             return;
         }
-
         $this->strtimeformat = str_replace(',', ' ', get_string('strftimedatetime'));
         parent::build_table();
 
         // End of adding the data from attempts. Now add averages at bottom.
+        /*TODO
         $this->add_separator();
-/*TODO
         if ($this->groupstudents) {
             $this->add_average_row(get_string('groupavg', 'grades'), $this->groupstudents);
         }
@@ -262,9 +261,5 @@ class overview_table extends attempts_table {
 
     protected function get_required_latest_state_fields($slot, $alias) {
         return "$alias.fraction * $alias.maxmark AS qsgrade$slot";
-    }
-
-    public function query_db($pagesize, $useinitialsbar = true) {
-        parent::query_db($pagesize, $useinitialsbar);
     }
 }

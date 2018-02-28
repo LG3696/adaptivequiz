@@ -331,4 +331,24 @@ abstract class attempts {
     function download_filename($mode, $courseshortname, $quizname) {
         return $courseshortname . '-' . format_string($quizname, true) . '-' . $mode;
     }
+
+    /**
+     * Get the slots of real questions (not descriptions) in this quiz, in order.
+     *
+     * @return array of slot => $question object with fields
+     *      ->slot, ->id, ->maxmark, ->number, ->length.
+     */
+    protected function get_significant_questions() {
+        global $DB;
+
+        $questionsraw = $this->quiz->get_questions();
+        $questions = array();
+        for ($i = 0; $i < count($questionsraw); $i++) {
+            $question = clone $questionsraw[$i]->get_element();
+            $question->slot = $i + 1;
+            $question->number = $i + 1;
+            $questions[$i + 1] = $question;
+        }
+        return $questions;
+    }
 }

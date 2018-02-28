@@ -255,6 +255,9 @@ abstract class attempts_table extends \table_sql {
      * @return bool
      */
     protected function is_flagged($questionusageid, $slot) {
+        if (!$this->lateststeps[$questionusageid][$slot]) {
+            debug_print_backtrace();
+        }
         $stepdata = $this->lateststeps[$questionusageid][$slot];
         return $stepdata->flagged;
     }
@@ -314,7 +317,6 @@ abstract class attempts_table extends \table_sql {
         foreach ($latesstepdata as $step) {
             $lateststeps[$step->questionusageid][$step->slot] = $step;
         }
-
         return $lateststeps;
     }
 

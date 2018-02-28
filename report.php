@@ -51,7 +51,7 @@ $PAGE->set_title($adaptivequiz->get_name());
 $PAGE->set_heading($course->fullname);
 
 if ($mode == 'responses') {
-    $report = null;
+    $report = new mod_adaptivequiz\report\responses();
 } else { // $mode = 'overview' as default
     $report = new mod_adaptivequiz\report\overview();
 }
