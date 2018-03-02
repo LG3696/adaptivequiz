@@ -81,6 +81,9 @@ class attempt {
 
     /** @var int time of finishing this attempt. */
     protected $timefinish;
+    
+    /** @var boolean preview was previewed. */
+    protected $preview;
 
     // /** @var int time of last modification of this attempt. */
     // protected $timemodified;
@@ -100,10 +103,11 @@ class attempt {
      * @param string $state the state of the attempt.
      * @param int $timefinish the time the attempt was finished.
      * @param float $sumgrades the sumof the grades.
+     * @param boolean $preview attempt is a preview attempt.
      */
     public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz,
             $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish,
-            $sumgrades) {
+            $sumgrades, $preview) {
         $this->id = $id;
         $this->quba = $quba;
         $this->quiz = $quiz;
@@ -114,6 +118,7 @@ class attempt {
         $this->timestart = $timestart;
         $this->timefinish = $timefinish;
         $this->sumgrades = $sumgrades;
+        $this->preview = $preview;
     }
 
 
@@ -132,7 +137,7 @@ class attempt {
 
         return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
-            $attemptrow->timefinish, $attemptrow->sumgrades);
+            $attemptrow->timefinish, $attemptrow->sumgrades, $attemptrow->preview);
     }
 
     /**
@@ -140,9 +145,10 @@ class attempt {
      *
      * @param adaptivequiz $quiz the quiz this attempt belongs to.
      * @param int $userid the id of the user this attempt belongs to.
+     * @param boolean $preview attempt is a preview attempt.
      * @return attempt the new attempt object.
      */
-    public static function create(adaptivequiz $quiz, $userid) {
+    public static function create(adaptivequiz $quiz, $userid, $preview = false) {
         global $DB;
 
         $quba = attempt::create_quba($quiz);
@@ -158,6 +164,7 @@ class attempt {
         $attemptrow->sumgrades = NULL;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
+        $attemptrow->preview = $preview;
 
         $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
 
@@ -186,7 +193,7 @@ class attempt {
 
         $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
-            $attemptrow->timefinish, $attemptrow->sumgrades);
+            $attemptrow->timefinish, $attemptrow->sumgrades, $preview);
         return $attempt;
     }
 
@@ -290,6 +297,15 @@ class attempt {
      */
     public function get_sumgrades() {
         return $this->sumgrades;
+    }
+    
+    /**
+     * Returns true if this attempt is a preview attempt.
+     * 
+     * @return boolean wether this attempt is a preview attempt.
+     */
+    public function get_preview() {
+        return $this->preview;
     }
 
     /**

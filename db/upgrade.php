@@ -110,5 +110,20 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2018020100, 'adaptivequiz');
     }
+    
+    if ($oldversion < 2018030200) {
+        
+        // Define field preview to be added to adaptivequiz_attempts.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $field = new xmldb_field('preview', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null, 'sumgrades');
+        
+        // Conditionally launch add field preview.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Adaptivequiz savepoint reached.
+        upgrade_mod_savepoint(true, 2018030200, 'adaptivequiz');
+    }
     return true;
 }
