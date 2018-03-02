@@ -105,7 +105,11 @@ class feedback {
     public function get_specialized_feedback_at_element(block_element $blockelement, attempt $attempt) {
         $ret = array();
         foreach ($this->get_blocks() as $block) {
-            $qi = array_values($block->get_used_question_instances())[0];
+            $usedqinstances = $block->get_used_question_instances();
+            if (count($usedqinstances) < 1) {
+                continue;
+            }
+            $qi = array_values($usedqinstances)[0];
             if ($block->get_condition()->is_fullfilled($attempt) &&
                 $qi->get_id() == $blockelement->get_id()) {
                     array_push($ret, new specialized_feedback($block));
@@ -214,9 +218,9 @@ class feedback_block {
      * @param array $usesquestions the questions used by this feedback.
      */
     public function update($name, $feedbacktext, $usesquestions) {
-        if ($this->name != $name || $this->feedbacktext != $feedbacktext) {
-            global $DB;
+        global $DB;
 
+        if ($this->name != $name || $this->feedbacktext != $feedbacktext) {
             $record = new stdClass();
             $record->id = $this->id;
             $record->name = $name;
@@ -225,37 +229,24 @@ class feedback_block {
             $DB->update_record('adaptivequiz_feedback_block', $record);
         }
 
-        $old = $this->get_used_question_instances();
-        // Delete removed instances.
-        foreach ($old as $existing) {
-            $deleted = true;
-            foreach ($usesquestions as $id) {
-                if ($id == $existing->get_id()) {
-                    $deleted = false;
-                    break;
-                }
-            }
-            if ($deleted) {
-                global $DB;
-                $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $existing->get_id()));
-            }
-        }
-        // Add new instances.
-        foreach ($usesquestions as $id) {
-            $exists = false;
-            foreach ($old as $existing) {
-                if ($existing->get_id() == $id) {
-                    $exists = true;
-                }
-            }
-            if (!$exists) {
-                global $DB;
-
+        $old = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
+        for ($i = 0; $i < max(array(count($usesquestions), count($old))); $i++) {
+            if ($i >= count($old)) {
                 $record = new stdClass();
                 $record->feedbackblockid = $this->id;
-                $record->questioninstanceid = $id;
+                $record->questioninstanceid = $usesquestions[array_keys($usesquestions)[$i]];
                 $DB->insert_record('adaptivequiz_feedback_uses', $record);
+            } else if ($i >= count($usesquestions)) {
+                $record = $old[array_keys($old)[$i]];
+                $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $record->id));
+            } else {
+                $record = $old[array_keys($old)[$i]];
+                if ($record->questioninstanceid != $usesquestions[array_keys($usesquestions)[$i]]) {
+                    $record->questioninstanceid = $usesquestions[array_keys($usesquestions)[$i]];
+                    $DB->update_record('adaptivequiz_feedback_uses', $record);
+                }
             }
+
         }
     }
 

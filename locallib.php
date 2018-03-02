@@ -48,7 +48,7 @@ class adaptivequiz {
     protected $mainblock = null;
     /** @var int the id of the main block of this adaptive quiz. */
     protected $mainblockid = 0;
-    /** @var int the total sum of the max grades of the main questions instances 
+    /** @var int the total sum of the max grades of the main questions instances
      * (that is without any questions inside blocks) in the adaptive quiz */
     protected $maxgrade = 0;
 
@@ -113,7 +113,7 @@ class adaptivequiz {
     public function get_cmid() {
         return $this->cmid;
     }
-    
+
     /**
      * Gets the course id.
      *
@@ -141,10 +141,10 @@ class adaptivequiz {
     public function get_context() {
         return context_module::instance($this->cmid);
     }
-    
+
     /**
      * Get the name of the quiz.
-     * 
+     *
      * @return string the name.
      */
     public function get_name() {
@@ -206,6 +206,15 @@ class adaptivequiz {
      */
     public function get_questions() {
         return $this->get_main_block()->get_questions();
+    }
+
+    /**
+     * Returns all elements of this quiz.
+     *
+     * @return array the block_elements representing the elements.
+     */
+    public function get_elements() {
+        return $this->get_main_block()->get_elements();
     }
 
     /**
