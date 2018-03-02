@@ -224,7 +224,7 @@ class adaptivequiz {
         global $DB;
 
         $grade = 0;
-        foreach ($this->mainblock->get_children() as $child) {
+        foreach ($this->get_main_block()->get_children() as $child) {
             if ($child->is_question()) {
                 $question = question_bank::load_question($child->get_element()->id, false);
                 $mark = $question->defaultmark;
@@ -232,14 +232,15 @@ class adaptivequiz {
             }
         }
 
-        $record = new stdClass();
-        $record->id = $this->id;
-        $record->maxgrade = $grade;
-        $DB->update_record('adaptivequiz', $record);
-
-        $this->maxgrade = $grade;
+        if ($grade != $this->maxgrade) {
+            $record = new stdClass();
+            $record->id = $this->id;
+            $record->maxgrade = $grade;
+            $DB->update_record('adaptivequiz', $record);
+            $this->maxgrade = $grade;
+        }
     }
-    
+
     /**
      * Save the overall grade for a user at a quiz to the adaptivequiz_grades table
      *
@@ -250,22 +251,22 @@ class adaptivequiz {
 
         $quiz = $DB->get_record('adaptivequiz', array('id' => $this->get_id()), '*', MUST_EXIST);
         $userid = $USER->id;
-    
+
         // Get all the attempts made by the user.
         $attempts = attempt::get_user_attempts($this->get_id(), $userid, 'finished');
-    
+
         // Calculate the best grade.
         //TODO: wie die beste Note berechnen?
         $bestgrade = end($attempts)->get_sumgrades();
         $bestgrade = $bestgrade * $quiz->grade / $this->get_maxgrade();
-    
+
         // Save the best grade in the database.
         if ($grade = $DB->get_record('adaptivequiz_grades',
                 array('quiz' => $quiz->id, 'userid' => $userid))) {
             $grade->grade = $bestgrade;
             $grade->timemodified = time();
             $DB->update_record('adaptivequiz_grades', $grade);
-    
+
         } else {
             $grade = new stdClass();
             $grade->quiz = $quiz->id;
@@ -274,7 +275,36 @@ class adaptivequiz {
             $grade->timemodified = time();
             $DB->insert_record('adaptivequiz_grades', $grade);
         }
-    
+
         adaptivequiz_update_grades($quiz, $userid);
+    }
+
+    /**
+     * Round a grade to the correct number of decimal places, and format it for display.
+     *
+     * @param float $grade The grade to round.
+     * @return float
+     */
+    public function format_grade($grade) {
+        return format_float($grade, $this->get_grade_format());
+    }
+
+    /**
+     * Determine the correct number of decimal places required to format a grade.
+     *
+     * @return integer
+     */
+    protected function get_grade_format() {
+        return 2;
+    }
+
+    /**
+     * Gets the number of attempts for this quiz.
+     *
+     * @return int the number of attempts.
+     */
+    public function get_num_attempts() {
+        global $DB;
+        return $DB->count_records('adaptivequiz_attempts', array('quiz' => $this->id));
     }
 }

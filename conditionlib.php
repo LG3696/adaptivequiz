@@ -140,7 +140,7 @@ class condition {
         if ($this->useand != $useand) {
             global $DB;
 
-            $conditionid = $DB->get_field('adaptivequiz_block', 'conditionid', array('id' => $this->block->get_id()), MUST_EXIST);
+            $conditionid = $DB->get_field('adaptivequiz_block', 'conditionid', array('id' => $this->get_id()), MUST_EXIST);
 
             $this->useand = $useand;
 

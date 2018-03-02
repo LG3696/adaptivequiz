@@ -81,6 +81,9 @@ class attempt {
 
     /** @var int time of finishing this attempt. */
     protected $timefinish;
+    
+    /** @var boolean preview was previewed. */
+    protected $preview;
 
     // /** @var int time of last modification of this attempt. */
     // protected $timemodified;
@@ -100,10 +103,11 @@ class attempt {
      * @param string $state the state of the attempt.
      * @param int $timefinish the time the attempt was finished.
      * @param float $sumgrades the sumof the grades.
+     * @param boolean $preview attempt is a preview attempt.
      */
     public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz,
             $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish,
-            $sumgrades) {
+            $sumgrades, $preview) {
         $this->id = $id;
         $this->quba = $quba;
         $this->quiz = $quiz;
@@ -114,6 +118,7 @@ class attempt {
         $this->timestart = $timestart;
         $this->timefinish = $timefinish;
         $this->sumgrades = $sumgrades;
+        $this->preview = $preview;
     }
 
 
@@ -132,7 +137,7 @@ class attempt {
 
         return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
-            $attemptrow->timefinish, $attemptrow->sumgrades);
+            $attemptrow->timefinish, $attemptrow->sumgrades, $attemptrow->preview);
     }
 
     /**
@@ -140,9 +145,10 @@ class attempt {
      *
      * @param adaptivequiz $quiz the quiz this attempt belongs to.
      * @param int $userid the id of the user this attempt belongs to.
+     * @param boolean $preview attempt is a preview attempt.
      * @return attempt the new attempt object.
      */
-    public static function create(adaptivequiz $quiz, $userid) {
+    public static function create(adaptivequiz $quiz, $userid, $preview = false) {
         global $DB;
 
         $quba = attempt::create_quba($quiz);
@@ -158,6 +164,7 @@ class attempt {
         $attemptrow->sumgrades = NULL;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
+        $attemptrow->preview = $preview;
 
         $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
 
@@ -186,7 +193,7 @@ class attempt {
 
         $attempt = new attempt($attemptid, $quba, $quiz, $userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
-            $attemptrow->timefinish, $attemptrow->sumgrades);
+            $attemptrow->timefinish, $attemptrow->sumgrades, $preview);
         return $attempt;
     }
 
@@ -291,6 +298,15 @@ class attempt {
     public function get_sumgrades() {
         return $this->sumgrades;
     }
+    
+    /**
+     * Returns true if this attempt is a preview attempt.
+     * 
+     * @return boolean wether this attempt is a preview attempt.
+     */
+    public function get_preview() {
+        return $this->preview;
+    }
 
     /**
      * Sets the current slot of this attempt.
@@ -348,10 +364,6 @@ class attempt {
 
         $attemptrow = new stdClass();
         $attemptrow->id = $this->get_id();
-        $attemptrow->quba = $this->get_quba()->get_id();
-        $attemptrow->quiz = $this->get_quiz()->get_id();
-        $attemptrow->userid = $this->get_userid();
-        $attemptrow->attempt = $this->get_attempt_number();
         $attemptrow->sumgrades = $this->quba->get_total_mark();
         $attemptrow->timefinish = $timenow;
         $attemptrow->state = self::FINISHED;
@@ -378,6 +390,18 @@ class attempt {
     }
 
     /**
+     * Updates the grade of this attempt.
+     */
+    public function update_grade() {
+        global $DB;
+
+        $record = new stdClass();
+        $record->id = $this->get_id();
+        $record->sumgrades = $this->quba->get_total_mark();
+        $DB->update_record('adaptivequiz_attempts', $record);
+    }
+
+    /**
      * Checks if this attempt is finished.
      *
      * @return boolean wether this attempt is finished.
@@ -388,18 +412,19 @@ class attempt {
 
     /**
      * Determines the next slot based on the conditions of the blocks.
-     *
-     * @return null|int the number of the next slot that the student should work or null, if no such slot exists.
      */
     public function next_slot() {
+        if ($this->is_finished()) {
+            return;
+        }
         $nextslot = $this->get_quiz()->next_slot($this);
         if (!is_null($nextslot)) {
             $this->set_current_slot($nextslot);
         } else {
             $this->set_current_slot($this->quiz->get_main_block()->get_slotcount() + 1);
-            // TODO: finish attempt
+            $timenow = time();
+            $this->finish_attempt($timenow);
         }
-        return $nextslot;
     }
 
     // URL.
@@ -420,6 +445,22 @@ class attempt {
      */
     public function review_url() {
         return new moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->id));
+    }
+
+    /**
+     * Get the human-readable name for an attempt state.
+     * @param string $state one of the state constants.
+     * @return string The lang string to describe that state.
+     */
+    public static function state_name($state) {
+        switch ($state) {
+            case attempt::IN_PROGRESS:
+                return get_string('stateinprogress', 'adaptivequiz');
+            case attempt::FINISHED:
+                return get_string('statefinished', 'adaptivequiz');
+            default:
+                throw new coding_exception('Unknown quiz attempt state.');
+        }
     }
 
     /**

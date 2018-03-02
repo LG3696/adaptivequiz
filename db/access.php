@@ -123,4 +123,16 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+
+    // Grade quiz attempts.
+    'mod/adaptivequiz:grade' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
 );

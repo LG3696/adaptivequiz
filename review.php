@@ -92,8 +92,8 @@ $summarydata['timetaken'] = array(
     'content' => $timetaken);
 
 $a = new stdClass();
-$a->grade = round($attempt->get_sumgrades(), 2);
-$a->maxgrade = $adaptivequiz->get_maxgrade();
+$a->grade = $adaptivequiz->format_grade($attempt->get_sumgrades());
+$a->maxgrade = $adaptivequiz->format_grade($adaptivequiz->get_maxgrade());
 $summarydata['marks'] = array(
     'title'   => get_string('marks', 'adaptivequiz'),
     'content' => get_string('outofshort', 'adaptivequiz', $a));
