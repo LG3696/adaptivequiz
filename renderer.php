@@ -387,7 +387,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     protected function review_block_element($block, $blockelem, $attempt, $options, $feedback) {
         $output = '';
-        if ($feedback->has_specialized_feedback($blockelem)) {
+        if ($feedback->has_specialized_feedback($blockelem, $attempt)) {
             $specialfeedback = $feedback->get_specialized_feedback_at_element($blockelem, $attempt);
             foreach ($specialfeedback as $sf) {
                 $parts = $sf->get_parts();

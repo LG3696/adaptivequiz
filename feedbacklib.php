@@ -84,10 +84,10 @@ class feedback {
      * @param block_element $blockelement the block element to check.
      * @return bool true if specialized feedback for the block element exists.
      */
-    public function has_specialized_feedback(block_element $blockelement) {
+    public function has_specialized_feedback(block_element $blockelement, $attempt) {
         foreach ($this->get_blocks() as $block) {
             foreach ($block->get_used_question_instances() as $qi) {
-                if ($qi->get_id() == $blockelement->get_id()) {
+                if ($qi->get_id() == $blockelement->get_id() && $block->get_condition()->is_fullfilled($attempt)) {
                     return true;
                 }
             }
