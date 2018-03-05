@@ -125,5 +125,18 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2018030200, 'adaptivequiz');
     }
+    
+    if ($oldversion < 2018030500) {
+        
+        // Changing type of field preview on table adaptivequiz_attempts to int.
+        $table = new xmldb_table('adaptivequiz_attempts');
+        $field = new xmldb_field('preview', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'sumgrades');
+        
+        // Launch change of type for field preview.
+        $dbman->change_field_type($table, $field);
+        
+        // Adaptivequiz savepoint reached.
+        upgrade_mod_savepoint(true, 2018030500, 'adaptivequiz');
+    }
     return true;
 }
