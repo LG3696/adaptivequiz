@@ -123,4 +123,16 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    
+    // Manually grade and comment on student attempts at a question.
+    'mod/adaptivequiz:grade' => array(
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
 );

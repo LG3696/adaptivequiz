@@ -373,11 +373,18 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
         } else if ($blockelem->is_question()) {
             $slot = $block->get_quiz()->get_slot_for_element($blockelem->get_id());
-            $output .= $attempt->get_quba()->render_question($slot, $options);
+            $feedbackblock = $feedback->search_uses($blockelem);
+            if(is_null($feedbackblock)) {
+                $output .= $attempt->get_quba()->render_question($slot, $options);
+            } else {
+                $adaptedgrade = $feedbackblock->get_adapted_grade();
+                $attempt->get_quba()->get_question_attempt($slot)->set_max_mark($adaptedgrade);
+                $output .= $attempt->get_quba()->render_question($slot, $options);
+            }
         }
         return $output;
     }
-
+    
     /**
      * Renders the parts of the specialized feedback.
      *
@@ -392,7 +399,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     protected function review_parts($parts, $block, $attempt, $options, $feedback) {
         $output = '';
         foreach ($parts as $part) {
-            if (is_string($part)) {
+            if (is_string($part) && $part != '<p>' && $part != '</p>') {
                 $output .= html_writer::div($part, 'specialfeedbacktext');
             } else if ($part instanceof block_element) {
                 $output .= $this->review_block_element_render($block, $part, $attempt, $options, $feedback);

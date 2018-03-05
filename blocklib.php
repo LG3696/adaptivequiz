@@ -366,6 +366,24 @@ class block {
         }
         return $sum;
     }
+    
+    /**
+     * Returns the maximum attainable grade for this block.
+     * 
+     * @return int the maximum attainable grade.
+     */
+    public function get_maxgrade() {
+        $sum = 0;
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                $question = question_bank::load_question($child->get_element()->id);
+                $sum += $question->defaultmark;
+            } else if ($child->is_block()) {
+                $sum += $child->get_element()->get_maxgrade();
+            }
+        }
+        return $sum;
+    }
 
     /**
      * Enumerates the questions in this block.

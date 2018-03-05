@@ -130,6 +130,22 @@ class feedback {
 
         $this->feedbackblocks = null;
     }
+    
+    /**
+     * Finds the feedback block where the element is the first part of the uses.
+     * 
+     * @param block_element $element the block element.
+     * @return null|feedback_block the feedback block or null.
+     */
+    public function search_uses($elem) {
+        foreach($this->get_blocks() as $block) {
+            $first = array_values($block->get_used_question_instances())[0];
+            if ($first->get_id() == $elem->get_id()) {
+                return $block;
+            }
+        }
+        return null;
+    }
 }
 
 /**
@@ -342,6 +358,28 @@ class feedback_block {
         $DB->insert_record('adaptivequiz_feedback_uses', $record);
 
         array_push($this->uses, $questioninstanceid);
+    }
+    
+    /**
+     * Calculates the adapted grade for the first element in the uses.
+     * 
+     * @return int the adapted grade.
+     */
+    public function get_adapted_grade() {
+        $uses = $this->uses;
+        $qid = array_shift($uses)->get_element()->id;
+        $first = question_bank::load_question($qid, false);
+        $mark = $first->defaultmark;
+        $sum = 0;
+        foreach ($uses as $element) {
+            if ($element->is_question()) {
+                $question = question_bank::load_question($element->get_element()->id, false);
+                $sum += $question->defaultmark;
+            } else if ($element->is_block()) {
+                $sum += $element->get_element()->get_maxgrade();
+            }
+        }
+        return $mark - $sum;
     }
 }
 
