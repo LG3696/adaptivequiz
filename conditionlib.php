@@ -139,13 +139,11 @@ class condition {
     public function set_use_and($useand) {
         if ($this->useand != $useand) {
             global $DB;
-
-            $conditionid = $DB->get_field('adaptivequiz_block', 'conditionid', array('id' => $this->get_id()), MUST_EXIST);
-
+            
             $this->useand = $useand;
 
             $record = new stdClass();
-            $record->id = $conditionid;
+            $record->id = $this->id;
             $record->useand = $this->useand;
             $DB->update_record('adaptivequiz_condition', $record);
         }
