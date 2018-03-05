@@ -198,6 +198,8 @@ class block {
      * @return array the block_elements that can be used for a condition.
      */
     public function get_condition_candidates() {
+        return $this->get_previous_questions();
+        /* Old implementation just returning questions of the parent block
         $parent = $this->quiz->get_main_block()->search_parent($this->id);
         $candidates = array();
         foreach ($parent->get_children() as $element) {
@@ -206,7 +208,30 @@ class block {
             }
             array_push($candidates, $element);
         }
-        return $candidates;
+        return $candidates;*/
+    }
+    
+    /**
+     * Returns all questions that might be asked ahead of this block. Used to find adequate questions for use in conditions.
+     * 
+     * @return array the block_elements of the questions ahead of this block.
+     */
+    protected function get_previous_questions() {
+        $parent = $this->quiz->get_main_block()->search_parent($this->id);
+        $thisblockelement = null;
+        foreach ($parent->get_children() as $element) {
+            if ($element->is_block() && $element->get_element()->get_id() == $this->id) {
+                $thisblockelement = $element;
+                break;
+            }
+        }
+        if (is_null($thisblockelement)) {
+            return array();
+        }
+        
+        $questions = $this->quiz->get_questions();
+        $count = $this->quiz->get_slot_for_element();
+        return array_slice($questions, 0, $count, true);
     }
 
     /**
@@ -328,12 +353,11 @@ class block {
     public function get_slot_for_element($elementid) {
         $slot = $this->startingslot;
         foreach ($this->get_children() as $child) {
+            if ($child->get_id() == $elementid) {
+                return $slot;
+            }
             if ($child->is_question()) {
-                if ($child->get_id() == $elementid) {
-                    return $slot;
-                } else {
-                    $slot++;
-                }
+                $slot++;
             } else if ($child->is_block()) {
                 $block = $child->get_element();
                 $childslot = $block->get_slot_for_element($elementid);
@@ -482,6 +506,22 @@ class block {
             }
         }
         return $questions;
+    }
+    
+    /**
+     * Returns all blocks of this block and its descendants.
+     *
+     * @return array the block_elements representing the blocks.
+     */
+    public function get_blocks() {
+        $blocks = array();
+        foreach ($this->get_children() as $child) {
+            if ($child->is_block()) {
+                array_push($blocks, $child);
+                $blocks = array_merge($blocks, $child->get_element()->get_blocks());
+            }
+        }
+        return $blocks;
     }
 
     /**

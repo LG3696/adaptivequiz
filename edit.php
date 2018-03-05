@@ -79,12 +79,14 @@ if ($save) {
     $order = optional_param_array('elementsorder', array(), PARAM_INT);
     $block->update_order($order);
 
+    // Update the maximum grade of the quiz in case it changed.
+    $adaptivequiz->update_maxgrade();
+
     // Take different actions, depending on which submit button was clicked.
     if (optional_param('done', 0, PARAM_INT)) {
         if ($parentid = $block->get_parentid()) {
             $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $parentid));
         } else {
-            $adaptivequiz->update_maxgrade();
             $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
         }
     } else if ($delete = optional_param('delete', 0, PARAM_INT)) {

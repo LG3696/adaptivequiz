@@ -224,7 +224,7 @@ class adaptivequiz {
         global $DB;
 
         $grade = 0;
-        foreach ($this->mainblock->get_children() as $child) {
+        foreach ($this->get_main_block()->get_children() as $child) {
             if ($child->is_question()) {
                 $question = question_bank::load_question($child->get_element()->id, false);
                 $mark = $question->defaultmark;
@@ -232,12 +232,13 @@ class adaptivequiz {
             }
         }
 
-        $record = new stdClass();
-        $record->id = $this->id;
-        $record->maxgrade = $grade;
-        $DB->update_record('adaptivequiz', $record);
-
-        $this->maxgrade = $grade;
+        if ($grade != $this->maxgrade) {
+            $record = new stdClass();
+            $record->id = $this->id;
+            $record->maxgrade = $grade;
+            $DB->update_record('adaptivequiz', $record);
+            $this->maxgrade = $grade;
+        }
     }
 
     /**

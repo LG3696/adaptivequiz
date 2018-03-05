@@ -102,6 +102,25 @@
 	display: none;
 }
 
+.specialfeedbacktext {
+	background-color: #fcf8e3;
+	padding: 8px;
+	margin-bottom: 20px;
+	border-radius: 4px;
+	border: 1px solid;
+	border-color: #fbeed5;
+}
+
+.reviewblock {
+	background-color: #eee;
+	padding: 22px 22px 0px 22px;
+	margin-bottom: 20px;
+	margin-top:20px;
+	border-radius: 4px;
+	border: 1px solid;
+	border-color: #dcdcdc;
+}
+
 input[type=number].conditionelement {
 	width: 50px;
 }

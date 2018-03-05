@@ -49,6 +49,52 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Renders the review question pop-up.
+     *
+     * @param attempt $attempt an instance of attempt.
+     * @param int $slot which question to display.
+     * @param question_display_options $options the display options.
+     * @param array $summarydata contains all table data
+     *
+     * @return $output containing html data.
+     */
+    public function review_question_page(attempt $attempt, $slot, question_display_options $options, $summarydata) {
+        $output = '';
+        $output .= $this->heading($attempt->get_quiz()->get_name());
+        $output .= $this->review_summary_table($summarydata);
+        $output .= $attempt->get_quba()->render_question($slot, $options);
+        $output .= $this->close_window_button();
+        return $output;
+    }
+
+    /**
+     * Renders the grade and comment question pop-up.
+     *
+     * @param attempt $attempt an instance of attempt.
+     * @param int $slot which question to display.
+     * @param question_display_options $options the display options.
+     * @param array $summarydata contains all table data
+     *
+     * @return $output containing html data.
+     */
+    public function grade_question_page(attempt $attempt, $slot, question_display_options $options, $summarydata) {
+        $output = '';
+        $output .= $this->heading($attempt->get_quiz()->get_name());
+        $output .= $this->review_summary_table($summarydata);
+
+        $url = new moodle_url('/mod/adaptivequiz/comment.php');
+        $output .= \html_writer::start_tag('form', array('method' => 'post', 'action' => $url->out()));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'attempt', 'value' => $attempt->get_id()));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'slot', 'value' => $slot));
+        $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
+        $output .= $attempt->get_quba()->render_question($slot, $options);
+        $output .= \html_writer::tag('input', '', array('type' => 'submit', 'id' => 'id_submitbutton',
+                'name' => 'submit', 'value' => get_string('save', 'adaptivequiz')));
+        $output .= \html_writer::end_tag('form');
+        return $output;
+    }
+
+    /**
      * Generates the table of data
      *
      * @param array $quiz Array contining quiz data
@@ -275,6 +321,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Outputs the table containing data from summary data array
      *
      * @param array $summarydata contains row data for table
+     *
      * @return $output containing HTML data.
      */
     public function review_summary_table($summarydata) {
