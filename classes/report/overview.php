@@ -134,14 +134,7 @@ class overview extends attempts {
                 foreach ($questions as $slot => $question) {
                     // Ignore questions of zero length.
                     $columns[] = 'qsgrade' . $slot;
-                    /*$header = get_string('qbrief', 'adaptivequiz', $question->number);
-                    if (!$table->is_downloading()) {
-                        $header .= '<br />';
-                    } else {
-                        $header .= ' ';
-                    }
-                    $header .= '/' . $this->quiz->format_grade($question->maxmark);*/
-                    $headers[] = $question->name;//TODO:?$header;
+                    $headers[] = $question->name;
                 }
             }
 

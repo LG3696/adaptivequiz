@@ -144,7 +144,7 @@ class responses extends attempts {
                 }
                 if ($options->showresponses) {
                     $columns[] = 'response' . $id;
-                    $headers[] = get_string('responsex', 'adaptivequiz', $question->number);
+                    $headers[] = $question->name;//get_string('responsex', 'adaptivequiz', $question->number);
                 }
                 if ($options->showright) {
                     $columns[] = 'right' . $id;
