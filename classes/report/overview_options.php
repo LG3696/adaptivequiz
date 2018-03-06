@@ -26,8 +26,6 @@ namespace mod_adaptivequiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/quiz/report/attemptsreport_options.php');
-
 
 /**
  * Class to store the options for an overview report.

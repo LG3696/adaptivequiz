@@ -30,7 +30,7 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 $attemptid = required_param('attempt', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 
-$url = new moodle_url('/mod/quiz/reviewquestion.php',
+$url = new moodle_url('/mod/adaptivequiz/reviewquestion.php',
         array('attempt' => $attemptid, 'slot' => $slot));
 $PAGE->set_url($url);
 
@@ -88,7 +88,7 @@ $summarydata['questionname'] = array(
 );
 
 // Other attempts at the quiz.
-/*TODO: if ($attemptobj->has_capability('mod/quiz:viewreports')) {
+/*TODO: if ($attemptobj->has_capability('mod/adaptivequiz:viewreports')) {
     $attemptlist = $attemptobj->links_to_other_attempts($baseurl);
     if ($attemptlist) {
         $summarydata['attemptlist'] = array(

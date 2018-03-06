@@ -50,6 +50,7 @@ $nexturl = new \moodle_url($url, array('cmid' => $cmid));
 
 // Check that this attempt belongs to this user.
 if ($attempt->get_userid() != $USER->id) {
+    //TODO: adaptivequiz not quiz...
     throw new moodle_quiz_exception($attempt->get_quiz(), 'notyourattempt');
 }
 

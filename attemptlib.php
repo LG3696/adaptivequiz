@@ -182,7 +182,7 @@ class attempt {
                 $params['other'] = array(
 		        'quizid' => $quizobj->get_quizid()
             );
-            $event = \mod_quiz\event\attempt_preview_started::create($params);
+            $event = \mod_adaptivequiz\event\attempt_preview_started::create($params);
             } else { **/
             $event = \mod_adaptivequiz\event\attempt_started::create($params);
 

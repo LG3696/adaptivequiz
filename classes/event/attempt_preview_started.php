@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_quiz attempt preview started event.
+ * The mod_adaptivequiz attempt preview started event.
  *
  * @package    mod_adaptivequiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
@@ -27,7 +27,7 @@ namespace mod_adaptivequiz\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quiz attempt preview started event class.
+ * The mod_adaptivequiz attempt preview started event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -46,7 +46,7 @@ class attempt_preview_started extends \core\event\base {
      * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'quiz_attempts';
+        $this->data['objecttable'] = 'adaptivequiz_attempts';
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
@@ -76,6 +76,6 @@ class attempt_preview_started extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/quiz/view.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/adaptivequiz/view.php', array('id' => $this->contextinstanceid));
     }
 }

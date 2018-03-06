@@ -85,17 +85,17 @@ class responses_options extends attempts_options {
     public function setup_from_user_preferences() {
         parent::setup_from_user_preferences();
 
-        $this->showqtext     = get_user_preferences('quiz_report_responses_qtext', $this->showqtext);
-        $this->showresponses = get_user_preferences('quiz_report_responses_resp',  $this->showresponses);
-        $this->showright     = get_user_preferences('quiz_report_responses_right', $this->showright);
+        $this->showqtext     = get_user_preferences('adaptivequiz_report_responses_qtext', $this->showqtext);
+        $this->showresponses = get_user_preferences('adaptivequiz_report_responses_resp',  $this->showresponses);
+        $this->showright     = get_user_preferences('adaptivequiz_report_responses_right', $this->showright);
     }
 
     public function update_user_preferences() {
         parent::update_user_preferences();
 
-        set_user_preference('quiz_report_responses_qtext', $this->showqtext);
-        set_user_preference('quiz_report_responses_resp',  $this->showresponses);
-        set_user_preference('quiz_report_responses_right', $this->showright);
+        set_user_preference('adaptivequiz_report_responses_qtext', $this->showqtext);
+        set_user_preference('adaptivequiz_report_responses_resp',  $this->showresponses);
+        set_user_preference('adaptivequiz_report_responses_right', $this->showright);
     }
 
     public function resolve_dependencies() {

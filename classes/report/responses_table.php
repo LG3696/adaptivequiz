@@ -26,8 +26,6 @@ namespace mod_adaptivequiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/quiz/report/attemptsreport_table.php');
-
 
 /**
  * This is a table subclass for displaying the responses report.

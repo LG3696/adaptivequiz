@@ -398,7 +398,7 @@ abstract class attempts_table extends \table_sql {
             // than timestart when you have two load-balanced servers with very
             // badly synchronised clocks, and a student does a really quick attempt.
 
-            // This part is the same for all cases. Join the users and quiz_attempts tables.
+            // This part is the same for all cases. Join the users and adaptivequiz_attempts tables.
             $from = "\n{user} u";
             $from .= "\nLEFT JOIN {adaptivequiz_attempts} quiza ON
                                     quiza.userid = u.id AND quiza.quiz = :quizid";

@@ -26,7 +26,7 @@ namespace mod_adaptivequiz\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quiz attempt reviewed event class.
+ * The mod_adaptivequiz attempt reviewed event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -45,7 +45,7 @@ class attempt_reviewed extends \core\event\base {
      * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'quiz_attempts';
+        $this->data['objecttable'] = 'adaptivequiz_attempts';
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }

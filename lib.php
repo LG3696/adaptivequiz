@@ -499,7 +499,7 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
     }
 
     // Preview Quiz button.
-    if (has_capability('mod/quiz:preview', $PAGE->cm->context)) {
+    if (has_capability('mod/adaptivequiz:preview', $PAGE->cm->context)) {
         $url = new moodle_url('/mod/adaptivequiz/startattempt.php',
             array('cmid' => $PAGE->cm->id, 'sesskey' => sesskey()));
         $node = navigation_node::create(get_string('preview', 'adaptivequiz'), $url,

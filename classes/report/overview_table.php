@@ -26,8 +26,6 @@ namespace mod_adaptivequiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/quiz/report/attemptsreport_table.php');
-
 
 /**
  * This is a table subclass for displaying the adaptivequiz grades report.
@@ -203,16 +201,14 @@ class overview_table extends attempts_table {
 //             $grade = html_writer::tag('del', $oldsumgrade) . '/' .
 //                 html_writer::empty_tag('br') . $newsumgrade;
 //         }
-//         return html_writer::link(new moodle_url('/mod/quiz/review.php',
+//         return html_writer::link(new moodle_url('/mod/adaptivequiz/review.php',
 //             array('attempt' => $attempt->attempt)), $grade,
-//             array('title' => get_string('reviewattempt', 'quiz')));
+//             array('title' => get_string('reviewattempt', 'adaptivequiz')));
 //     }
 
     /**
      * @param string $colname the name of the column.
-     * @param object $attempt the row of data - see the SQL in display() in
-     * mod/quiz/report/overview/report.php to see what fields are present,
-     * and what they are called.
+     * @param object $attempt the row of data
      * @return string the contents of the cell.
      */
     public function other_cols($colname, $attempt) {

@@ -117,7 +117,7 @@ if (data_submitted() && confirm_sesskey()) {
                 'slot' => $slot
             )
         );
-        $event = \mod_quiz\event\question_manually_graded::create($params);
+        $event = \mod_adaptivequiz\event\question_manually_graded::create($params);
         $event->trigger();*/
 
         echo $output->notification(get_string('changessaved'), 'notifysuccess');

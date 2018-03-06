@@ -25,7 +25,7 @@ namespace mod_adaptivequiz\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quiz attempt started event class.
+ * The mod_adaptivequiz attempt started event class.
  *
  * @property-read array $other {
  *      Extra information about event.

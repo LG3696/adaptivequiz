@@ -38,7 +38,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Generates the view page.
      *
      * @param array $quiz Array containing quiz data.
-     * @param mod_quiz_view_object $viewobj the information required to display the view page.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
      */
     public function view_page($quiz, $viewobj) {
         $output = '';
@@ -98,7 +98,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Generates the table of data
      *
      * @param array $quiz Array contining quiz data
-     * @param mod_quiz_view_object $viewobj
+     * @param mod_adaptivequiz_view_object $viewobj
      */
     public function view_table($quiz, $viewobj) {
         if (!$viewobj->attempts) {
@@ -116,7 +116,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->align[] = 'left';
         $table->size[] = '';
 
-        $table->head[] = get_string('attemptstate', 'quiz');
+        $table->head[] = get_string('attemptstate', 'adaptivequiz');
         $table->align[] = 'left';
         $table->size[] = '';
 
@@ -184,7 +184,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Work out, and render, whatever buttons, and surrounding info, should appear.
      * at the end of the review page.
      *
-     * @param mod_quiz_view_object $viewobj the information required to display the view page.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
      * @return string HTML to output.
      */
     public function view_page_buttons($viewobj) {
@@ -490,8 +490,6 @@ class mod_adaptivequiz_view_object {
     public $numattempts;
     /** @var object $lastfinishedattempt the last attempt from the attempts array. */
     public $lastfinishedattempt;
-    /** @var quiz_access_manager $accessmanager contains various access rules. */
-    public $accessmanager;
     /** @var int $cmid the course module id. */
     public $cmid;
     /** @var bool $canmanage whether the user is authorized to manage the quiz. */

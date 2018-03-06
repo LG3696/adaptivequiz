@@ -89,7 +89,7 @@ class custom_view extends \core_question\bank\view {
     }
 
     // Do not display this.
-    protected function display_options_form($showquestiontext, $scriptpath = '/mod/quiz/edit.php',
+    protected function display_options_form($showquestiontext, $scriptpath = '/mod/adaptivequiz/edit.php',
         $showtextoption = false) {
         foreach ($this->searchconditions as $searchcondition) {
             echo $searchcondition->display_options($this);

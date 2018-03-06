@@ -26,8 +26,6 @@ namespace mod_adaptivequiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/quiz/report/attemptsreport_form.php');
-
 
 /**
  * Quiz overview report settings form.

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_quiz edit page viewed event.
+ * The mod_adaptivequiz edit page viewed event.
  *
  * @package    mod_adaptivequiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
@@ -27,7 +27,7 @@ namespace mod_adaptivequiz\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quiz edit page viewed event class.
+ * The mod_adaptivequiz edit page viewed event class.
  *
  * @property-read array $other {
  *      Extra information about event.
