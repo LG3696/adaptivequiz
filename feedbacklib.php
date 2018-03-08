@@ -132,10 +132,15 @@ class feedback {
      * Finds the feedback block where the element is the first part of the uses.
      * 
      * @param block_element $element the block element.
+     * @param attempt $attempt the attempt for which to check.
+     * 
      * @return null|feedback_block the feedback block or null.
      */
-    public function search_uses($elem) {
+    public function search_uses($elem, $attempt) {
         foreach($this->get_blocks() as $block) {
+            if (!$block->get_condition()->is_fullfilled($attempt)) {
+                continue;
+            }
             $usedqinstances = $block->get_used_question_instances();
             if (count($usedqinstances) < 1) {
                 continue;
