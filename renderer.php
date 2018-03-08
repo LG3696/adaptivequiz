@@ -407,7 +407,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block_element $blockelem the element of the block.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
-     * @param feedback the specialized feedback.
+     * @param feedback $feedback the specialized feedback.
      * @return string HTML to output.
      */
     protected function review_block_element_render($block, $blockelem, $attempt, $options, $feedback) {
