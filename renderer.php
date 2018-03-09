@@ -132,7 +132,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         foreach($viewobj->attempts as $attempt) {
             $row = array();
 
-            $row[] = $attempt->get_attempt_number();
+            if ($attempt->is_preview()) {
+                $row[] = get_string('preview', 'adaptivequiz');
+            } else {
+                $row[] = $attempt->get_attempt_number();
+            }
             $row[] = $this->attempt_state($attempt);
 
             if ($attempt->get_state() == attempt::IN_PROGRESS) {
@@ -144,8 +148,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
                     array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
             }
-
-            $table->data[$attempt->get_attempt_number()] = $row;
+            
+            if ($attempt->is_preview()) {
+                $table->data['preview'] = $row;
+            } else {
+                $table->data[$attempt->get_attempt_number()] = $row;
+            }
         }
 
         $output = '';
