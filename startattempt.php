@@ -44,8 +44,11 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 require_login($course, false, $cm);
 require_sesskey();
 
+$context = context_module::instance($cmid);
+$canpreview = has_capability('mod/adaptivequiz:preview', $context);
+
 $adaptivequiz  = adaptivequiz::load($cm->instance);
-$attempt = attempt::create($adaptivequiz, $USER->id);
+$attempt = attempt::create($adaptivequiz, $USER->id, $canpreview);
 
 // Redirect to the attempt page.
 redirect($attempt->attempt_url());

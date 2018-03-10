@@ -743,6 +743,15 @@ class block_element {
     public function get_id() {
         return $this->id;
     }
+    
+    /**
+     * Returns the quiz this block element belongs to.
+     * 
+     * @return adaptivequiz the quiz.
+     */
+    public function get_quiz() {
+        return $this->quiz;
+    }
 
     /**
      * Adds the question(s) of this element to a question usage.
