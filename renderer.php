@@ -407,7 +407,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block_element $blockelem the element of the block.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
-     * @param feedback the specialized feedback.
+     * @param feedback $feedback the specialized feedback.
      * @return string HTML to output.
      */
     protected function review_block_element_render($block, $blockelem, $attempt, $options, $feedback) {
@@ -420,13 +420,15 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
         } else if ($blockelem->is_question()) {
             $slot = $block->get_quiz()->get_slot_for_element($blockelem->get_id());
-            $feedbackblock = $feedback->search_uses($blockelem);
+            $feedbackblock = $feedback->search_uses($blockelem, $attempt);
             if(is_null($feedbackblock)) {
                 $output .= $attempt->get_quba()->render_question($slot, $options);
             } else {
                 $adaptedgrade = $feedbackblock->get_adapted_grade();
+                $oldmaxmark = $attempt->get_quba()->get_question_attempt($slot)->get_max_mark();
                 $attempt->get_quba()->get_question_attempt($slot)->set_max_mark($adaptedgrade);
                 $output .= $attempt->get_quba()->render_question($slot, $options);
+                $attempt->get_quba()->get_question_attempt($slot)->set_max_mark($oldmaxmark);
             }
         }
         return $output;

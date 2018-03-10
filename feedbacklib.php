@@ -22,10 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
-
-
 
 /**
  * A class encapsulating the specialized feedback of an adaptivequiz.
@@ -135,11 +132,20 @@ class feedback {
      * Finds the feedback block where the element is the first part of the uses.
      * 
      * @param block_element $element the block element.
+     * @param attempt $attempt the attempt for which to check.
+     * 
      * @return null|feedback_block the feedback block or null.
      */
-    public function search_uses($elem) {
+    public function search_uses($elem, $attempt) {
         foreach($this->get_blocks() as $block) {
-            $first = array_values($block->get_used_question_instances())[0];
+            if (!$block->get_condition()->is_fullfilled($attempt)) {
+                continue;
+            }
+            $usedqinstances = $block->get_used_question_instances();
+            if (count($usedqinstances) < 1) {
+                continue;
+            }
+            $first = array_values($usedqinstances)[0];
             if ($first->get_id() == $elem->get_id()) {
                 return $block;
             }
@@ -336,6 +342,9 @@ class feedback_block {
         if (!$this->uses) {
             global $DB;
             $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
+            if (is_null($records)) {
+                $records = array();
+            }
             $this->uses = array_map(function ($obj) {
                 return block_element::load($this->quiz, $obj->questioninstanceid);
             }, $records);
