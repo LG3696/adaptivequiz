@@ -107,18 +107,18 @@ if (data_submitted() && confirm_sesskey()) {
         $attempt->update_grade();
 
         // Log this action.
-        /*TODO: $params = array(
-            'objectid' => $attemptobj->get_question_attempt($slot)->get_question()->id,
-            'courseid' => $attemptobj->get_courseid(),
-            'context' => context_module::instance($attemptobj->get_cmid()),
+        $params = array(
+            'objectid' => $question->id,
+            'courseid' => $cm->course,
+            'context' => $context,
             'other' => array(
-                'quizid' => $attemptobj->get_quizid(),
-                'attemptid' => $attemptobj->get_attemptid(),
+                'quizid' => $quiz->id,
+                'attemptid' => $attempt->id,
                 'slot' => $slot
             )
         );
         $event = \mod_adaptivequiz\event\question_manually_graded::create($params);
-        $event->trigger();*/
+        $event->trigger();
 
         echo $output->notification(get_string('changessaved'), 'notifysuccess');
         close_window(2, true);
