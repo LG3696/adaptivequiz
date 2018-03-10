@@ -61,3 +61,14 @@ if ($report) {
 }
 
 echo $OUTPUT->footer();
+
+// Trigger event.
+$params = array(
+    'context' => $context,
+    'other' => array(
+        'quizid' => $adaptivequiz->id,
+        'reportname' => $mode
+    )
+);
+$event = \mod_adaptivequiz\event\report_viewed::create($params);
+$event->trigger();
