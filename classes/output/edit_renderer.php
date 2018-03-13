@@ -75,8 +75,10 @@ class edit_renderer extends \plugin_renderer_base {
 
         $category = question_get_category_id_from_pagevars($pagevars);
 
-        $addmenu = $this->add_menu($block, $pageurl, $category);
-        $output .= html_writer::tag('li', $addmenu);
+        if (!$block->get_quiz()->has_attempts()) {
+            $addmenu = $this->add_menu($block, $pageurl, $category);
+            $output .= html_writer::tag('li', $addmenu);
+        }
         $output .= html_writer::end_tag('ul');
 
         if ($block->is_main_block()) {
@@ -117,13 +119,20 @@ class edit_renderer extends \plugin_renderer_base {
         // Description of the element.
         $elementhtml = '';
         $edithtml = '';
+        $removehtml = '';
 
-        $elementhtml .= $this->question_move_icon();
+        if (!$blockelem->get_quiz()->has_attempts()) {
+            $elementhtml .= $this->question_move_icon();
+        }
         $elementhtml .= html_writer::tag('input', '',
             array('type' => 'hidden', 'name' => 'elementsorder[]', 'value' => $blockelem->get_id()));
         $elementhtml .= \html_writer::div($this->block_elem_desc($blockelem), 'blockelement');
-        $edithtml .= $this->element_edit_button($blockelem, $pageurl);
-        $removehtml = $this->element_remove_button($blockelem, $pageurl);
+        
+        if (!$blockelem->get_quiz()->has_attempts()) {
+            $edithtml .= $this->element_edit_button($blockelem, $pageurl);
+            $removehtml = $this->element_remove_button($blockelem, $pageurl);
+        }
+        
         $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
 
         return html_writer::tag('li', html_writer::div($elementhtml . $buttons, 'blockelementline'));
