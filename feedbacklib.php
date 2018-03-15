@@ -40,7 +40,7 @@ class feedback {
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
-     * @param adaptivequiz $quiz the quiz the feedback belongs to.   
+     * @param adaptivequiz $quiz the quiz the feedback belongs to.
      */
     public function __construct($quiz) {
         $this->quiz = $quiz;
@@ -79,6 +79,7 @@ class feedback {
      * Checks whether specialized feedback exist for a block element.
      *
      * @param block_element $blockelement the block element to check.
+     * @param attempt $attempt the attempt to check if it has specialized feedback for.
      * @return bool true if specialized feedback for the block element exists.
      */
     public function has_specialized_feedback(block_element $blockelement, $attempt) {
@@ -127,17 +128,16 @@ class feedback {
 
         $this->feedbackblocks = null;
     }
-    
+
     /**
      * Finds the feedback block where the element is the first part of the uses.
-     * 
-     * @param block_element $element the block element.
+     *
+     * @param block_element $elem the block element.
      * @param attempt $attempt the attempt for which to check.
-     * 
      * @return null|feedback_block the feedback block or null.
      */
     public function search_uses($elem, $attempt) {
-        foreach($this->get_blocks() as $block) {
+        foreach ($this->get_blocks() as $block) {
             if (!$block->get_condition()->is_fullfilled($attempt)) {
                 continue;
             }
@@ -368,10 +368,10 @@ class feedback_block {
 
         array_push($this->uses, $questioninstanceid);
     }
-    
+
     /**
      * Calculates the adapted grade for the first element in the uses.
-     * 
+     *
      * @return int the adapted grade.
      */
     public function get_adapted_grade() {

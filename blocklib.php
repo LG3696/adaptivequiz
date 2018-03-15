@@ -210,10 +210,10 @@ class block {
         }
         return $candidates;*/
     }
-    
+
     /**
      * Returns all questions that might be asked ahead of this block. Used to find adequate questions for use in conditions.
-     * 
+     *
      * @return array the block_elements of the questions ahead of this block.
      */
     protected function get_previous_questions() {
@@ -228,7 +228,7 @@ class block {
         if (is_null($thisblockelement)) {
             return array();
         }
-        
+
         $questions = $this->quiz->get_questions();
         $count = $this->quiz->get_slot_for_element();
         return array_slice($questions, 0, $count, true);
@@ -390,10 +390,10 @@ class block {
         }
         return $sum;
     }
-    
+
     /**
      * Returns the maximum attainable grade for this block.
-     * 
+     *
      * @return int the maximum attainable grade.
      */
     public function get_maxgrade() {
@@ -507,7 +507,7 @@ class block {
         }
         return $questions;
     }
-    
+
     /**
      * Returns all blocks of this block and its descendants.
      *
@@ -743,10 +743,10 @@ class block_element {
     public function get_id() {
         return $this->id;
     }
-    
+
     /**
      * Returns the quiz this block element belongs to.
-     * 
+     *
      * @return adaptivequiz the quiz.
      */
     public function get_quiz() {

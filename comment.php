@@ -53,6 +53,7 @@ $options->hide_all_feedback();
 $options->manualcomment = question_display_options::EDITABLE;
 
 // Can only grade finished attempts.
+
 /*if (!$attempt->is_finished()) {
     print_error('attemptnotclosed', 'adaptivequiz');
 }*/

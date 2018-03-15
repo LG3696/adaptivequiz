@@ -60,7 +60,7 @@ class mod_adaptivequiz_external extends external_api {
      * @param int $cmid the id of the course module.
      * @param int $page the page of the questionbank view.
      * @param int $qperpage the number of questions per page.
-     * @param string $category the category of the question. 
+     * @param string $category the category of the question.
      * @return string the questionbank view HTML.
      */
     public static function get_questionbank($cmid, $page, $qperpage, $category) {

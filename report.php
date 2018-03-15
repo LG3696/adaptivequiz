@@ -23,7 +23,7 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once ($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
 
 $id = required_param('id', PARAM_INT);
 $mode = required_param('mode', PARAM_ALPHA);
@@ -42,7 +42,7 @@ $url->param('mode', $mode);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 
-// Collect the necessary
+// Collect the necessary.
 if ($mode == 'responses') {
 } else { // $mode = 'overview' as default
 }
@@ -66,7 +66,7 @@ echo $OUTPUT->footer();
 $params = array(
     'context' => $context,
     'other' => array(
-        'quizid' => $adaptivequiz->id,
+        'quizid' => $adaptivequiz->get_id(),
         'reportname' => $mode
     )
 );

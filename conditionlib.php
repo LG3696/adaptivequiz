@@ -79,10 +79,10 @@ class condition {
     }
 
     /**
-    * Inserts a new condition into the database.
-    *
-    * @return condition the newly created condtion part.
-    */
+     * Inserts a new condition into the database.
+     *
+     * @return condition the newly created condtion part.
+     */
     public static function create() {
         global $DB;
 
@@ -139,7 +139,7 @@ class condition {
     public function set_use_and($useand) {
         if ($this->useand != $useand) {
             global $DB;
-            
+
             $this->useand = $useand;
 
             $record = new stdClass();
@@ -270,7 +270,6 @@ class condition_part {
      * @param int $type the type of this condition.
      * @param int $elementid the id of the element this condition references.
      * @param int $grade the grade this condition is relative to.
-     *
      * @return condition_part the newly created condtion part.
      */
     public static function create(condition $condition, $type, $elementid, $grade) {

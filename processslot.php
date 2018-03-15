@@ -44,17 +44,17 @@ require_login($course, false, $cm);
 
 $attempt = attempt::load($attemptid);
 
-//Set $nexturl.
+// Set $nexturl.
 $url = $attempt->attempt_url();
 $nexturl = new \moodle_url($url, array('cmid' => $cmid));
 
 // Check that this attempt belongs to this user.
 if ($attempt->get_userid() != $USER->id) {
-    //TODO: adaptivequiz not quiz...
+    // TODO: adaptivequiz not quiz...
     throw new moodle_quiz_exception($attempt->get_quiz(), 'notyourattempt');
 }
 
-//Process slot.
+// Process slot.
 $attempt->process_slot($timenow);
 
 redirect($nexturl);
