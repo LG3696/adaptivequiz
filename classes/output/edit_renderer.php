@@ -63,7 +63,11 @@ class edit_renderer extends \plugin_renderer_base {
         }
 
         if (!$block->is_main_block()) {
-            $output .= $this->condition_block($block->get_condition(), $block->get_condition_candidates());
+            if (!$block->get_quiz()->has_attempts()) {
+                $output .= $this->condition_block($block->get_condition(), $block->get_condition_candidates());
+            } else {
+                $output .= $this->show_condition_block($block->get_condition(), $block->get_condition_candidates());
+            }
         }
 
         $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
@@ -131,6 +135,8 @@ class edit_renderer extends \plugin_renderer_base {
         if (!$blockelem->get_quiz()->has_attempts()) {
             $edithtml .= $this->element_edit_button($blockelem, $pageurl);
             $removehtml = $this->element_remove_button($blockelem, $pageurl);
+        } else if ($blockelem->is_block()) {
+            $edithtml .= $this->element_edit_button($blockelem, $pageurl);
         }
         
         $buttons = \html_writer::div($edithtml . $removehtml, 'blockelementbuttons');
@@ -326,7 +332,7 @@ class edit_renderer extends \plugin_renderer_base {
         $container = $header . $conjunctionchooser . $conditionlist . $addcondition;
         return html_writer::div($container, 'conditionblock');
     }
-
+    
     /**
      * Renders the HTML for the conjunction type chooser.
      *
@@ -543,6 +549,86 @@ class edit_renderer extends \plugin_renderer_base {
      */
     public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
         return $questionbank->render('editq', $pagevars['page'], $pagevars['qperpage'], $pagevars['cat'], true, false, false);
+    }
+    
+    /**
+     * Renders the HTML for the condition block where no editing is possible.
+     *
+     * @param \condition $condition the condition to be rendered.
+     * @param array $candidates the block_elements the condition can depend on.
+     *
+     * @return string the HTML of the condition block.
+     */
+    public function show_condition_block($condition, $candidates) {
+        $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
+        if ($condition->get_useand()) {
+            $option = \html_writer::tag('b', get_string('all', 'adaptivequiz'));
+        } else {
+            $option = \html_writer::tag('b', get_string('atleastone', 'adaptivequiz'));
+        }
+        $conjunction = \html_writer::div(get_string('mustfullfill', 'adaptivequiz') . ' ' . $option . ' ' . get_string('oftheconditions', 'adaptivequiz'), 'conjunction');
+        $conditionlist = \html_writer::div($this->show_condition($condition, $candidates));
+        
+        
+        $container = $header . $conjunction . $conditionlist;
+        return html_writer::div($container, 'conditionblock');
+    }
+    
+    /**
+     * Renders the HTML for a condition.
+     *
+     * @param \condition $condition the condition to render.
+     * @param array $candidates the block_elements the condition can depend on.
+     *
+     * @return string the HTML of the condition.
+     */
+    protected function show_condition($condition, $candidates) {
+        $output = '';
+        foreach ($condition->get_parts() as $part) {
+            $output .= $this->show_condition_part($part, $candidates);
+        }
+        return $output;
+    }
+    
+    /**
+     * Renders the HTML for a condition part.
+     *
+     * @param \condition_part $part the part of the condition to render.
+     * @param array $candidates the block_elements the condition can depend on.
+     *
+     * @return string the HTML of the condition part.
+     */
+    protected function show_condition_part($part, $candidates) {
+        $condition = '';
+        $condition .= get_string('gradeat', 'adaptivequiz') . ' ';
+        foreach ($candidates as $element) {
+            if ($part->get_elementid() == $element->get_id()) {
+                $condition .= \html_writer::tag('b', $element->get_name() . ' ');
+            }
+        }
+        $condition .= get_string('mustbe', 'adaptivequiz'). ' ';
+        switch ($part->get_type()) {
+            case \condition_part::EQUAL:
+                $condition .= \html_writer::tag('b', '=');
+                break;
+            case \condition_part::GREATER:
+                $condition .= \html_writer::tag('b', '>');
+                break;
+            case \condition_part::GREATER_OR_EQUAL:
+                $condition .= \html_writer::tag('b', '&ge;');
+                break;
+            case \condition_part::LESS:
+                $condition .= \html_writer::tag('b', '<');
+                break;
+            case \condition_part::LESS_OR_EQUAL:
+                $condition .= \html_writer::tag('b', '&le;');
+                break;
+            case \condition_part::NOT_EQUAL:
+                $condition .= \html_writer::tag('b', '&ne;');
+                break;
+        }
+        $condition .= \html_writer::tag('b', ' ' . $part->get_grade());
+        return \html_writer::div($condition, 'part');
     }
 
     /**

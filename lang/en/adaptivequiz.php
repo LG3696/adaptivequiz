@@ -83,6 +83,7 @@ $string['feedbackquestion'] = 'Using placeholders for question feedback';
 $string['feedbackquestion_help'] = 'Use the letter of a question in double square brackets as a placeholder for the feedback of this question. For example [[A]]';
 $string['finishreview'] = 'Finish review';
 $string['grade'] = 'Grade';
+$string['gradeat'] = 'Grade at';
 $string['grades'] = 'Grades';
 $string['manualgradequestion'] = 'Manually grade question {$a->question} in {$a->quiz} by {$a->user}';
 $string['marks'] = 'Marks';
