@@ -81,12 +81,12 @@ class attempt {
 
     /** @var int time of finishing this attempt. */
     protected $timefinish;
-    
+
     /** @var boolean preview was previewed. */
     protected $preview;
 
-    // /** @var int time of last modification of this attempt. */
-    // protected $timemodified;
+    // ... /** @var int time of last modification of this attempt. */
+    // ... protected $timemodified;
 
 
     // Constructor =============================================================
@@ -152,7 +152,7 @@ class attempt {
         global $DB;
 
         $quba = attempt::create_quba($quiz);
-        
+
         $override = $DB->get_records('adaptivequiz_attempts', array('userid' => $userid, 'preview' => 1));
 
         $attemptrow = new stdClass();
@@ -163,7 +163,7 @@ class attempt {
         $attemptrow->timestart = time();
         $attemptrow->state = self::IN_PROGRESS;
         $attemptrow->timefinish = 0;
-        $attemptrow->sumgrades = NULL;
+        $attemptrow->sumgrades = null;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
         $attemptrow->preview = $preview;
@@ -175,7 +175,7 @@ class attempt {
             $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
                 array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
             $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
-            
+
         }
 
         $quiz->get_cmid();
@@ -308,10 +308,10 @@ class attempt {
     public function get_sumgrades() {
         return $this->sumgrades;
     }
-    
+
     /**
      * Returns true if this attempt is a preview attempt.
-     * 
+     *
      * @return boolean wether this attempt is a preview attempt.
      */
     public function get_preview() {
@@ -419,15 +419,15 @@ class attempt {
     public function is_finished() {
         return $this->currentslot > $this->get_quiz()->get_slotcount();
     }
-    
+
     /**
      * Checks if this attempt is a preview.
-     * 
+     *
      * @return boolean wether this attempt is a preview.
      */
     public function is_preview() {
         global $DB;
-        
+
         $attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $this->id));
         if ($attemptrow->preview == 0) {
             return false;
@@ -502,7 +502,8 @@ class attempt {
         if ($state == 'all') {
             $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid), 'id');
         } else {
-            $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
+            $attemptrows = $DB->get_records('adaptivequiz_attempts',
+                array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
         }
         $attempts = array_map(function($attempt) {
                             return attempt::load($attempt->id);
