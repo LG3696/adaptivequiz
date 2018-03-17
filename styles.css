@@ -63,6 +63,24 @@
 	padding: 22px;
 }
 
+.part {
+	background-color: #f5f5f5;
+	border: 1px solid;
+	border-color: #eee;
+	border-radius: 4px;
+	padding: 5px;
+	margin-bottom: 10px;
+}
+
+.conjunction {
+	background-color: #f5f5f5;
+	border: 1px solid;
+	border-color: #eee;
+	border-radius: 4px;
+	padding: 5px;
+	margin-bottom: 24px;
+}
+
 .feedbackblock {
 	margin: 22px;
 	border: 1px solid;
