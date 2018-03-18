@@ -80,8 +80,8 @@ class attempts_options {
     /** @var string whether the data should be downloaded in some format, or '' to display it. */
     public $download = '';
 
-//     /** @var bool whether the report table should have a column of checkboxes. */
-//     public $checkboxcolumn = false;
+    // /** @var bool whether the report table should have a column of checkboxes. */
+    // public $checkboxcolumn = false;
 
     /**
      * Constructor.
@@ -148,6 +148,8 @@ class attempts_options {
 
     /**
      * Get the current value of the settings to pass to the settings form.
+     *
+     * @return array $toform the initial form data.
      */
     public function get_initial_form_data() {
         $toform = new \stdClass();
@@ -232,33 +234,33 @@ class attempts_options {
         } else if (!in_array($this->attempts, array(attempts::ALL_WITH, attempts::ENROLLED_WITH,
             attempts::ENROLLED_WITHOUT, attempts::ENROLLED_ALL))) {
                 $this->attempts = attempts::ENROLLED_WITH;
-            }
+        }
 
-            $cleanstates = array();
-            foreach (self::$statefields as $state) {
-                if (in_array($state, $this->states)) {
-                    $cleanstates[] = $state;
-                }
+        $cleanstates = array();
+        foreach (self::$statefields as $state) {
+            if (in_array($state, $this->states)) {
+                $cleanstates[] = $state;
             }
-            $this->states = $cleanstates;
-            if (count($this->states) == count(self::$statefields)) {
+        }
+        $this->states = $cleanstates;
+        if (count($this->states) == count(self::$statefields)) {
                 // If all states have been selected, then there is no constraint
                 // required in the SQL, so clear the array.
                 $this->states = null;
-            }
+        }
 
-            if ($this->attempts == attempts::ENROLLED_WITHOUT) {
+        if ($this->attempts == attempts::ENROLLED_WITHOUT) {
                 $this->states = null;
                 $this->onlygraded = false;
-            }
+        }
 
-            if (!$this->is_showing_finished_attempts()) {
+        if (!$this->is_showing_finished_attempts()) {
                 $this->onlygraded = false;
-            }
+        }
 
-            if ($this->pagesize < 1) {
+        if ($this->pagesize < 1) {
                 $this->pagesize = attempts::DEFAULT_PAGE_SIZE;
-            }
+        }
     }
 
     /**

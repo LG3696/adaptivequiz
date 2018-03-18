@@ -39,8 +39,8 @@ class overview extends attempts {
     public function display($cm, $course, \adaptivequiz $quiz) {
         global $CFG, $DB, $OUTPUT, $PAGE;
 
-        list($currentgroup, $students, $groupstudents, $allowed) =
-                $this->init('\mod_adaptivequiz\report\overview_form', $quiz, $cm, $course);
+        list($currentgroup, $students, $groupstudents, $allowed) = $this->init('\mod_adaptivequiz\report\overview_form',
+            $quiz, $cm, $course);
         $options = new overview_options($quiz, $cm, $course);
 
         if ($fromform = $this->form->get_data()) {
@@ -79,7 +79,7 @@ class overview extends attempts {
 
         // Start output.
         if (!$table->is_downloading()) {
-            // Only print headers if not asked to download data.*/
+            // Only print headers if not asked to download data.
             $this->print_header_and_tabs($cm, $course, $quiz);
         }
 
@@ -143,7 +143,7 @@ class overview extends attempts {
 
             $table->out($options->pagesize, true);
         }
-/*TODO:
+        /* TODO:
         if (!$table->is_downloading() && $options->usercanseegrades) {
             $output = $PAGE->get_renderer('mod_quiz');
             if ($currentgroup && $groupstudents) {
@@ -336,88 +336,88 @@ class overview extends attempts {
         $this->update_overall_grades($quiz);
     }*/
 
-//     /**
-//      * Count the number of attempts in need of a regrade.
-//      * @param object $quiz the quiz settings.
-//      * @param array $groupstudents user ids. If this is given, only data relating
-//      * to these users is cleared.
-//      */
-//     protected function count_question_attempts_needing_regrade($quiz, $groupstudents) {
-//         global $DB;
+    /* /**
+      * Count the number of attempts in need of a regrade.
+      * @param object $quiz the quiz settings.
+      * @param array $groupstudents user ids. If this is given, only data relating
+      * to these users is cleared.
+      */
+    /* protected function count_question_attempts_needing_regrade($quiz, $groupstudents) {
+         global $DB;
 
-//         $usertest = '';
-//         $params = array();
-//         if ($groupstudents) {
-//             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
-//             $usertest = "quiza.userid $usql AND ";
-//         }
+         $usertest = '';
+         $params = array();
+         if ($groupstudents) {
+             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
+             $usertest = "quiza.userid $usql AND ";
+         }
 
-//         $params[] = $quiz->id;
-//         $sql = "SELECT COUNT(DISTINCT quiza.id)
-//                 FROM {adaptivequiz_attempts} quiza
-//                 JOIN {quiz_overview_regrades} qqr ON quiza.uniqueid = qqr.questionusageid
-//                 WHERE
-//                     $usertest
-//                     quiza.quiz = ? AND
-//                     quiza.preview = 0 AND
-//                     qqr.regraded = 0";
-//         return $DB->count_records_sql($sql, $params);
-//     }
+         $params[] = $quiz->id;
+         $sql = "SELECT COUNT(DISTINCT quiza.id)
+                 FROM {adaptivequiz_attempts} quiza
+                 JOIN {quiz_overview_regrades} qqr ON quiza.uniqueid = qqr.questionusageid
+                 WHERE
+                     $usertest
+                     quiza.quiz = ? AND
+                     quiza.preview = 0 AND
+                     qqr.regraded = 0";
+         return $DB->count_records_sql($sql, $params);
+     }
 
-//     /**
-//      * Are there any pending regrades in the table we are going to show?
-//      * @param string $from tables used by the main query.
-//      * @param string $where where clause used by the main query.
-//      * @param array $params required by the SQL.
-//      * @return bool whether there are pending regrades.
-//      */
-//     protected function has_regraded_questions($from, $where, $params) {
-//         global $DB;
-//         return $DB->record_exists_sql("
-//                 SELECT 1
-//                   FROM {$from}
-//                   JOIN {quiz_overview_regrades} qor ON qor.questionusageid = quiza.uniqueid
-//                  WHERE {$where}", $params);
-//     }
+     /**
+      * Are there any pending regrades in the table we are going to show?
+      * @param string $from tables used by the main query.
+      * @param string $where where clause used by the main query.
+      * @param array $params required by the SQL.
+      * @return bool whether there are pending regrades.
+      */
+     /* protected function has_regraded_questions($from, $where, $params) {
+         global $DB;
+         return $DB->record_exists_sql("
+                 SELECT 1
+                   FROM {$from}
+                   JOIN {quiz_overview_regrades} qor ON qor.questionusageid = quiza.uniqueid
+                  WHERE {$where}", $params);
+     }
 
-//     /**
-//      * Remove all information about pending/complete regrades from the database.
-//      * @param object $quiz the quiz settings.
-//      * @param array $groupstudents user ids. If this is given, only data relating
-//      * to these users is cleared.
-//      */
-//     protected function clear_regrade_table($quiz, $groupstudents) {
-//         global $DB;
+     /**
+      * Remove all information about pending/complete regrades from the database.
+      * @param object $quiz the quiz settings.
+      * @param array $groupstudents user ids. If this is given, only data relating
+      * to these users is cleared.
+      */
+    /* protected function clear_regrade_table($quiz, $groupstudents) {
+         global $DB;
 
-//         // Fetch all attempts that need regrading.
-//         $where = '';
-//         $params = array();
-//         if ($groupstudents) {
-//             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
-//             $where = "userid $usql AND ";
-//         }
+         // Fetch all attempts that need regrading.
+         $where = '';
+         $params = array();
+         if ($groupstudents) {
+             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
+             $where = "userid $usql AND ";
+         }
 
-//         $params[] = $quiz->id;
-//         $DB->delete_records_select('quiz_overview_regrades',
-//                 "questionusageid IN (
-//                     SELECT uniqueid
-//                     FROM {adaptivequiz_attempts}
-//                     WHERE $where quiz = ?
-//                 )", $params);
-//     }
+         $params[] = $quiz->id;
+         $DB->delete_records_select('quiz_overview_regrades',
+                 "questionusageid IN (
+                     SELECT uniqueid
+                     FROM {adaptivequiz_attempts}
+                     WHERE $where quiz = ?
+                 )", $params);
+     }
 
-//     /**
-//      * Update the final grades for all attempts. This method is used following
-//      * a regrade.
-//      * @param object $quiz the quiz settings.
-//      * @param array $userids only update scores for these userids.
-//      * @param array $attemptids attemptids only update scores for these attempt ids.
-//      */
-//     protected function update_overall_grades($quiz) {
-//         quiz_update_all_attempt_sumgrades($quiz);
-//         quiz_update_all_final_grades($quiz);
-//         quiz_update_grades($quiz);
-//     }
+     /**
+      * Update the final grades for all attempts. This method is used following
+      * a regrade.
+      * @param object $quiz the quiz settings.
+      * @param array $userids only update scores for these userids.
+      * @param array $attemptids attemptids only update scores for these attempt ids.
+      */
+    /* protected function update_overall_grades($quiz) {
+         quiz_update_all_attempt_sumgrades($quiz);
+         quiz_update_all_final_grades($quiz);
+         quiz_update_grades($quiz);
+     } */
 
     protected function get_base_url() {
         return new \moodle_url('/mod/adaptivequiz/report.php',

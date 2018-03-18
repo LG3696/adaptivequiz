@@ -45,8 +45,8 @@ class responses extends attempts {
     public function display($cm, $course, \adaptivequiz $quiz) {
         global $OUTPUT;
 
-        list($currentgroup, $students, $groupstudents, $allowed) =
-                $this->init('\mod_adaptivequiz\report\responses_form', $quiz, $cm, $course);
+        list($currentgroup, $students, $groupstudents, $allowed) = $this->init('\mod_adaptivequiz\report\responses_form',
+            $quiz, $cm, $course);
         $options = new responses_options($quiz, $cm, $course);
 
         if ($fromform = $this->form->get_data()) {
@@ -144,7 +144,7 @@ class responses extends attempts {
                 }
                 if ($options->showresponses) {
                     $columns[] = 'response' . $id;
-                    $headers[] = $question->name;//get_string('responsex', 'adaptivequiz', $question->number);
+                    $headers[] = $question->name;// get_string('responsex', 'adaptivequiz', $question->number);
                 }
                 if ($options->showright) {
                     $columns[] = 'right' . $id;

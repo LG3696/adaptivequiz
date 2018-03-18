@@ -138,6 +138,7 @@ class responses_table extends attempts_table {
 
     /**
      * Get any fields that might be needed when sorting on date for a particular slot.
+     *
      * @param int    $slot  the slot for the column we want.
      * @param string $alias the table alias for latest state information relating to that slot.
      * @return string sql fragment to alias fields.

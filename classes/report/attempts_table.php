@@ -98,6 +98,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the user's picture column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -112,6 +113,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the user's full name column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -128,6 +130,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the attempt state column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -141,6 +144,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the start time column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -154,6 +158,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the finish time column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -167,6 +172,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the time taken column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -180,6 +186,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Generate the display of the feedback column.
+     *
      * @param object $attempt the table row being output.
      * @return string HTML content to go inside the td.
      */
@@ -187,7 +194,7 @@ abstract class attempts_table extends \table_sql {
         if ($attempt->state != \attempt::FINISHED) {
             return '-';
         }
-        return '-';/*TODO
+        return '-';/* TODO
         $feedback = quiz_report_feedback_for_grade(
             quiz_rescale_grade($attempt->sumgrades, $this->quiz, false),
             $this->quiz->id, $this->context);
@@ -213,6 +220,7 @@ abstract class attempts_table extends \table_sql {
      * @param string $data HTML fragment. The text to make into the link.
      * @param object $attempt data for the row of the table being output.
      * @param int $slot the number used to identify this question within this usage.
+     * @return $output html data.
      */
     public function make_review_link($data, $attempt, $slot) {
         global $OUTPUT;
@@ -333,6 +341,7 @@ abstract class attempts_table extends \table_sql {
     /**
      * Does this report require the detailed information for each question from the
      * question_attempts_steps table?
+     *
      * @return bool should {@link load_extra_data} call {@link load_question_latest_steps}?
      */
     protected function requires_latest_steps_loaded() {
@@ -342,6 +351,7 @@ abstract class attempts_table extends \table_sql {
     /**
      * Is this a column that depends on joining to the latest state information?
      * If so, return the corresponding slot. If not, return false.
+     *
      * @param string $column a column name
      * @return int false if no, else a slot.
      */
@@ -360,6 +370,7 @@ abstract class attempts_table extends \table_sql {
 
     /**
      * Contruct all the parts of the main database query.
+     *
      * @param array $reportstudents list if userids of users to include in the report.
      * @return array with 4 elements ($fields, $from, $where, $params) that can be used to
      *      build the actual database query.
@@ -404,47 +415,47 @@ abstract class attempts_table extends \table_sql {
                                     quiza.userid = u.id AND quiza.quiz = :quizid";
             $params = array('quizid' => $this->quiz->get_id());
 
-            if ($this->qmsubselect && $this->options->onlygraded) {
+        if ($this->qmsubselect && $this->options->onlygraded) {
                 $from .= " AND (quiza.state <> :finishedstate OR $this->qmsubselect)";
                 $params['finishedstate'] = \attempt::FINISHED;
-            }
+        }
 
-            switch ($this->options->attempts) {
-                case attempts::ALL_WITH:
-                    // Show all attempts, including students who are no longer in the course.
-                    $where = 'quiza.id IS NOT NULL';//TODO:  AND quiza.preview = 0
-                    break;
-                case attempts::ENROLLED_WITH:
-                    // Show only students with attempts.
-                    list($usql, $uparams) = $DB->get_in_or_equal(
-                    $reportstudents, SQL_PARAMS_NAMED, 'u');
-                    $params += $uparams;
-                    $where = "u.id $usql AND quiza.id IS NOT NULL";//TODO: AND quiza.preview = 0
-                    break;
-                case attempts::ENROLLED_WITHOUT:
-                    // Show only students without attempts.
-                    list($usql, $uparams) = $DB->get_in_or_equal(
-                    $reportstudents, SQL_PARAMS_NAMED, 'u');
-                    $params += $uparams;
-                    $where = "u.id $usql AND quiza.id IS NULL";
-                    break;
-                case attempts::ENROLLED_ALL:
-                    // Show all students with or without attempts.
-                    list($usql, $uparams) = $DB->get_in_or_equal(
-                    $reportstudents, SQL_PARAMS_NAMED, 'u');
-                    $params += $uparams;
-                    $where = "u.id $usql";//TODO:  AND (quiza.preview = 0 OR quiza.preview IS NULL)
-                    break;
-            }
+        switch ($this->options->attempts) {
+            case attempts::ALL_WITH:
+                // Show all attempts, including students who are no longer in the course.
+                $where = 'quiza.id IS NOT NULL';// TODO:  AND quiza.preview = 0
+                break;
+            case attempts::ENROLLED_WITH:
+                // Show only students with attempts.
+                list($usql, $uparams) = $DB->get_in_or_equal(
+                $reportstudents, SQL_PARAMS_NAMED, 'u');
+                $params += $uparams;
+                $where = "u.id $usql AND quiza.id IS NOT NULL";// TODO: AND quiza.preview = 0
+                break;
+            case attempts::ENROLLED_WITHOUT:
+                // Show only students without attempts.
+                list($usql, $uparams) = $DB->get_in_or_equal(
+                $reportstudents, SQL_PARAMS_NAMED, 'u');
+                $params += $uparams;
+                $where = "u.id $usql AND quiza.id IS NULL";
+                break;
+            case attempts::ENROLLED_ALL:
+                // Show all students with or without attempts.
+                list($usql, $uparams) = $DB->get_in_or_equal(
+                $reportstudents, SQL_PARAMS_NAMED, 'u');
+                $params += $uparams;
+                $where = "u.id $usql";// TODO:  AND (quiza.preview = 0 OR quiza.preview IS NULL)
+                break;
+        }
 
-            if ($this->options->states) {
-                list($statesql, $stateparams) = $DB->get_in_or_equal($this->options->states,
-                    SQL_PARAMS_NAMED, 'state');
-                $params += $stateparams;
-                $where .= " AND (quiza.state $statesql OR quiza.state IS NULL)";
-            }
+        if ($this->options->states) {
+            list($statesql, $stateparams) = $DB->get_in_or_equal($this->options->states,
+                SQL_PARAMS_NAMED, 'state');
+            $params += $stateparams;
+            $where .= " AND (quiza.state $statesql OR quiza.state IS NULL)";
+        }
 
-            return array($fields, $from, $where, $params);
+        return array($fields, $from, $where, $params);
     }
 
     /**
@@ -484,6 +495,7 @@ abstract class attempts_table extends \table_sql {
     /**
      * Get an appropriate qubaid_condition for loading more data about the
      * attempts we are displaying.
+     *
      * @return \qubaid_condition
      */
     protected function get_qubaids_condition() {
