@@ -64,8 +64,7 @@ class mod_adaptivequiz_external extends external_api {
      * @return string the questionbank view HTML.
      */
     public static function get_questionbank($cmid, $page, $qperpage, $category) {
-        global $PAGE;
-
+        global $PAGE, $DB;
         $params = self::validate_parameters(self::get_questionbank_parameters(),
             array('cmid' => $cmid, 'page' => $page, 'qperpage' => $qperpage, 'category' => $category));
 
@@ -74,16 +73,20 @@ class mod_adaptivequiz_external extends external_api {
 
         $cmid = $params['cmid'];
         $thispageurl = new moodle_url('/mod/adaptivequiz/edit.php');
-
-        list($course, $cm) = get_module_from_cmid($cmid);
+        
+        $cm         = get_coursemodule_from_id('adaptivequiz', $cmid, 0, false, MUST_EXIST);
+        $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 
         $contexts = new question_edit_contexts($context);
         $contexts->require_one_edit_tab_cap('editq');
-
+        
+        $category = $params['category'];
         if (!$category) {
             $defaultcategory = question_make_default_categories($contexts->all());
             $category = "{$defaultcategory->id},{$defaultcategory->contextid}";
         }
+        
+        $pagevars = array();
         $pagevars['cat'] = $category;
 
         $pagevars['page'] = $params['page'];
@@ -96,8 +99,9 @@ class mod_adaptivequiz_external extends external_api {
         $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 
         // Output.
+        $content = $output->question_bank_contents($questionbank, $pagevars);
         return external_api::clean_returnvalue(mod_adaptivequiz_external::get_questionbank_returns(),
-            $output->question_bank_contents($questionbank, $pagevars));
+            $content);
     }
 
     /**
