@@ -40,14 +40,14 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/backup/moodle2/restore_adaptiveq
 class restore_adaptivequiz_activity_task extends restore_activity_task {
 
     /**
-     * Define (add) particular settings this activity can have
+     * Define (add) particular settings this activity can have.
      */
     protected function define_my_settings() {
         // No particular settings for this activity.
     }
 
     /**
-     * Define (add) particular steps this activity can have
+     * Define (add) particular steps this activity can have.
      */
     protected function define_my_steps() {
         // We have just one structure step here.
@@ -56,7 +56,9 @@ class restore_adaptivequiz_activity_task extends restore_activity_task {
 
     /**
      * Define the contents in the activity that must be
-     * processed by the link decoder
+     * processed by the link decoder.
+     *
+     * @return array $contents the contents in the activity that must be processed by the link decoder.
      */
     static public function define_decode_contents() {
         $contents = array();
@@ -68,7 +70,9 @@ class restore_adaptivequiz_activity_task extends restore_activity_task {
 
     /**
      * Define the decoding rules for links belonging
-     * to the activity to be executed by the link decoder
+     * to the activity to be executed by the link decoder.
+     *
+     * @return array $rules the rules for links belonging to the activity to be executed by the link decoder.
      */
     static public function define_decode_rules() {
         $rules = array();
@@ -84,7 +88,9 @@ class restore_adaptivequiz_activity_task extends restore_activity_task {
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring
      * adaptivequiz logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@link restore_log_rule} objects.
+     *
+     * @return array $rules array of {@link restore_log_rule}.
      */
     static public function define_restore_log_rules() {
         $rules = array();
@@ -105,6 +111,9 @@ class restore_adaptivequiz_activity_task extends restore_activity_task {
      * Note this rules are applied when restoring course logs
      * by the restore final task, but are defined here at
      * activity level. All them are rules not linked to any module instance (cmid = 0)
+     *
+     * @return array $rules the restore log rules that will be applied by the {@link restore_logs_processor}
+     * when restoring course logs.
      */
     static public function define_restore_log_rules_for_course() {
         $rules = array();
