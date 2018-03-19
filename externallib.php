@@ -74,8 +74,7 @@ class mod_adaptivequiz_external extends external_api {
         $cmid = $params['cmid'];
         $thispageurl = new moodle_url('/mod/adaptivequiz/edit.php');
         
-        $cm         = get_coursemodule_from_id('adaptivequiz', $cmid, 0, false, MUST_EXIST);
-        $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+        list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
         $contexts = new question_edit_contexts($context);
         $contexts->require_one_edit_tab_cap('editq');
