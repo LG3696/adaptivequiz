@@ -88,6 +88,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                 $('#blockeditingform').append($(input));
                $('#blockeditingform').submit(); 
             });
+            $('.questionname').click(this.link_clicked);
             $('.questionbankcontent').find('a').click($.proxy(this.link_clicked, this));
             $('#id_selectacategory').change($.proxy(this.category_changed, this));
             
@@ -107,12 +108,13 @@ define(['jquery', 'core/ajax'], function($, ajax) {
             e.preventDefault();
             var page = this.get_href_param(e.target.href, 'qpage');
             var perpage = this.get_href_param(e.target.href, 'qperpage');
-            if (page !== null || perpage !== null) {
-                this.load(page, perpage);
+            var qbs1 = this.get_href_param(e.target.href, 'qbs1');
+            if (page !== null || perpage !== null || qbs1 !== null) {
+                this.load(page, perpage, qbs1);
             }
         },
         
-        load : function(page, perpage) {
+        load : function(page, perpage, qbs1) {
             var args = {};
             args.cmid = $('.questionbank').data('cmid');
             if (page) {
@@ -120,6 +122,9 @@ define(['jquery', 'core/ajax'], function($, ajax) {
             }
             if (perpage) {
                 args.qperpage = perpage;
+            }
+            if (qbs1) {
+                args.qbs1 = qbs1;
             }
             args.category = $('#id_selectacategory').val();
             this.panel.bodyNode.setHTML($('div.questionbankloading').parent().html());
