@@ -74,7 +74,7 @@ class mod_adaptivequiz_external extends external_api {
         external_api::validate_context($context);
 
         $cmid = $params['cmid'];
-        $thispageurl = new moodle_url('/mod/adaptivequiz/edit.php');
+        $thispageurl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $params['cmid']));
         
         list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
@@ -93,6 +93,7 @@ class mod_adaptivequiz_external extends external_api {
         $pagevars['page'] = $params['page'];
         $pagevars['qperpage'] = $params['qperpage'];
         if ($params['qbs1']) {
+            // The view requires the sort field as a paramter.
             $_POST['qbs1'] = urldecode($params['qbs1']);
         }
 

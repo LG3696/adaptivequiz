@@ -45,6 +45,7 @@ $string['addacondition'] = 'Add a condition';
 $string['addfeedback'] = 'Add feedback';
 $string['addfromquestionbank'] = 'Add from questionbank';
 $string['addpointscondition'] = 'Points at question';
+$string['addselectedquestionstoquiz'] = 'Add selected questions to the quiz';
 $string['addtoblock'] = 'Add to block';
 $string['addusedquestion'] = 'Add question';
 $string['all'] = 'all';
