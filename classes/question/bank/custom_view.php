@@ -52,6 +52,7 @@ class custom_view extends \core_question\bank\view {
     protected function wanted_columns() {
         $questionbankcolumns = array(
             'add_action_column',
+            'checkbox_column',
             'question_type_column',
             'question_name_column');
 

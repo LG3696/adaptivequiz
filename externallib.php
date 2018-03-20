@@ -49,6 +49,7 @@ class mod_adaptivequiz_external extends external_api {
                 'page' => new external_value(PARAM_INT, 'the page of the question bank view', VALUE_DEFAULT, 0),
                 'qperpage' => new external_value(PARAM_INT, 'the number of questions per page', VALUE_DEFAULT,
                     DEFAULT_QUESTIONS_PER_PAGE),
+                'qbs1' => new external_value(PARAM_RAW, 'the sort parameter', VALUE_OPTIONAL),
                 'category' => new external_value(PARAM_TEXT, 'the question category', VALUE_DEFAULT, null)
             )
         );
@@ -60,13 +61,14 @@ class mod_adaptivequiz_external extends external_api {
      * @param int $cmid the id of the course module.
      * @param int $page the page of the questionbank view.
      * @param int $qperpage the number of questions per page.
+     * @param string $qbs1 the sort parameter.
      * @param string $category the category of the question.
      * @return string the questionbank view HTML.
      */
-    public static function get_questionbank($cmid, $page, $qperpage, $category) {
+    public static function get_questionbank($cmid, $page, $qperpage, $qbs1, $category) {
         global $PAGE, $DB;
         $params = self::validate_parameters(self::get_questionbank_parameters(),
-            array('cmid' => $cmid, 'page' => $page, 'qperpage' => $qperpage, 'category' => $category));
+            array('cmid' => $cmid, 'page' => $page, 'qperpage' => $qperpage, 'qbs1' => $qbs1, 'category' => $category));
 
         $context = context_module::instance($params['cmid']);
         external_api::validate_context($context);
@@ -90,6 +92,9 @@ class mod_adaptivequiz_external extends external_api {
 
         $pagevars['page'] = $params['page'];
         $pagevars['qperpage'] = $params['qperpage'];
+        if ($params['qbs1']) {
+            $_POST['qbs1'] = urldecode($params['qbs1']);
+        }
 
         require_capability('mod/adaptivequiz:manage', $contexts->lowest());
 
