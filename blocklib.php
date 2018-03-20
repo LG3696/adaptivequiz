@@ -230,7 +230,7 @@ class block {
         }
 
         $questions = $this->quiz->get_questions();
-        $count = $this->quiz->get_slot_for_element();
+        $count = $this->quiz->get_slot_for_element($thisblockelement->get_id());
         return array_slice($questions, 0, $count, true);
     }
 
