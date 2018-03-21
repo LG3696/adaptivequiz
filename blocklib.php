@@ -650,15 +650,16 @@ class block_element {
 
     /**
      * Returns the name of the element.
+     * The format is: #. name
      *
      * @return string The name of the element.
      */
     public function get_name() {
         if ($this->is_question()) {
-            return $this->element->name;
+            return $this->quiz->get_slot_for_element($this->id) . '. ' . $this->element->name;
         }
         if ($this->is_block()) {
-            return $this->element->get_name();
+            return $this->quiz->get_slot_for_element($this->id) . '. ' . $this->element->get_name();
         }
     }
 

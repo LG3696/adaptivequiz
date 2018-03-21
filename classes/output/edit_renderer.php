@@ -423,7 +423,7 @@ class edit_renderer extends \plugin_renderer_base {
      */
     protected function points_condition($candidates, $index = '', $part = null) {
         $questionspan = \html_writer::tag('span', $this->question_selector($candidates, $index, $part));
-        $condition = \html_writer::tag('label', get_string('grade', 'adaptivequiz') . ' ' . $questionspan,
+        $condition = \html_writer::tag('label', get_string('gradeat', 'adaptivequiz') . ' ' . $questionspan,
             array('class' => 'conditionelement'));
         $comparatorspan = \html_writer::tag('span', $this->comparator_selector($index, $part));
         $condition .= ' ' . \html_writer::tag('label', get_string('mustbe', 'adaptivequiz') . ' ' . $comparatorspan,
