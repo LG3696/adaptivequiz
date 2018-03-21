@@ -52,6 +52,7 @@ class custom_view extends \core_question\bank\view {
     protected function wanted_columns() {
         $questionbankcolumns = array(
             'add_action_column',
+            'checkbox_column',
             'question_type_column',
             'question_name_column');
 
@@ -91,16 +92,25 @@ class custom_view extends \core_question\bank\view {
     // Do not display this.
     protected function display_options_form($showquestiontext, $scriptpath = '/mod/adaptivequiz/edit.php',
         $showtextoption = false) {
-        foreach ($this->searchconditions as $searchcondition) {
-            echo $searchcondition->display_options($this);
-        }
     }
 
     // Do not display this.
     protected function create_new_question_form($category, $canadd) {
     }
 
-    // Do not display this.
     protected function display_bottom_controls($totalnumber, $recurse, $category, $catcontext, $addcontexts) {
+        $canuseall = has_capability('moodle/question:useall', $catcontext);
+        
+        echo '<div class="modulespecificbuttonscontainer">';
+        if ($canuseall) {
+            // Add selected questions to the quiz.
+            $params = array(
+                'type' => 'submit',
+                'name' => 'add',
+                'value' => get_string('addselectedquestionstoquiz', 'adaptivequiz'),
+            );
+            echo \html_writer::empty_tag('input', $params);
+        }
+        echo "</div>\n";
     }
 }

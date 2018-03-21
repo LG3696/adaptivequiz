@@ -298,7 +298,7 @@ class edit_renderer extends \plugin_renderer_base {
             new \pix_icon('t/add', get_string('questionbank', 'adaptivequiz'), 'moodle',
                 array('class' => 'iconsmall', 'title' => '')), get_string('questionbank', 'adaptivequiz'),
             array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank',
-                'data-cmid' => $block->get_quiz()->get_cmid()));
+                'data-cmid' => $block->get_quiz()->get_cmid(), 'data-bid' => $block->get_id()));
         $menu->add($questionbank);
         $menu->prioritise = true;
 
@@ -423,7 +423,7 @@ class edit_renderer extends \plugin_renderer_base {
      */
     protected function points_condition($candidates, $index = '', $part = null) {
         $questionspan = \html_writer::tag('span', $this->question_selector($candidates, $index, $part));
-        $condition = \html_writer::tag('label', get_string('grade', 'adaptivequiz') . ' ' . $questionspan,
+        $condition = \html_writer::tag('label', get_string('gradeat', 'adaptivequiz') . ' ' . $questionspan,
             array('class' => 'conditionelement'));
         $comparatorspan = \html_writer::tag('span', $this->comparator_selector($index, $part));
         $condition .= ' ' . \html_writer::tag('label', get_string('mustbe', 'adaptivequiz') . ' ' . $comparatorspan,
@@ -669,7 +669,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function edit_feedback_page(\feedback_block $block, \moodle_url $pageurl, array $pagevars) {
-        $candidates = $block->get_quiz()->get_questions();
+        $candidates = $block->get_quiz()->get_elements();
         $output = '';
 
         $output .= html_writer::start_tag('form',

@@ -60,7 +60,6 @@ $PAGE->set_url($thispageurl);
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $block = block::load($adaptivequiz, $blockid);
 $feedback = feedback::get_feedback($adaptivequiz);
-
 if ($save) {
     // Save the name.
     $name = required_param('blockname', PARAM_TEXT);
@@ -127,7 +126,16 @@ if ($save) {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
     }
     redirect($nexturl);
-}
+} else if (optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
+    // Add selected questions to the current quiz.
+    $rawdata = (array) data_submitted();
+    foreach ($rawdata as $key => $value) { // Parse input for question ids.
+        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+            $key = $matches[1];
+            $block->add_question($key);
+        }
+    }
+} 
 
 if ($addquestion) {
     $block->add_question($addquestion);
