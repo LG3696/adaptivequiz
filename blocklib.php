@@ -131,19 +131,21 @@ class block {
      * @param int $questionid the id of the question to be added.
      */
     public function add_question($questionid) {
-        global $DB;
-
-        $qinstance = new stdClass();
-        $qinstance->blockid = $this->id;
-        $qinstance->blockelement = $questionid;
-        $qinstance->type = 0;
-        $qinstance->grade = 0; // TODO: ???
-        $qinstance->slot = count($this->get_children());
-
-        $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
-
-        $this->load_children();
-        array_push($this->children, block_element::load($this->quiz, $id));
+        if (!$block->get_quiz()->has_attempts()) {
+            global $DB;
+    
+            $qinstance = new stdClass();
+            $qinstance->blockid = $this->id;
+            $qinstance->blockelement = $questionid;
+            $qinstance->type = 0;
+            $qinstance->grade = 0; // TODO: ???
+            $qinstance->slot = count($this->get_children());
+    
+            $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
+    
+            $this->load_children();
+            array_push($this->children, block_element::load($this->quiz, $id));
+        }
     }
 
     /**
@@ -152,19 +154,21 @@ class block {
      * @param block $block the block to be added as a subblock.
      */
     public function add_subblock(block $block) {
-        global $DB;
-
-        $qinstance = new stdClass();
-        $qinstance->blockid = $this->id;
-        $qinstance->blockelement = $block->get_id();
-        $qinstance->type = 1;
-        $qinstance->grade = 0; // TODO: ???
-        $qinstance->slot = count($this->get_children());
-
-        $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
-
-        $this->load_children();
-        array_push($this->children, block_element::load($this->quiz, $id));
+        if (!$block->get_quiz()->has_attempts()) {
+            global $DB;
+    
+            $qinstance = new stdClass();
+            $qinstance->blockid = $this->id;
+            $qinstance->blockelement = $block->get_id();
+            $qinstance->type = 1;
+            $qinstance->grade = 0; // TODO: ???
+            $qinstance->slot = count($this->get_children());
+    
+            $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
+    
+            $this->load_children();
+            array_push($this->children, block_element::load($this->quiz, $id));
+        }
     }
 
     /**
@@ -240,12 +244,14 @@ class block {
      * @param int $id the id of the child to remove.
      */
     public function remove_child($id) {
-        global $DB;
-
-        $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
-
-        // Necessary because now the loaded children information is outdated.
-        $this->children = null;
+        if (!$block->get_quiz()->has_attempts()) {
+            global $DB;
+    
+            $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
+    
+            // Necessary because now the loaded children information is outdated.
+            $this->children = null;
+        }
     }
 
     /**
@@ -546,10 +552,12 @@ class block {
      * @param array $order an array holding the ids of the block_elements of this block in the desired order.
      */
     public function update_order($order) {
-        foreach ($this->get_children() as $child) {
-            for ($i = 0; $i < count($order); $i++) {
-                if ($child->get_id() == $order[$i]) {
-                    $child->update_slot($i);
+        if (!$block->get_quiz()->has_attempts()) {
+            foreach ($this->get_children() as $child) {
+                for ($i = 0; $i < count($order); $i++) {
+                    if ($child->get_id() == $order[$i]) {
+                        $child->update_slot($i);
+                    }
                 }
             }
         }

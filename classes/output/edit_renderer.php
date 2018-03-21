@@ -669,7 +669,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string HTML to output.
      */
     public function edit_feedback_page(\feedback_block $block, \moodle_url $pageurl, array $pagevars) {
-        $candidates = $block->get_quiz()->get_questions();
+        $candidates = $block->get_quiz()->get_elements();
         $output = '';
 
         $output .= html_writer::start_tag('form',
