@@ -71,6 +71,7 @@ $string['feedbackquestion_help'] = 'Verwenden Sie hier den Buchstaben, der eine 
 $string['feedbacktext'] = 'Feedbacktext';
 $string['finishreview'] = 'Überprüfung beenden';
 $string['grade'] = 'Bewertung';
+$string['gradeat'] = 'Punkte aus';
 $string['grades'] = 'Bewertung';
 $string['manualgradequestion'] = 'Frage {$a->question} von {$a->quiz} für {$a->user} manuell bewerten';
 $string['marks'] = 'Punkte';
