@@ -155,7 +155,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
                 },
                 $idsblocks
                 );
-        $feedbackblockrecords = $DB->get_records('adaptivequiz_feedbackblock', array('id' => $quizid), 'id', MUST_EXIST);
+        $feedbackblockrecords = $DB->get_records('adaptivequiz_feedback_block', array('id' => $quizid), 'id', MUST_EXIST);
         $feedbackblockids = array_map(
                 function($record) {
                     $record->id;
