@@ -426,14 +426,7 @@ class attempt {
      * @return boolean wether this attempt is a preview.
      */
     public function is_preview() {
-        global $DB;
-
-        $attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $this->id));
-        if ($attemptrow->preview == 0) {
-            return false;
-        } else if ($attemptrow->preview == 1) {
-            return true;
-        }
+        return $this->preview;
     }
 
     /**

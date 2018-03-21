@@ -425,8 +425,11 @@ class specialized_feedback {
         foreach ($parts as $part) {
             if (substr($part, 1, 2) == ']]') {
                 array_push($ret, $this->block_element_from_char(substr($part, 0, 1)));
-                array_push($ret, substr($part, 3));
-            } else {
+                $tmp = substr($part, 3);
+                if ($this->is_relevant($tmp)) {
+                    array_push($ret, $tmp);
+                }
+            } else if ($this->is_relevant($part)){
                 array_push($ret, $part);
             }
         }
@@ -456,6 +459,21 @@ class specialized_feedback {
             return $usedqinstances[array_keys($usedqinstances)[$index]];
         } else {
             return null;
+        }
+    }
+    
+    /**
+     * Checks whether this part is relevant for the special feedback or not.
+     *
+     * @param string $part the part.
+     * @return boolean whether this part is relevant or not.
+     */
+    protected function is_relevant($part) {
+        $tmp = trim(str_replace("&nbsp;", "", strip_tags($part)));
+        if (ctype_print($tmp)) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

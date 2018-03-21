@@ -454,7 +454,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     protected function review_parts($parts, $block, $attempt, $options, $feedback) {
         $output = '';
         foreach ($parts as $part) {
-            if (is_string($part) && $part != '<p>' && $part != '</p>') {
+            if (is_string($part)) {
                 $output .= html_writer::div($part, 'specialfeedbacktext');
             } else if ($part instanceof block_element) {
                 $output .= $this->review_block_element_render($block, $part, $attempt, $options, $feedback);
