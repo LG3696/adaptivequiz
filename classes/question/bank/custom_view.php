@@ -98,7 +98,6 @@ class custom_view extends \core_question\bank\view {
     protected function create_new_question_form($category, $canadd) {
     }
 
-    // Do not display this.
     protected function display_bottom_controls($totalnumber, $recurse, $category, $catcontext, $addcontexts) {
         $canuseall = has_capability('moodle/question:useall', $catcontext);
         

@@ -298,7 +298,7 @@ class edit_renderer extends \plugin_renderer_base {
             new \pix_icon('t/add', get_string('questionbank', 'adaptivequiz'), 'moodle',
                 array('class' => 'iconsmall', 'title' => '')), get_string('questionbank', 'adaptivequiz'),
             array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank',
-                'data-cmid' => $block->get_quiz()->get_cmid()));
+                'data-cmid' => $block->get_quiz()->get_cmid(), 'data-bid' => $block->get_id()));
         $menu->add($questionbank);
         $menu->prioritise = true;
 

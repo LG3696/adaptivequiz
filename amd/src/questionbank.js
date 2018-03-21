@@ -117,6 +117,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
         load : function(page, perpage, qbs1) {
             var args = {};
             args.cmid = $('.questionbank').data('cmid');
+            args.bid = $('.questionbank').data('bid');
             if (page) {
                 args.page = page;
             }
