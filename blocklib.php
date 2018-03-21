@@ -131,7 +131,7 @@ class block {
      * @param int $questionid the id of the question to be added.
      */
     public function add_question($questionid) {
-        if (!$block->get_quiz()->has_attempts()) {
+        if (!$this->get_quiz()->has_attempts()) {
             global $DB;
     
             $qinstance = new stdClass();
@@ -154,7 +154,7 @@ class block {
      * @param block $block the block to be added as a subblock.
      */
     public function add_subblock(block $block) {
-        if (!$block->get_quiz()->has_attempts()) {
+        if (!$this->get_quiz()->has_attempts()) {
             global $DB;
     
             $qinstance = new stdClass();
@@ -244,7 +244,7 @@ class block {
      * @param int $id the id of the child to remove.
      */
     public function remove_child($id) {
-        if (!$block->get_quiz()->has_attempts()) {
+        if (!$this->get_quiz()->has_attempts()) {
             global $DB;
     
             $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
@@ -552,7 +552,7 @@ class block {
      * @param array $order an array holding the ids of the block_elements of this block in the desired order.
      */
     public function update_order($order) {
-        if (!$block->get_quiz()->has_attempts()) {
+        if (!$this->get_quiz()->has_attempts()) {
             foreach ($this->get_children() as $child) {
                 for ($i = 0; $i < count($order); $i++) {
                     if ($child->get_id() == $order[$i]) {
