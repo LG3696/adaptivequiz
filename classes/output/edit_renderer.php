@@ -738,6 +738,11 @@ class edit_renderer extends \plugin_renderer_base {
         $content = '';
         $content .= \html_writer::div(chr($index), 'usesquestionletter');
         $content .= $this->uses_selector($block, $question);
+        
+        $strdelete = get_string('delete');
+        $image = $this->pix_icon('t/delete', $strdelete);
+        $content .= $this->action_link('#', $image, null, array('title' => $strdelete,
+            'class' => 'cm-edit-action editing_delete element-remove-button usesdelete', 'data-action' => 'delete'));
         return \html_writer::div($content, 'usesquestion');
     }
 
