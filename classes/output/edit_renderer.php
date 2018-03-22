@@ -789,6 +789,6 @@ class edit_renderer extends \plugin_renderer_base {
         $editor->use_editor('feedbacktext');
         $editorhtml = \html_writer::tag('textarea', s($feedbacktext),
             array('id' => 'feedbacktext', 'name' => 'feedbacktext', 'rows' => 15, 'cols' => 80));
-        return \html_writer::div($heading . \html_writer::div($editorhtml), 'feedbacktext');
+        return \html_writer::div($heading . \html_writer::div($editorhtml), 'feedbackblock');
     }
 }
