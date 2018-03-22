@@ -50,8 +50,8 @@ class mod_adaptivequiz_external extends external_api {
                 'page' => new external_value(PARAM_INT, 'the page of the question bank view', VALUE_DEFAULT, 0),
                 'qperpage' => new external_value(PARAM_INT, 'the number of questions per page', VALUE_DEFAULT,
                     DEFAULT_QUESTIONS_PER_PAGE),
-                'qbs1' => new external_value(PARAM_RAW, 'the sort parameter', VALUE_OPTIONAL),
-                'category' => new external_value(PARAM_TEXT, 'the question category', VALUE_DEFAULT, null)
+                'qbs1' => new external_value(PARAM_RAW, 'the sort parameter', VALUE_DEFAULT, null),
+                'category' => new external_value(PARAM_RAW, 'the question category', VALUE_DEFAULT, null)
             )
         );
     }
@@ -100,8 +100,7 @@ class mod_adaptivequiz_external extends external_api {
         }
 
         require_capability('mod/adaptivequiz:manage', $contexts->lowest());
-
-        $questionbank = new mod_adaptivequiz\question\bank\custom_view($contexts, $thispageurl, $course, $cm);
+        $questionbank = new \mod_adaptivequiz\question\bank\custom_view($contexts, $thispageurl, $course, $cm);
 
         $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 

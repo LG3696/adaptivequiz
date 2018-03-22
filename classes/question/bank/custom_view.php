@@ -92,13 +92,16 @@ class custom_view extends \core_question\bank\view {
     // Do not display this.
     protected function display_options_form($showquestiontext, $scriptpath = '/mod/adaptivequiz/edit.php',
         $showtextoption = false) {
+        foreach ($this->searchconditions as $searchcondition) {
+            echo $searchcondition->display_options($this);
+        }
     }
 
     // Do not display this.
     protected function create_new_question_form($category, $canadd) {
     }
 
-    protected function display_bottom_controls($totalnumber, $recurse, $category, $catcontext, $addcontexts) {
+    protected function display_bottom_controls($totalnumber, $recurse, $category, \context $catcontext, array $addcontexts) {
         $canuseall = has_capability('moodle/question:useall', $catcontext);
         
         echo '<div class="modulespecificbuttonscontainer">';
