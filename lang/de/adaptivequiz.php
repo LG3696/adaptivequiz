@@ -91,6 +91,7 @@ $string['previewquiznow'] = 'Testvorschau starten';
 $string['question'] = 'Frage';
 $string['questionbank'] = 'aus der Fragesammlung';
 $string['questiontext'] = 'Fragetext';
+$string['questions'] = 'Fragen';
 $string['quizfinished'] = 'Test beendet';
 $string['reattemptquiz'] = 'Test wiederholen';
 $string['reportattemptsfrom'] = 'Versuche von';
