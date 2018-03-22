@@ -345,9 +345,25 @@ class feedback_block {
             if (is_null($records)) {
                 $records = array();
             }
-            $this->uses = array_map(function ($obj) {
-                return block_element::load($this->quiz, $obj->questioninstanceid);
+            $records = array_map(function ($obj) {
+                $blockelement = block_element::load($this->quiz, $obj->questioninstanceid);
+                if ($blockelement instanceof block_element) {
+                    return $blockelement;
+                } else {
+                    return $obj;
+                }
             }, $records);
+            
+            // Delete references for block_elements that do not exist anymore.
+            $records = array_filter($records, function($element) {
+                if ($element instanceof block_element) {
+                    return true;
+                } else {
+                    $this->remove_uses($element->id);
+                    return false;
+                }
+            });
+            $this->uses = $records;
         }
         return $this->uses;
     }
@@ -367,6 +383,17 @@ class feedback_block {
         $DB->insert_record('adaptivequiz_feedback_uses', $record);
 
         array_push($this->uses, $questioninstanceid);
+    }
+    
+    /**
+     * Adds a question instance to the ones used by this feedback.
+     *
+     * @param int $id the id of the uses row.
+     */
+    public function remove_uses($id) {
+        global $DB;
+        $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $id));
+        $this->uses = null;
     }
 
     /**

@@ -616,10 +616,12 @@ class block_element {
     public static function load(adaptivequiz $quiz, $blockelementid) {
         global $DB;
 
-        $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', MUST_EXIST);
+        $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', IGNORE_MISSING);
 
         $element = null;
-        if ($questioninstance->type == 0) {
+        if (!$questioninstance) {
+            return null;
+        } else if ($questioninstance->type == 0) {
             $element = $DB->get_record('question', array('id' => $questioninstance->blockelement), '*', MUST_EXIST);
         } else if ($questioninstance->type == 1) {
             $element = block::load($quiz, $questioninstance->blockelement);
