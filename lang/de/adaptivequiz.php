@@ -81,6 +81,7 @@ $string['modulenameplural'] = 'Adaptive Tests';
 $string['mustbe'] = 'sind';
 $string['mustfullfill'] = 'Ein Teilnehmer muss';
 $string['nextpage'] = 'Nächste Seite';
+$string['noquestions'] = 'Es wurden noch keine Fragen eingetragen.';
 $string['oftheconditions'] = 'der Bedingungen erfüllen, um diesen Block zu sehen.';
 $string['pagesize'] = 'Seitengröße';
 $string['pluginadministration'] = 'Adaptiver Test - Administration';

@@ -212,7 +212,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
         }
         if (!$viewobj->buttontext) {
-            $output .= 'Quiz has no questions.';
+            $output .= get_string('noquestions', 'adaptivequiz');
             $output .= $this->edit_quiz_button($viewobj);
         }
         return $output;

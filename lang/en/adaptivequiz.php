@@ -91,6 +91,7 @@ $string['marks'] = 'Marks';
 $string['mustbe'] = 'must be';
 $string['mustfullfill'] = 'A student must fullfill';
 $string['nextpage'] = 'Next page';
+$string['noquestions'] = 'Quiz has no questions.';
 $string['oftheconditions'] = 'of the conditions to see this block.';
 $string['outofshort'] = '{$a->grade}/{$a->maxgrade}';
 $string['overviewfilename'] = 'grades';
