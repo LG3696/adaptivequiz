@@ -682,7 +682,7 @@ class edit_renderer extends \plugin_renderer_base {
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
         $output .= $this->heading(get_string('editingfeedback', 'adaptivequiz') . ' ' . $namefield);
 
-        $output .= $this->uses_block($block);
+        $output .= \html_writer::div($this->uses_block($block), 'feedbackblock');
 
         $output .= $this->condition_block($block->get_condition(), $candidates);
 

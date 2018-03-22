@@ -130,13 +130,13 @@
 }
 
 .reviewblock {
-	background-color: #eee;
+	background-color: #fafafa;
 	padding: 22px 22px 0px 22px;
 	margin-bottom: 20px;
 	margin-top:20px;
 	border-radius: 4px;
 	border: 1px solid;
-	border-color: #dcdcdc;
+	border-color: #f1f1f1;
 }
 
 input[type=number].conditionelement {
