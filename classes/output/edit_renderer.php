@@ -73,20 +73,25 @@ class edit_renderer extends \plugin_renderer_base {
             }
         }
 
-        $output .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
+        $container = '';
+        
+        $container .= \html_writer::tag('h3', get_string('questions', 'adaptivequiz'), array('class' => 'questionheader'));
+        $container .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
 
         $children = $block->get_children();
         foreach ($children as $child) {
-            $output .= $this->block_elem($child, $pageurl);
+            $container .= $this->block_elem($child, $pageurl);
         }
 
         $category = question_get_category_id_from_pagevars($pagevars);
 
         if (!$block->get_quiz()->has_attempts()) {
             $addmenu = $this->add_menu($block, $pageurl, $category);
-            $output .= html_writer::tag('li', $addmenu);
+            $container .= html_writer::tag('li', $addmenu);
         }
-        $output .= html_writer::end_tag('ul');
+        $container .= html_writer::end_tag('ul');
+        
+        $output .= \html_writer::div($container, 'questionblock');
 
         if ($block->is_main_block()) {
             $output .= $this->feedback_block($feedback, $pageurl);
@@ -323,11 +328,13 @@ class edit_renderer extends \plugin_renderer_base {
      */
     public function condition_block(\condition $condition, $candidates) {
         $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
+        $start = \html_writer::start_tag('ul', array('id' => 'condition-list'));
         $conjunctionchooser = $this->conjunction_chooser($condition);
         $conditionlist = \html_writer::div($this->condition($condition, $candidates), 'conditionpartslist');
         $addcondition = \html_writer::tag('a', get_string('addacondition', 'mod_adaptivequiz'),
             array('href' => '#', 'class' => 'addblockcondition'));
-        $container = $header . $conjunctionchooser . $conditionlist . $addcondition;
+        $end = \html_writer::end_tag('ul');
+        $container = $header . $start . $conjunctionchooser . $conditionlist . $addcondition . $end;
         return html_writer::div($container, 'conditionblock');
     }
 
@@ -551,6 +558,7 @@ class edit_renderer extends \plugin_renderer_base {
      */
     public function show_condition_block($condition, $candidates) {
         $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
+        $start = \html_writer::start_tag('ul', array('id' => 'condition-list'));
         if ($condition->get_useand()) {
             $option = \html_writer::tag('b', get_string('all', 'adaptivequiz'));
         } else {
@@ -558,8 +566,9 @@ class edit_renderer extends \plugin_renderer_base {
         }
         $conjunction = \html_writer::div(get_string('mustfullfill', 'adaptivequiz') . ' ' . $option . ' ' . get_string('oftheconditions', 'adaptivequiz'), 'conjunction');
         $conditionlist = \html_writer::div($this->show_condition($condition, $candidates));
-
-        $container = $header . $conjunction . $conditionlist;
+        $end = \html_writer::end_tag('ul');
+        
+        $container = $header . $start . $conjunction . $conditionlist . $end;
         return html_writer::div($container, 'conditionblock');
     }
 

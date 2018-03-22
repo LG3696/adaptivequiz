@@ -3,6 +3,11 @@
 	margin: 22px;
 }
 
+#condition-list {
+	list-style: none;
+	margin: 22px;
+}
+
 #feedbackblock-children-list {
 	list-style: none;
 	margin: 22px;
@@ -97,8 +102,9 @@
 	border: 1px solid;
 	border-color: #eee;
 	border-radius: 4px;
-	padding-top: 5px;
+	padding-top: 10px;
 	padding-bottom: 5px;
+	padding-left: 10px;
 	margin-bottom: 24px;
 }
 
@@ -109,6 +115,7 @@
 	border-radius: 4px;
 	padding-top: 5px;
 	padding-bottom: 5px;
+	padding-left: 10px;
 	margin-bottom: 10px;
 }
 
@@ -168,6 +175,13 @@ input[type=number].conditionelement {
 
 .questionbankloadingcontainer {
 	display: none;
+}
+
+.questionblock {
+	margin: 22px;
+	border: 1px solid;
+	border-radius: 10px;
+	padding: 22px;
 }
 
 .mod_adaptivequiz_qbank_dialogue {

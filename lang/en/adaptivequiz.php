@@ -103,6 +103,7 @@ $string['previewquiznow'] = 'Preview quiz now';
 $string['qbrief'] = 'Q. {$a}';
 $string['question'] = 'Question';
 $string['questionbank'] = 'from question bank';
+$string['questions'] = 'Questions';
 $string['questiontext'] = 'question text';
 $string['quizfinished'] = 'Quiz finished';
 $string['reattemptquiz'] = 'Re-attempt quiz';
