@@ -58,7 +58,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         $paths[] = new restore_path_element('block', '/activity/adaptivequiz/blocks/block');
         $paths[] = new restore_path_element('block_element', '/activity/adaptivequiz/block_elements/block_element');
         $paths[] = new restore_path_element('condition', '/activity/adaptivequiz/conditions/condition');
-        $paths[] = new restore_path_element('condition_part', '/activity/adaptivequiz/blocks/block/block_elements/block_element/condition_parts/condition_part');
+        $paths[] = new restore_path_element('condition_part', '/activity/adaptivequiz/block_elements/block_element/condition_parts/condition_part');
         $paths[] = new restore_path_element('feedback_block', '/activity/adaptivequiz/feedback_blocks/feedback_block');
         $paths[] = new restore_path_element('feedback_use', '/activity/adaptivequiz/feedback_blocks/feedback_block/feedback_uses/feedback_use');
         
@@ -155,6 +155,8 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
     protected function process_block_element($data) {
         global $DB;
         $data = (object) $data;
+        $oldid = $data->id;
+        
         $data->blockid = $this->get_mappingid('block', $data->blockid);
         if ($data->type == 0) { // question
             $data->blockelement = $this->get_mappingid('question', $data->blockelement);
@@ -163,6 +165,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         }
         
         $newitemid = $DB->insert_record('adaptivequiz_qinstance', $data);
+        $this->set_mapping('block_element', $oldid, $newitemid);
     }
     
     protected function process_condition_part($data) {

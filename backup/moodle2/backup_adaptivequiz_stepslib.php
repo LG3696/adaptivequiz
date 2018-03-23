@@ -94,7 +94,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $conditionParts = new backup_nested_element('condition_parts');
         
         $conditionPart = new backup_nested_element('condition_part', array('id'),
-                array('on_qinstance', 'type', 'gade', 'conditionid'));
+                array('on_qinstance', 'type', 'grade', 'conditionid'));
         
         $feedbackBlocks = new backup_nested_element('feedback_blocks');
         
@@ -201,3 +201,4 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         // Return the root element (adaptivequiz), wrapped into standard activity structure.
         return $this->prepare_activity_structure($adaptivequiz);
     }
+}
