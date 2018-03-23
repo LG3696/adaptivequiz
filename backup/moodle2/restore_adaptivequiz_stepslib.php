@@ -154,7 +154,6 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
     
     protected function process_block_element($data) {
         global $DB;
-        echo 'block_element';
         $data = (object) $data;
         $data->blockid = $this->get_mappingid('block', $data->blockid);
         if ($data->type == 0) { // question
@@ -170,7 +169,6 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         global $DB;
         
         $data = (object) $data;
-        echo 'condition part';
         $data->conditionid = $this->get_mappingid('condition', $data->conditionid);
         $data->on_qinstance = $this->get_mappingid('block_element', $data->on_qinstance);
         
@@ -192,7 +190,6 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
     
     protected function process_feedback_use($data) {
         global $DB;
-        echo 'feedback_use';
         $feedback_use = new restore_path_element('feedback_use', array('id'),
                 array('feedbackblockid', 'questioninstanceid'));
         
