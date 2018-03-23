@@ -56,7 +56,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
             $this->add_question_usages($quizattempt, $paths);
         }
         $paths[] = new restore_path_element('block', '/activity/adaptivequiz/blocks/block');
-        $paths[] = new restore_path_element('block_element', '/activity/adaptivequiz/blocks/block/block_elements/block_element');
+        $paths[] = new restore_path_element('block_element', '/activity/adaptivequiz/block_elements/block_element');
         $paths[] = new restore_path_element('condition', '/activity/adaptivequiz/conditions/condition');
         $paths[] = new restore_path_element('condition_part', '/activity/adaptivequiz/blocks/block/block_elements/block_element/condition_parts/condition_part');
         $paths[] = new restore_path_element('feedback_block', '/activity/adaptivequiz/feedback_blocks/feedback_block');
@@ -160,7 +160,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         if ($data->type == 0) { // question
             $data->blockelement = $this->get_mappingid('question', $data->blockelement);
         } else { // block
-            $data->blockelement = $this->get_new_parentid('block');
+            $data->blockelement = $this->get_mappingid('block', $data->blockelement);
         }
         
         $newitemid = $DB->insert_record('adaptivequiz_qinstance', $data);

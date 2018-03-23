@@ -120,7 +120,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $adaptivequiz->add_child($blocks);
         $blocks->add_child($block);
         
-        $block->add_child($block_elements);
+        $adaptivequiz->add_child($block_elements);
         $block_elements->add_child($block_element);
         
         $block_element->add_child($condition_parts);
@@ -144,6 +144,11 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
                             $ids_blocks
                         )
                     );
+        $blockElementIds = array_map(
+                function(block_element $blockelement) { echo $blockelement->get_id()."\n";return $blockelement->get_id(); },
+                $ids_mainblock->get_elements()
+                );
+        echo count($ids_mainblock->get_children());
         $block_condition_ids = array_map(
                 function(block_element $blockelement) { return $blockelement->get_element()->get_condition()->get_id(); },
                 $ids_blocks
@@ -164,17 +169,24 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
             $attempt->set_source_table('adaptivequiz_attempts', array('quiz' => backup::VAR_PARENTID));
         }
         
-        $sql_param = implode(", ", $condition_ids);
-        $sql = 'SELECT * FROM mdl_adaptivequiz_condition WHERE id IN (' . $sql_param . ');';
-        $condition->set_source_sql($sql, array());
+        if (count($condition_ids) > 0) {
+            $sql_param = implode(", ", $condition_ids);
+            $sql = 'SELECT * FROM mdl_adaptivequiz_condition WHERE id IN (' . $sql_param . ');';
+            $condition->set_source_sql($sql, array());
+        }
         
-        $sql_param = implode(", ", $block_ids);
-        $sql = 'SELECT * FROM mdl_adaptivequiz_block WHERE id IN (' . $sql_param . ');';
-        $block->set_source_sql($sql, array());
+        if (count($block_ids) > 0) {
+            $sql_param = implode(", ", $block_ids);
+            $sql = 'SELECT * FROM mdl_adaptivequiz_block WHERE id IN (' . $sql_param . ');';
+            $block->set_source_sql($sql, array());
+        }
         
+        if (count($blockElementIds) > 0) {
+            $sql_param = implode(", ", $blockElementIds);
+            $sql = 'SELECT * FROM mdl_adaptivequiz_qinstance WHERE id IN (' . $sql_param . ');';
+            $block_element->set_source_sql($sql, array());
+        }
         
-        $block_element->set_source_table('adaptivequiz_qinstance', array('blockid' => backup::VAR_PARENTID));
-
         $condition_part->set_source_table('adaptivequiz_condition_part', array('on_qinstance' => backup::VAR_PARENTID));
         
         $feedback_block->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
