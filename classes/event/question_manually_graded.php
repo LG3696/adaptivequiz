@@ -15,48 +15,51 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_adaptivequiz attempt started event.
+ * The mod_quiz question manually graded event.
  *
- * @package    mod_adaptivequiz
+ * @package    core
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_adaptivequiz\event;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_adaptivequiz attempt started event class.
+ * The mod_adaptivequiz question manually graded event class.
  *
  * @property-read array $other {
  *      Extra information about event.
  *
- *      - int quizid: (optional) the id of the quiz.
+ *      - int quizid: the id of the quiz.
+ *      - int attemptid: the id of the attempt.
+ *      - int slot: the question number in the attempt.
  * }
  *
- * @package    mod_adaptivequiz
- * @since      Moodle 2.6
+ * @package    core
+ * @since      Moodle 2.7
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class attempt_started extends \core\event\base {
+class question_manually_graded extends \core\event\base {
 
     /**
      * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'adaptivequiz_attempts';
+        $this->data['objecttable'] = 'question';
         $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
 
     /**
-     * Returns description of what happened.
-     *
-     * @return string
-     */
+    * Returns description of what happened.
+    *
+    * @return string
+    */
     public function get_description() {
-        return "The user with id '$this->relateduserid' has started the attempt with id '$this->objectid' for the " .
-        "quiz with course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' manually graded the question with id '$this->objectid' for the attempt " .
+        "with id '{$this->other['attemptid']}' for the quiz with course module id '$this->contextinstanceid'.";
     }
 
     /**
@@ -65,15 +68,16 @@ class attempt_started extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventadaptivequizattemptstarted', 'adaptivequiz');
+        return get_string('eventquestionmanuallygraded', 'adaptivequiz');
     }
-    
+
     /**
      * Returns relevant URL.
      *
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->objectid));
+        return new \moodle_url('/mod/adaptivequiz/comment.php', array('attempt' => $this->other['attemptid'],
+            'slot' => $this->other['slot']));
     }
 }

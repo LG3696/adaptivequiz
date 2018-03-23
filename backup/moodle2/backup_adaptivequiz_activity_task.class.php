@@ -44,16 +44,17 @@ class backup_adaptivequiz_activity_task extends backup_activity_task {
     }
 
     /**
-     * Defines a backup step to store the instance data in the adaptivequiz.xml file
+     * Defines a backup step to store the instance data in the adaptivequiz.xml file.
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_adaptivequiz_activity_structure_step('adaptivequiz_structure', 'adaptivequiz.xml', $this->moduleid));
-        
+        $this->add_step(new backup_adaptivequiz_activity_structure_step('adaptivequiz_structure',
+            'adaptivequiz.xml', $this->moduleid));
+
         // Process all the annotated questions to calculate the question
         // categories needing to be included in backup for this activity
         // plus the categories belonging to the activity context itself.
         $this->add_step(new backup_calculate_question_categories('activity_question_categories'));
-        
+
         // Clean backup_temp_ids table from questions. We already
         // have used them to detect question_categories and aren't
         // needed anymore.
@@ -61,10 +62,10 @@ class backup_adaptivequiz_activity_task extends backup_activity_task {
     }
 
     /**
-     * Encodes URLs to the index.php and view.php scripts
+     * Encodes URLs to the index.php and view.php scripts.
      *
-     * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
-     * @return string the content with the URLs encoded
+     * @param string $content some HTML text that eventually contains URLs to the activity instance scripts.
+     * @return string the content with the URLs encoded.
      */
     static public function encode_content_links($content) {
         global $CFG;

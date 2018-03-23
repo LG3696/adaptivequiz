@@ -81,12 +81,12 @@ class attempt {
 
     /** @var int time of finishing this attempt. */
     protected $timefinish;
-    
+
     /** @var boolean preview was previewed. */
     protected $preview;
 
-    // /** @var int time of last modification of this attempt. */
-    // protected $timemodified;
+    // ... /** @var int time of last modification of this attempt. */
+    // ... protected $timemodified;
 
 
     // Constructor =============================================================
@@ -153,6 +153,8 @@ class attempt {
 
         $quba = attempt::create_quba($quiz);
 
+        $override = $DB->get_records('adaptivequiz_attempts', array('userid' => $userid, 'preview' => 1));
+
         $attemptrow = new stdClass();
         $attemptrow->quba = $quba->get_id();
         $attemptrow->quiz = $quiz->get_id();
@@ -161,12 +163,20 @@ class attempt {
         $attemptrow->timestart = time();
         $attemptrow->state = self::IN_PROGRESS;
         $attemptrow->timefinish = 0;
-        $attemptrow->sumgrades = NULL;
+        $attemptrow->sumgrades = null;
         $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
         $attemptrow->preview = $preview;
 
-        $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
+        if (!$override) {
+            $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
+        } else {
+            $DB->delete_records('adaptivequiz_attempts', array('userid' => $userid, 'preview' => 1));
+            $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
+                array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
+            $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
+
+        }
 
         $quiz->get_cmid();
         // Params used by the events below.
@@ -182,7 +192,7 @@ class attempt {
                 $params['other'] = array(
 		        'quizid' => $quizobj->get_quizid()
             );
-            $event = \mod_quiz\event\attempt_preview_started::create($params);
+            $event = \mod_adaptivequiz\event\attempt_preview_started::create($params);
             } else { **/
             $event = \mod_adaptivequiz\event\attempt_started::create($params);
 
@@ -298,10 +308,10 @@ class attempt {
     public function get_sumgrades() {
         return $this->sumgrades;
     }
-    
+
     /**
      * Returns true if this attempt is a preview attempt.
-     * 
+     *
      * @return boolean wether this attempt is a preview attempt.
      */
     public function get_preview() {
@@ -411,6 +421,15 @@ class attempt {
     }
 
     /**
+     * Checks if this attempt is a preview.
+     *
+     * @return boolean wether this attempt is a preview.
+     */
+    public function is_preview() {
+        return $this->preview;
+    }
+
+    /**
      * Determines the next slot based on the conditions of the blocks.
      */
     public function next_slot() {
@@ -476,7 +495,8 @@ class attempt {
         if ($state == 'all') {
             $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid), 'id');
         } else {
-            $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
+            $attemptrows = $DB->get_records('adaptivequiz_attempts',
+                array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
         }
         $attempts = array_map(function($attempt) {
                             return attempt::load($attempt->id);

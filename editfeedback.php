@@ -70,7 +70,7 @@ if (optional_param('save', 0, PARAM_INT)) {
 }
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('editingfeedback', 'adaptivequiz'));
+$PAGE->set_title(get_string('editingfeedbackx', 'adaptivequiz', $feedbackblock->get_name()));
 
 $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
 

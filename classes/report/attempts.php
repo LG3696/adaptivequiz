@@ -87,10 +87,9 @@ abstract class attempts {
         $this->context = \context_module::instance($cm->id);
         $this->quiz = $quiz;
 
-        list($currentgroup, $students, $groupstudents, $allowed) =
-        $this->load_relevant_students($cm, $course);
+        list($currentgroup, $students, $groupstudents, $allowed) = $this->load_relevant_students($cm, $course);
 
-        $this->qmsubselect = ''; //TODO: quiz_report_qm_filter_select($quiz);
+        $this->qmsubselect = ''; // TODO: quiz_report_qm_filter_select($quiz);
 
         $this->form = new $formclass($this->get_base_url(),
             array('quiz' => $quiz, 'currentgroup' => $currentgroup, 'context' => $this->context));
@@ -313,8 +312,8 @@ abstract class attempts {
     }
 
     /**
-    * Process any submitted actions.
-    */
+     * Process any submitted actions.
+     */
     protected function process_actions($quiz, $cm, $currentgroup, $groupstudents, $allowed, $redirecturl) {
         // Nothing to do.
     }
@@ -328,7 +327,7 @@ abstract class attempts {
      * @param string $quizname the quiz name.
      * @return string the filename.
      */
-    function download_filename($mode, $courseshortname, $quizname) {
+    protected function download_filename($mode, $courseshortname, $quizname) {
         return $courseshortname . '-' . format_string($quizname, true) . '-' . $mode;
     }
 

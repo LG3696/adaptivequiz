@@ -39,8 +39,8 @@ class overview extends attempts {
     public function display($cm, $course, \adaptivequiz $quiz) {
         global $CFG, $DB, $OUTPUT, $PAGE;
 
-        list($currentgroup, $students, $groupstudents, $allowed) =
-                $this->init('\mod_adaptivequiz\report\overview_form', $quiz, $cm, $course);
+        list($currentgroup, $students, $groupstudents, $allowed) = $this->init('\mod_adaptivequiz\report\overview_form',
+            $quiz, $cm, $course);
         $options = new overview_options($quiz, $cm, $course);
 
         if ($fromform = $this->form->get_data()) {
@@ -66,7 +66,7 @@ class overview extends attempts {
                 array('context' => \context_course::instance($course->id)));
         $table = new overview_table($quiz, $this->context, $this->qmsubselect,
                 $options, $groupstudents, $students, $questions, $options->get_url());
-        $filename = $this->download_filename(get_string('overviewfilename', 'quiz_overview'),
+        $filename = $this->download_filename(get_string('overviewfilename', 'adaptivequiz'),
                 $courseshortname, $quiz->get_name());
         $table->is_downloading($options->download, $filename,
                 $courseshortname . ' ' . format_string($quiz->get_name(), true));
@@ -79,7 +79,7 @@ class overview extends attempts {
 
         // Start output.
         if (!$table->is_downloading()) {
-            // Only print headers if not asked to download data.*/
+            // Only print headers if not asked to download data.
             $this->print_header_and_tabs($cm, $course, $quiz);
         }
 
@@ -134,14 +134,7 @@ class overview extends attempts {
                 foreach ($questions as $slot => $question) {
                     // Ignore questions of zero length.
                     $columns[] = 'qsgrade' . $slot;
-                    /*$header = get_string('qbrief', 'adaptivequiz', $question->number);
-                    if (!$table->is_downloading()) {
-                        $header .= '<br />';
-                    } else {
-                        $header .= ' ';
-                    }
-                    $header .= '/' . $this->quiz->format_grade($question->maxmark);*/
-                    $headers[] = $question->name;//TODO:?$header;
+                    $headers[] = $question->name;
                 }
             }
 
@@ -150,26 +143,26 @@ class overview extends attempts {
 
             $table->out($options->pagesize, true);
         }
-/*TODO:
+        /* TODO:
         if (!$table->is_downloading() && $options->usercanseegrades) {
             $output = $PAGE->get_renderer('mod_quiz');
             if ($currentgroup && $groupstudents) {
                 list($usql, $params) = $DB->get_in_or_equal($groupstudents);
                 $params[] = $quiz->id;
-                if ($DB->record_exists_select('quiz_grades', "userid $usql AND quiz = ?",
+                if ($DB->record_exists_select('adaptivequiz_grades', "userid $usql AND quiz = ?",
                         $params)) {
-                    $imageurl = new moodle_url('/mod/quiz/report/overview/overviewgraph.php',
+                    $imageurl = new moodle_url('/mod/adaptivequiz/report/overview/overviewgraph.php',
                             array('id' => $quiz->id, 'groupid' => $currentgroup));
-                    $graphname = get_string('overviewreportgraphgroup', 'quiz_overview',
+                    $graphname = get_string('overviewreportgraphgroup', 'adaptivequiz_overview',
                             groups_get_group_name($currentgroup));
                     echo $output->graph($imageurl, $graphname);
                 }
             }
 
-            if ($DB->record_exists('quiz_grades', array('quiz'=> $quiz->id))) {
-                $imageurl = new moodle_url('/mod/quiz/report/overview/overviewgraph.php',
+            if ($DB->record_exists('adaptivequiz_grades', array('quiz'=> $quiz->id))) {
+                $imageurl = new moodle_url('/mod/adaptivequiz/report/overview/overviewgraph.php',
                         array('id' => $quiz->id));
-                $graphname = get_string('overviewreportgraph', 'quiz_overview');
+                $graphname = get_string('overviewreportgraph', 'adaptivequiz');
                 echo $output->graph($imageurl, $graphname);
             }
         }*/
@@ -262,7 +255,7 @@ class overview extends attempts {
             $params = array_merge($params, $aparams);
         }
 
-        $attempts = $DB->get_records_select('quiz_attempts', $where, $params);
+        $attempts = $DB->get_records_select('adaptivequiz_attempts', $where, $params);
         if (!$attempts) {
             return;
         }
@@ -278,7 +271,7 @@ class overview extends attempts {
             $this->regrade_attempt($attempt, $dryrun);
             $a['done']++;
             $progressbar->update($a['done'], $a['count'],
-                    get_string('regradingattemptxofy', 'quiz_overview', $a));
+                    get_string('regradingattemptxofy', 'adaptivequiz', $a));
         }
 
         if (!$dryrun) {
@@ -309,7 +302,7 @@ class overview extends attempts {
 
         $toregrade = $DB->get_recordset_sql("
                 SELECT quiza.uniqueid, qqr.slot
-                FROM {quiz_attempts} quiza
+                FROM {adaptivequiz_attempts} quiza
                 JOIN {quiz_overview_regrades} qqr ON qqr.questionusageid = quiza.uniqueid
                 WHERE $where", $params);
 
@@ -323,7 +316,7 @@ class overview extends attempts {
             return;
         }
 
-        $attempts = $DB->get_records_list('quiz_attempts', 'uniqueid',
+        $attempts = $DB->get_records_list('adaptivequiz_attempts', 'uniqueid',
                 array_keys($attemptquestions));
 
         $this->clear_regrade_table($quiz, $groupstudents);
@@ -337,94 +330,94 @@ class overview extends attempts {
             $this->regrade_attempt($attempt, false, $attemptquestions[$attempt->uniqueid]);
             $a['done']++;
             $progressbar->update($a['done'], $a['count'],
-                    get_string('regradingattemptxofy', 'quiz_overview', $a));
+                    get_string('regradingattemptxofy', 'adaptivequiz', $a));
         }
 
         $this->update_overall_grades($quiz);
     }*/
 
-//     /**
-//      * Count the number of attempts in need of a regrade.
-//      * @param object $quiz the quiz settings.
-//      * @param array $groupstudents user ids. If this is given, only data relating
-//      * to these users is cleared.
-//      */
-//     protected function count_question_attempts_needing_regrade($quiz, $groupstudents) {
-//         global $DB;
+    /* /**
+      * Count the number of attempts in need of a regrade.
+      * @param object $quiz the quiz settings.
+      * @param array $groupstudents user ids. If this is given, only data relating
+      * to these users is cleared.
+      */
+    /* protected function count_question_attempts_needing_regrade($quiz, $groupstudents) {
+         global $DB;
 
-//         $usertest = '';
-//         $params = array();
-//         if ($groupstudents) {
-//             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
-//             $usertest = "quiza.userid $usql AND ";
-//         }
+         $usertest = '';
+         $params = array();
+         if ($groupstudents) {
+             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
+             $usertest = "quiza.userid $usql AND ";
+         }
 
-//         $params[] = $quiz->id;
-//         $sql = "SELECT COUNT(DISTINCT quiza.id)
-//                 FROM {quiz_attempts} quiza
-//                 JOIN {quiz_overview_regrades} qqr ON quiza.uniqueid = qqr.questionusageid
-//                 WHERE
-//                     $usertest
-//                     quiza.quiz = ? AND
-//                     quiza.preview = 0 AND
-//                     qqr.regraded = 0";
-//         return $DB->count_records_sql($sql, $params);
-//     }
+         $params[] = $quiz->id;
+         $sql = "SELECT COUNT(DISTINCT quiza.id)
+                 FROM {adaptivequiz_attempts} quiza
+                 JOIN {quiz_overview_regrades} qqr ON quiza.uniqueid = qqr.questionusageid
+                 WHERE
+                     $usertest
+                     quiza.quiz = ? AND
+                     quiza.preview = 0 AND
+                     qqr.regraded = 0";
+         return $DB->count_records_sql($sql, $params);
+     }
 
-//     /**
-//      * Are there any pending regrades in the table we are going to show?
-//      * @param string $from tables used by the main query.
-//      * @param string $where where clause used by the main query.
-//      * @param array $params required by the SQL.
-//      * @return bool whether there are pending regrades.
-//      */
-//     protected function has_regraded_questions($from, $where, $params) {
-//         global $DB;
-//         return $DB->record_exists_sql("
-//                 SELECT 1
-//                   FROM {$from}
-//                   JOIN {quiz_overview_regrades} qor ON qor.questionusageid = quiza.uniqueid
-//                  WHERE {$where}", $params);
-//     }
+     /**
+      * Are there any pending regrades in the table we are going to show?
+      * @param string $from tables used by the main query.
+      * @param string $where where clause used by the main query.
+      * @param array $params required by the SQL.
+      * @return bool whether there are pending regrades.
+      */
+     /* protected function has_regraded_questions($from, $where, $params) {
+         global $DB;
+         return $DB->record_exists_sql("
+                 SELECT 1
+                   FROM {$from}
+                   JOIN {quiz_overview_regrades} qor ON qor.questionusageid = quiza.uniqueid
+                  WHERE {$where}", $params);
+     }
 
-//     /**
-//      * Remove all information about pending/complete regrades from the database.
-//      * @param object $quiz the quiz settings.
-//      * @param array $groupstudents user ids. If this is given, only data relating
-//      * to these users is cleared.
-//      */
-//     protected function clear_regrade_table($quiz, $groupstudents) {
-//         global $DB;
+     /**
+      * Remove all information about pending/complete regrades from the database.
+      * @param object $quiz the quiz settings.
+      * @param array $groupstudents user ids. If this is given, only data relating
+      * to these users is cleared.
+      */
+    /* protected function clear_regrade_table($quiz, $groupstudents) {
+         global $DB;
 
-//         // Fetch all attempts that need regrading.
-//         $where = '';
-//         $params = array();
-//         if ($groupstudents) {
-//             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
-//             $where = "userid $usql AND ";
-//         }
+         // Fetch all attempts that need regrading.
+         $where = '';
+         $params = array();
+         if ($groupstudents) {
+             list($usql, $params) = $DB->get_in_or_equal($groupstudents);
+             $where = "userid $usql AND ";
+         }
 
-//         $params[] = $quiz->id;
-//         $DB->delete_records_select('quiz_overview_regrades',
-//                 "questionusageid IN (
-//                     SELECT uniqueid
-//                     FROM {quiz_attempts}
-//                     WHERE $where quiz = ?
-//                 )", $params);
-//     }
+         $params[] = $quiz->id;
+         $DB->delete_records_select('quiz_overview_regrades',
+                 "questionusageid IN (
+                     SELECT uniqueid
+                     FROM {adaptivequiz_attempts}
+                     WHERE $where quiz = ?
+                 )", $params);
+     }
 
-//     /**
-//      * Update the final grades for all attempts. This method is used following
-//      * a regrade.
-//      * @param object $quiz the quiz settings.
-//      * @param array $userids only update scores for these userids.
-//      * @param array $attemptids attemptids only update scores for these attempt ids.
-//      */
-//     protected function update_overall_grades($quiz) {
-//         quiz_update_all_attempt_sumgrades($quiz);
-//         quiz_update_all_final_grades($quiz);
-//         quiz_update_grades($quiz);
-//     }
+     /**
+      * Update the final grades for all attempts. This method is used following
+      * a regrade.
+      * @param object $quiz the quiz settings.
+      * @param array $userids only update scores for these userids.
+      * @param array $attemptids attemptids only update scores for these attempt ids.
+      */
+    /* protected function update_overall_grades($quiz) {
+         quiz_update_all_attempt_sumgrades($quiz);
+         quiz_update_all_final_grades($quiz);
+         quiz_update_grades($quiz);
+     } */
 
     protected function get_base_url() {
         return new \moodle_url('/mod/adaptivequiz/report.php',

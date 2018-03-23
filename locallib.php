@@ -256,7 +256,7 @@ class adaptivequiz {
         $attempts = attempt::get_user_attempts($this->get_id(), $userid, 'finished');
 
         // Calculate the best grade.
-        //TODO: wie die beste Note berechnen?
+        // TODO: wie die beste Note berechnen?
         $bestgrade = end($attempts)->get_sumgrades();
         $bestgrade = $bestgrade * $quiz->grade / $this->get_maxgrade();
 
@@ -306,5 +306,20 @@ class adaptivequiz {
     public function get_num_attempts() {
         global $DB;
         return $DB->count_records('adaptivequiz_attempts', array('quiz' => $this->id));
+    }
+
+    /**
+     * Checks if the quiz has any attempts, that are not a preview.
+     *
+     * @return boolean wether the quiz has attempts, that are not a preview.
+     */
+    public function has_attempts() {
+        global $DB;
+        $count = $DB->count_records('adaptivequiz_attempts', array('quiz' => $this->id, 'preview' => 0));
+        if ($count > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

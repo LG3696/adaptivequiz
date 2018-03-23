@@ -60,7 +60,6 @@ $PAGE->set_url($thispageurl);
 $adaptivequiz = adaptivequiz::load($quiz->id);
 $block = block::load($adaptivequiz, $blockid);
 $feedback = feedback::get_feedback($adaptivequiz);
-
 if ($save) {
     // Save the name.
     $name = required_param('blockname', PARAM_TEXT);
@@ -120,14 +119,23 @@ if ($save) {
             'appendqnumstring' => 'addquestion'
         ));
     } else if (optional_param('addfeedback', 0, PARAM_INT)) {
-        $feedbackblock = feedback_block::create($adaptivequiz, '');
+        $feedbackblock = feedback_block::create($adaptivequiz, get_string('feedbackblockdefaultname', 'adaptivequiz'));
         $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
             array('cmid' => $cmid, 'bid' => $feedbackblock->get_id()));
     } else {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
     }
     redirect($nexturl);
-}
+} else if (optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
+    // Add selected questions to the current quiz.
+    $rawdata = (array) data_submitted();
+    foreach ($rawdata as $key => $value) { // Parse input for question ids.
+        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+            $key = $matches[1];
+            $block->add_question($key);
+        }
+    }
+} 
 
 if ($addquestion) {
     $block->add_question($addquestion);

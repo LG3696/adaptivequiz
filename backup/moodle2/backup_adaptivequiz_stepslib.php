@@ -35,25 +35,29 @@ require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_adaptivequiz_activity_structure_step extends backup_questions_activity_structure_step {
-    
+
     /** @var int the id of this course module. */
     protected $cmid;
-    
+
     /**
-     * Constructor - instantiates one object of this class
+     * Constructor - instantiates one object of this class.
+     *
+     * @param string $name the name of
+     * @param string $filename the name of
+     * @param int $cmid the id of the course module.
      */
     public function __construct($name, $filename, $cmid) {
         $this->cmid = $cmid;
         parent::__construct($name, $filename);
     }
-    
+
     /**
-     * Defines the backup structure of the module
+     * Defines the backup structure of the module.
      *
-     * @return backup_nested_element
+     * @return backup_nested_element.
      */
     protected function define_structure() {
-        
+
         global $DB;
 
         // Get know if we are including userinfo.
@@ -62,30 +66,29 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         // Define the root element describing the adaptivequiz instance.
         $adaptivequiz = new backup_nested_element('adaptivequiz', array('id'), array(
                 'name', 'intro', 'introformat', 'grade', 'maxgrade', 'mainblock'));
-        
+
         // Define elements.
         $grades = new backup_nested_element('grades');
-        
+
         $grade = new backup_nested_element('grade', array('id'), array('quiz', 'userid',
                 'grade', 'timemodified'));
-        
+
         $attempts = new backup_nested_element('attempts');
-        
+
         $attempt = new backup_nested_element('attempt', array('id'), array('quiz', 'userid',
                 'attempt', 'quba', 'currentslot', 'state', 'timestart', 'timefinish',
                 'timemodified', 'timecheckstate', 'sumgrades', 'preview'));
-        
         $blocks = new backup_nested_element('blocks');
-        
+
         $block = new backup_nested_element('block', array('id'), array('name', 'conditionid'));
         
         $blockElements = new backup_nested_element('block_elements');
         
         $blockElement = new backup_nested_element('block_element', array('id'), array('blockid',
                 'blockelement', 'type', 'grade', 'slot'));
-        
+
         $conditions = new backup_nested_element('conditions');
-        
+
         $condition = new backup_nested_element('condition', array('id'), array('useand'));
         
         $conditionParts = new backup_nested_element('condition_parts');
@@ -102,18 +105,18 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         
         $feedbackUse = new backup_nested_element('feedback_use', array('id'),
                 array('feedbackblockid', 'questioninstanceid'));
-        
+
         // This module is using questions, so produce the related question states and sessions
         // attaching them to the $attempt element based in 'quba' matching.
         $this->add_question_usages($attempt, 'quba');
-        
+
         // Build the tree.
         $adaptivequiz->add_child($grades);
         $grades->add_child($grade);
-        
+
         $adaptivequiz->add_child($attempts);
         $attempts->add_child($attempt);
-        
+
         $adaptivequiz->add_child($conditions);
         $conditions->add_child($condition);
         
@@ -158,10 +161,10 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
                 $feedbackBlockRecords
                 ); 
         $conditionIds = array_merge($blockConditionIds, $feedbackblockConditionIds);
-        
+
         // Define data sources.
         $adaptivequiz->set_source_table('adaptivequiz', array('id' => backup::VAR_ACTIVITYID));
-        
+
         // These elements only happen if we are including user info.
         if ($userinfo) {
             $grade->set_source_table('adaptivequiz_grades', array('quiz' => backup::VAR_PARENTID));
@@ -191,11 +194,10 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $feedbackBlock->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
         
         $feedbackUse->set_source_table('adaptivequiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
-        
+
         // Define file annotations (we do not use itemid in this example).
         $adaptivequiz->annotate_files('mod_adaptivequiz', 'intro', null);
 
         // Return the root element (adaptivequiz), wrapped into standard activity structure.
         return $this->prepare_activity_structure($adaptivequiz);
     }
-}

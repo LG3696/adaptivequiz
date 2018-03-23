@@ -38,8 +38,8 @@ defined('MOODLE_INTERNAL') || die();
  *
  * See {@link plugin_supports()} for more info.
  *
- * @param string $feature FEATURE_xx constant for requested feature
- * @return mixed true if the feature is supported, null if unknown
+ * @param string $feature FEATURE_xx constant for requested feature.
+ * @return mixed true if the feature is supported, null if unknown.
  */
 function adaptivequiz_supports($feature) {
 
@@ -499,7 +499,7 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
     }
 
     // Preview Quiz button.
-    if (has_capability('mod/quiz:preview', $PAGE->cm->context)) {
+    if (has_capability('mod/adaptivequiz:preview', $PAGE->cm->context)) {
         $url = new moodle_url('/mod/adaptivequiz/startattempt.php',
             array('cmid' => $PAGE->cm->id, 'sesskey' => sesskey()));
         $node = navigation_node::create(get_string('preview', 'adaptivequiz'), $url,
@@ -508,7 +508,7 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
         $adaptivequiznode->add_node($node, $beforekey);
     }
 
-    // Report buttons
+    // Report buttons.
     if (has_any_capability(array('mod/adaptivequiz:viewreports', 'mod/adaptivequiz:grade'), $PAGE->cm->context)) {
         $url = new moodle_url('/mod/adaptivequiz/report.php',
             array('id' => $PAGE->cm->id, 'mode' => 'overview'));
@@ -531,8 +531,8 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
 /**
  * Return grade for given user or all users.
  *
- * @param int $quizid id of adaptivequiz
- * @param int $userid optional user id, 0 means all users
+ * @param stdClass $adaptivequiz id of adaptivequiz.
+ * @param int $userid optional user id, 0 means all users.
  * @return array array of grades, false if none.
  */
 function adaptivequiz_get_user_grades(stdClass $adaptivequiz, $userid = 0) {

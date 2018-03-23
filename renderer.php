@@ -38,7 +38,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Generates the view page.
      *
      * @param array $quiz Array containing quiz data.
-     * @param mod_quiz_view_object $viewobj the information required to display the view page.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
+     * @return $output html data.
      */
     public function view_page($quiz, $viewobj) {
         $output = '';
@@ -54,8 +55,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param attempt $attempt an instance of attempt.
      * @param int $slot which question to display.
      * @param question_display_options $options the display options.
-     * @param array $summarydata contains all table data
-     *
+     * @param array $summarydata contains all table data.
      * @return $output containing html data.
      */
     public function review_question_page(attempt $attempt, $slot, question_display_options $options, $summarydata) {
@@ -73,8 +73,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param attempt $attempt an instance of attempt.
      * @param int $slot which question to display.
      * @param question_display_options $options the display options.
-     * @param array $summarydata contains all table data
-     *
+     * @param array $summarydata contains all table data.
      * @return $output containing html data.
      */
     public function grade_question_page(attempt $attempt, $slot, question_display_options $options, $summarydata) {
@@ -97,8 +96,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the table of data
      *
-     * @param array $quiz Array contining quiz data
-     * @param mod_quiz_view_object $viewobj
+     * @param array $quiz Array contining quiz data.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
+     * @return $output html data.
      */
     public function view_table($quiz, $viewobj) {
         if (!$viewobj->attempts) {
@@ -116,7 +116,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->align[] = 'left';
         $table->size[] = '';
 
-        $table->head[] = get_string('attemptstate', 'quiz');
+        $table->head[] = get_string('attemptstate', 'adaptivequiz');
         $table->align[] = 'left';
         $table->size[] = '';
 
@@ -129,23 +129,30 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->size[] = '';
 
         // One row for each attempt.
-        foreach($viewobj->attempts as $attempt) {
+        foreach ($viewobj->attempts as $attempt) {
             $row = array();
 
-            $row[] = $attempt->get_attempt_number();
+            if ($attempt->is_preview()) {
+                $row[] = get_string('preview', 'adaptivequiz');
+            } else {
+                $row[] = $attempt->get_attempt_number();
+            }
             $row[] = $this->attempt_state($attempt);
 
             if ($attempt->get_state() == attempt::IN_PROGRESS) {
                 $row[] = '';
                 $row[] = '';
-            }
-            else {
-                $row[] = round($attempt->get_quba()->get_total_mark(),2);
+            } else {
+                $row[] = round($attempt->get_quba()->get_total_mark(), 2);
                 $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
                     array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
             }
 
-            $table->data[$attempt->get_attempt_number()] = $row;
+            if ($attempt->is_preview()) {
+                $table->data['preview'] = $row;
+            } else {
+                $table->data[$attempt->get_attempt_number()] = $row;
+            }
         }
 
         $output = '';
@@ -156,6 +163,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
     /**
      * Generates the table heading.
+     *
+     * @return string the table heading.
      */
     public function view_table_heading() {
         return $this->heading(get_string('summaryofattempts', 'adaptivequiz'), 3);
@@ -184,7 +193,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Work out, and render, whatever buttons, and surrounding info, should appear.
      * at the end of the review page.
      *
-     * @param mod_quiz_view_object $viewobj the information required to display the view page.
+     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
      * @return string HTML to output.
      */
     public function view_page_buttons($viewobj) {
@@ -195,8 +204,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             if ($viewobj->unfinishedattempt) {
                 $attempturl = new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $viewobj->unfinishedattempt));
                 $output .= $this->start_attempt_button($viewobj->buttontext, $attempturl);
-            }
-            else {
+            } else {
                 $output .= $this->start_attempt_button($viewobj->buttontext, $url);
             }
             if ($viewobj->canmanage) {
@@ -204,7 +212,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
         }
         if (!$viewobj->buttontext) {
-            $output .= 'Quiz has no questions.';
+            $output .= get_string('noquestions', 'adaptivequiz');
             $output .= $this->edit_quiz_button($viewobj);
         }
         return $output;
@@ -256,6 +264,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
            array('action' => $processurl, 'method' => 'post',
                'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
                'id' => 'responseform'));
+           
+        // The progress bar
+        $progress = floor(($slot - 1) * 100 / $attempt->get_quiz()->get_slotcount());
+        $progressbar = \html_writer::div('', 'bar',
+            array('role' => 'progressbar', 'style' => 'width: ' . $progress . '%;'));
+        $output .= \html_writer::div($progressbar, 'progress');
+        
         $output .= html_writer::start_tag('div');
 
         $output .= $attempt->get_quba()->render_question($slot, $options);
@@ -286,11 +301,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $output .= html_writer::start_tag('div');
 
-        /*if ($islast) {
-            $nextlabel = get_string('endtest', 'adaptivequiz');
-        } else {*/
-            $nextlabel = get_string('nextpage', 'adaptivequiz');
-        // }
+        $nextlabel = get_string('nextpage', 'adaptivequiz');
         $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next',
             'value' => $nextlabel));
         $output .= html_writer::end_tag('div');
@@ -304,7 +315,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
      * @param array $summarydata contains all table data
-     * @param feedback the feedback for the quiz.
+     * @param feedback $feedback the feedback for the quiz.
      * @return $output containing HTML data.
      */
     public function review_page(attempt $attempt, $options, $summarydata, $feedback) {
@@ -318,10 +329,9 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Outputs the table containing data from summary data array
+     * Outputs the table containing data from summary data array.
      *
-     * @param array $summarydata contains row data for table
-     *
+     * @param array $summarydata contains row data for table.
      * @return $output containing HTML data.
      */
     public function review_summary_table($summarydata) {
@@ -363,7 +373,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block $block the block to generate the feedback for.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
-     * @param feedback the specialized feedback.
+     * @param feedback $feedback the specialized feedback.
      * @return string HTML to output.
      */
     protected function review_block(block $block, attempt $attempt, $options, $feedback) {
@@ -382,16 +392,17 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block_element $blockelem the element of the block.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
-     * @param feedback the specialized feedback.
+     * @param feedback $feedback the specialized feedback.
      * @return string HTML to output.
      */
     protected function review_block_element($block, $blockelem, $attempt, $options, $feedback) {
         $output = '';
-        if ($feedback->has_specialized_feedback($blockelem)) {
+        if ($feedback->has_specialized_feedback($blockelem, $attempt)) {
             $specialfeedback = $feedback->get_specialized_feedback_at_element($blockelem, $attempt);
             foreach ($specialfeedback as $sf) {
                 $parts = $sf->get_parts();
-                $output .= $this->review_parts($parts, $block, $attempt, $options, $feedback);
+                $review = $this->review_parts($parts, $block, $attempt, $options, $feedback);
+                $output .= html_writer::div($review, 'reviewblock');
             }
         } else {
             $output .= $this->review_block_element_render($block, $blockelem, $attempt, $options, $feedback);
@@ -406,7 +417,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block_element $blockelem the element of the block.
      * @param attempt $attempt the attempt this review belongs to.
      * @param question_display_options $options the display options.
-     * @param feedback the specialized feedback.
+     * @param feedback $feedback the specialized feedback.
      * @return string HTML to output.
      */
     protected function review_block_element_render($block, $blockelem, $attempt, $options, $feedback) {
@@ -419,7 +430,16 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
         } else if ($blockelem->is_question()) {
             $slot = $block->get_quiz()->get_slot_for_element($blockelem->get_id());
-            $output .= $attempt->get_quba()->render_question($slot, $options);
+            $feedbackblock = $feedback->search_uses($blockelem, $attempt);
+            if (is_null($feedbackblock)) {
+                $output .= $attempt->get_quba()->render_question($slot, $options);
+            } else {
+                $adaptedgrade = $feedbackblock->get_adapted_grade();
+                $oldmaxmark = $attempt->get_quba()->get_question_attempt($slot)->get_max_mark();
+                $attempt->get_quba()->get_question_attempt($slot)->set_max_mark($adaptedgrade);
+                $output .= $attempt->get_quba()->render_question($slot, $options);
+                $attempt->get_quba()->get_question_attempt($slot)->set_max_mark($oldmaxmark);
+            }
         }
         return $output;
     }
@@ -431,15 +451,14 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @param block $block the block to get the feedback for.
      * @param attempt $attempt the current attempt.
      * @param question_display_options $options the display options.
-     * @param feedback the specialized feedback.
-     *
+     * @param feedback $feedback the specialized feedback.
      * @return string HTML to output.
      */
     protected function review_parts($parts, $block, $attempt, $options, $feedback) {
         $output = '';
         foreach ($parts as $part) {
             if (is_string($part)) {
-                $output .= $part;
+                $output .= html_writer::div($part, 'specialfeedbacktext');
             } else if ($part instanceof block_element) {
                 $output .= $this->review_block_element_render($block, $part, $attempt, $options, $feedback);
             }
@@ -482,8 +501,6 @@ class mod_adaptivequiz_view_object {
     public $numattempts;
     /** @var object $lastfinishedattempt the last attempt from the attempts array. */
     public $lastfinishedattempt;
-    /** @var quiz_access_manager $accessmanager contains various access rules. */
-    public $accessmanager;
     /** @var int $cmid the course module id. */
     public $cmid;
     /** @var bool $canmanage whether the user is authorized to manage the quiz. */

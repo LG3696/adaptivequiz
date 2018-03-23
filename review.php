@@ -17,7 +17,7 @@
 /**
  * This page prints a review of a particular quiz attempt.
  *
- * @package   mod_adaptivequiz
+ * @package    mod_adaptivequiz
  * @copyright  2018 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -57,12 +57,7 @@ $event = \mod_adaptivequiz\event\attempt_reviewed::create($params);
 $event->trigger();
 
 $options = new question_display_options();
-$options->feedback = question_display_options::VISIBLE;
-$options->generalfeedback = question_display_options::VISIBLE;
-$options->marks = question_display_options::MARK_AND_MAX;
-$options->correctness = question_display_options::VISIBLE;
 $options->flags = question_display_options::HIDDEN;
-$options->rightanswer = question_display_options::VISIBLE;
 
 $adaptivequiz = adaptivequiz::load($cm->instance);
 $PAGE->set_url($attempt->review_url());

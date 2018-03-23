@@ -97,7 +97,7 @@ abstract class attempts_form extends \moodleform {
         if ($data['attempts'] != attempts::ENROLLED_WITHOUT && !(
             $data['stateinprogress'] || $data['stateoverdue'] || $data['statefinished'] || $data['stateabandoned'])) {
                 $errors['stateoptions'] = get_string('reportmustselectstate', 'adaptivequiz');
-            }
+        }
 
             return $errors;
     }

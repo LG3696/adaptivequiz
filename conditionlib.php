@@ -79,10 +79,10 @@ class condition {
     }
 
     /**
-    * Inserts a new condition into the database.
-    *
-    * @return condition the newly created condtion part.
-    */
+     * Inserts a new condition into the database.
+     *
+     * @return condition the newly created condtion part.
+     */
     public static function create() {
         global $DB;
 
@@ -140,12 +140,10 @@ class condition {
         if ($this->useand != $useand) {
             global $DB;
 
-            $conditionid = $DB->get_field('adaptivequiz_block', 'conditionid', array('id' => $this->get_id()), MUST_EXIST);
-
             $this->useand = $useand;
 
             $record = new stdClass();
-            $record->id = $conditionid;
+            $record->id = $this->id;
             $record->useand = $this->useand;
             $DB->update_record('adaptivequiz_condition', $record);
         }
@@ -272,7 +270,6 @@ class condition_part {
      * @param int $type the type of this condition.
      * @param int $elementid the id of the element this condition references.
      * @param int $grade the grade this condition is relative to.
-     *
      * @return condition_part the newly created condtion part.
      */
     public static function create(condition $condition, $type, $elementid, $grade) {

@@ -23,20 +23,35 @@
 
 define(['jquery'], function($) {
     var index = 0;
+	var update_chars = function() {
+		var letter = 'A'.charCodeAt(0);
+		var children = $('.usedquestions').children();
+		for (var i = 0; i < children.length; i++) {
+			$(children[i]).find('.usesquestionletter').html(String.fromCharCode(letter));
+			letter++;
+		}
+	};
     
     return {
-        
+    
         init: function() {
             $('.addusedquestion').click(function (e) {
                 e.preventDefault();
-                var newusespart = $('.usesquestioncontainer').find('.usesquestion').clone();
+                var newusespart = $('.usesquestioncontainer').find('.usesquestion').clone(true);
                 $('.usedquestions').append(newusespart);
                 // Upcounting letters
-                var lastletter = $('.usesquestioncontainer').find('.usesquestionletter').html();
-                $('.usesquestioncontainer').find('.usesquestionletter').html(String.fromCharCode(lastletter.charCodeAt(0) + 1));
+                //var lastletter = $('.usesquestioncontainer').find('.usesquestionletter').html();
+                //$('.usesquestioncontainer').find('.usesquestionletter').html(String.fromCharCode(lastletter.charCodeAt(0) + 1));
+                update_chars();
                 // Increase submit index
                 index++;
                 newusespart.find('.usesquestionselector').attr('name', 'usesquestions[newparts' + index + ']');
+            });
+            $('.usesdelete').click(function(e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                $(this).parents('.usesquestion').remove();
+                update_chars();
             });
         }
     };

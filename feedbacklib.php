@@ -22,10 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
-
-
 
 /**
  * A class encapsulating the specialized feedback of an adaptivequiz.
@@ -43,7 +40,7 @@ class feedback {
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
-     * @param adaptivequiz $quiz the quiz the feedback belongs to.   
+     * @param adaptivequiz $quiz the quiz the feedback belongs to.
      */
     public function __construct($quiz) {
         $this->quiz = $quiz;
@@ -82,12 +79,13 @@ class feedback {
      * Checks whether specialized feedback exist for a block element.
      *
      * @param block_element $blockelement the block element to check.
+     * @param attempt $attempt the attempt to check if it has specialized feedback for.
      * @return bool true if specialized feedback for the block element exists.
      */
-    public function has_specialized_feedback(block_element $blockelement) {
+    public function has_specialized_feedback(block_element $blockelement, $attempt) {
         foreach ($this->get_blocks() as $block) {
             foreach ($block->get_used_question_instances() as $qi) {
-                if ($qi->get_id() == $blockelement->get_id()) {
+                if ($qi->get_id() == $blockelement->get_id() && $block->get_condition()->is_fullfilled($attempt)) {
                     return true;
                 }
             }
@@ -129,6 +127,30 @@ class feedback {
         $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
 
         $this->feedbackblocks = null;
+    }
+
+    /**
+     * Finds the feedback block where the element is the first part of the uses.
+     *
+     * @param block_element $elem the block element.
+     * @param attempt $attempt the attempt for which to check.
+     * @return null|feedback_block the feedback block or null.
+     */
+    public function search_uses($elem, $attempt) {
+        foreach ($this->get_blocks() as $block) {
+            if (!$block->get_condition()->is_fullfilled($attempt)) {
+                continue;
+            }
+            $usedqinstances = $block->get_used_question_instances();
+            if (count($usedqinstances) < 1) {
+                continue;
+            }
+            $first = array_values($usedqinstances)[0];
+            if ($first->get_id() == $elem->get_id()) {
+                return $block;
+            }
+        }
+        return null;
     }
 }
 
@@ -320,9 +342,28 @@ class feedback_block {
         if (!$this->uses) {
             global $DB;
             $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
-            $this->uses = array_map(function ($obj) {
-                return block_element::load($this->quiz, $obj->questioninstanceid);
+            if (is_null($records)) {
+                $records = array();
+            }
+            $records = array_map(function ($obj) {
+                $blockelement = block_element::load($this->quiz, $obj->questioninstanceid);
+                if ($blockelement instanceof block_element) {
+                    return $blockelement;
+                } else {
+                    return $obj;
+                }
             }, $records);
+            
+            // Delete references for block_elements that do not exist anymore.
+            $records = array_filter($records, function($element) {
+                if ($element instanceof block_element) {
+                    return true;
+                } else {
+                    $this->remove_uses($element->id);
+                    return false;
+                }
+            });
+            $this->uses = $records;
         }
         return $this->uses;
     }
@@ -342,6 +383,39 @@ class feedback_block {
         $DB->insert_record('adaptivequiz_feedback_uses', $record);
 
         array_push($this->uses, $questioninstanceid);
+    }
+    
+    /**
+     * Adds a question instance to the ones used by this feedback.
+     *
+     * @param int $id the id of the uses row.
+     */
+    public function remove_uses($id) {
+        global $DB;
+        $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $id));
+        $this->uses = null;
+    }
+
+    /**
+     * Calculates the adapted grade for the first element in the uses.
+     *
+     * @return int the adapted grade.
+     */
+    public function get_adapted_grade() {
+        $uses = $this->uses;
+        $qid = array_shift($uses)->get_element()->id;
+        $first = question_bank::load_question($qid, false);
+        $mark = $first->defaultmark;
+        $sum = 0;
+        foreach ($uses as $element) {
+            if ($element->is_question()) {
+                $question = question_bank::load_question($element->get_element()->id, false);
+                $sum += $question->defaultmark;
+            } else if ($element->is_block()) {
+                $sum += $element->get_element()->get_maxgrade();
+            }
+        }
+        return $mark - $sum;
     }
 }
 
@@ -378,8 +452,11 @@ class specialized_feedback {
         foreach ($parts as $part) {
             if (substr($part, 1, 2) == ']]') {
                 array_push($ret, $this->block_element_from_char(substr($part, 0, 1)));
-                array_push($ret, substr($part, 3));
-            } else {
+                $tmp = substr($part, 3);
+                if ($this->is_relevant($tmp)) {
+                    array_push($ret, $tmp);
+                }
+            } else if ($this->is_relevant($part)){
                 array_push($ret, $part);
             }
         }
@@ -409,6 +486,21 @@ class specialized_feedback {
             return $usedqinstances[array_keys($usedqinstances)[$index]];
         } else {
             return null;
+        }
+    }
+    
+    /**
+     * Checks whether this part is relevant for the special feedback or not.
+     *
+     * @param string $part the part.
+     * @return boolean whether this part is relevant or not.
+     */
+    protected function is_relevant($part) {
+        $tmp = trim(str_replace("&nbsp;", "", strip_tags($part)));
+        if (ctype_print($tmp)) {
+            return true;
+        } else {
+            return false;
         }
     }
 }
