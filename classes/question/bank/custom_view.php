@@ -109,6 +109,7 @@ class custom_view extends \core_question\bank\view {
             // Add selected questions to the quiz.
             $params = array(
                 'type' => 'submit',
+                'id' => 'addselected',
                 'name' => 'add',
                 'value' => get_string('addselectedquestionstoquiz', 'adaptivequiz'),
             );

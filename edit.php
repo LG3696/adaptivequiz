@@ -105,6 +105,16 @@ if ($save) {
     } else if ($questionid = optional_param('addfromquestionbank', 0, PARAM_INT)) {
         $block->add_question($questionid);
         $nexturl = $thispageurl;
+    } else if (optional_param('add', false, PARAM_BOOL)) {
+        // Add selected questions to the current quiz.
+        $rawdata = (array) data_submitted();
+        foreach ($rawdata as $key => $value) { // Parse input for question ids.
+            if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+                $key = $matches[1];
+                $block->add_question($key);
+            }
+        }
+        $nexturl = $thispageurl;
     } else if (optional_param('addnewblock', 0, PARAM_INT)) {
         $newblock = block::create($adaptivequiz, get_string('blockname', 'adaptivequiz'));
         $block->add_subblock($newblock);
@@ -126,16 +136,7 @@ if ($save) {
         $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
     }
     redirect($nexturl);
-} else if (optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
-    // Add selected questions to the current quiz.
-    $rawdata = (array) data_submitted();
-    foreach ($rawdata as $key => $value) { // Parse input for question ids.
-        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
-            $key = $matches[1];
-            $block->add_question($key);
-        }
-    }
-} 
+}
 
 if ($addquestion) {
     $block->add_question($addquestion);

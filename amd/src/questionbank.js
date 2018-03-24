@@ -88,6 +88,22 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                 $('#blockeditingform').append($(input));
                $('#blockeditingform').submit(); 
             });
+            $('#addselected').click(function(e) {
+                e.preventDefault();
+                var selected = $('input:checkbox:checked[name^="q"]');
+                for (var i = 0; i < selected.length; i++) {
+                	var name = $(selected[i]).attr('name');
+	                var input = $('<input>')
+	                    .attr('type', 'hidden')
+	                    .attr('name', name).val('1');
+	                $('#blockeditingform').append($(input));
+                }
+                var button = $('<input>')
+	                .attr('type', 'hidden')
+	                .attr('name', 'add').val('1');
+	            $('#blockeditingform').append($(button));
+                $('#blockeditingform').submit(); 
+            });
             $('.questionname').click(this.link_clicked);
             $('.questionbankcontent').find('a').click($.proxy(this.link_clicked, this));
             $('#id_selectacategory').change($.proxy(this.category_changed, this));
