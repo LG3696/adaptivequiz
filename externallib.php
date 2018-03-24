@@ -95,8 +95,10 @@ class mod_adaptivequiz_external extends external_api {
         $pagevars['page'] = $params['page'];
         $pagevars['qperpage'] = $params['qperpage'];
         if ($params['qbs1']) {
+            $decoded = urldecode($params['qbs1']);
+            $thispageurl->param('qbs1', $decoded);
             // The view requires the sort field as a paramter.
-            $_POST['qbs1'] = urldecode($params['qbs1']);
+            $_POST['qbs1'] = $decoded;
         }
 
         require_capability('mod/adaptivequiz:manage', $contexts->lowest());
