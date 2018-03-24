@@ -52,7 +52,7 @@ class add_action_column extends \core_question\bank\action_column_base {
             return;
         }
         echo \html_writer::start_div('addfromquestionbank', array('data-id' => $question->id));
-        $this->print_icon('t/add', $this->stradd);
+        $this->print_icon('t/add', $this->stradd, new \moodle_url('/mod/adaptivequiz/edit.php'));
         echo \html_writer::end_div();
     }
 

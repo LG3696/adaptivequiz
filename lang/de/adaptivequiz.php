@@ -34,6 +34,7 @@ $string['addaquestion'] = 'Frage hinzufügen';
 $string['addfeedback'] = 'Feedback hinzufügen';
 $string['addfromquestionbank'] = 'aus der Fragesammlung';
 $string['addpointscondition'] = 'Punkte einer Frage';
+$string['addselectedquestionstoquiz'] = 'Ausgewählte Fragen zum Test hinzufügen';
 $string['addtoblock'] = 'zu Block hinzufügen';
 $string['addusedquestion'] = 'Frage hinzufügen';
 $string['all'] = 'alle';
