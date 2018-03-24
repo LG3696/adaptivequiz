@@ -41,101 +41,21 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
-
-    if ($oldversion < 2018012400) {
-
-        // Define table adaptivequiz_feedback_block to be created.
-        $table = new xmldb_table('adaptivequiz_feedback_block');
-
-        // Adding fields to table adaptivequiz_feedback_block.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('quizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('conditionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('feedbacktext', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table adaptivequiz_feedback_block.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('quizid', XMLDB_KEY_FOREIGN, array('quizid'), 'adaptivequiz', array('id'));
-        $table->add_key('conditionid', XMLDB_KEY_FOREIGN, array('conditionid'), 'adaptivequiz_condition', array('id'));
-
-        // Conditionally launch create table for adaptivequiz_feedback_block.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Define table adaptivequiz_feedback_uses to be created.
-        $table = new xmldb_table('adaptivequiz_feedback_uses');
-
-        // Adding fields to table adaptivequiz_feedback_uses.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('feedbackblockid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('questioninstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-
-        // Adding keys to table adaptivequiz_feedback_uses.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('feedbackblockid', XMLDB_KEY_FOREIGN, array('feedbackblockid'), 'adaptivequiz_feedbackblock', array('id'));
-        $table->add_key('questioninstanceid', XMLDB_KEY_FOREIGN,
-            array('questioninstanceid'), 'adaptivequiz_qinstance', array('id'));
-
-        // Conditionally launch create table for adaptivequiz_feedback_uses.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Define field name to be added to adaptivequiz_feedback_block.
-        $table = new xmldb_table('adaptivequiz_feedback_block');
-        $field = new xmldb_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null, 'feedbacktext');
-
-        // Conditionally launch add field name.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Adaptivequiz savepoint reached.
-        upgrade_mod_savepoint(true, 2018012400, 'adaptivequiz');
-    }
-
-    if ($oldversion < 2018020100) {
-
-        // Define field maxgrade to be added to adaptivequiz.
+    
+    if ($oldversion < 2018032500) {
+        
+        // Define field grademethod to be added to adaptivequiz.
         $table = new xmldb_table('adaptivequiz');
-        $field = new xmldb_field('maxgrade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'grade');
-
-        // Conditionally launch add field maxgrade.
+        $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+        
+        // Conditionally launch add field grademethod.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         // Adaptivequiz savepoint reached.
-        upgrade_mod_savepoint(true, 2018020100, 'adaptivequiz');
+        upgrade_mod_savepoint(true, 2018032500, 'adaptivequiz');
     }
-
-    if ($oldversion < 2018030200) {
-
-        // Define field preview to be added to adaptivequiz_attempts.
-        $table = new xmldb_table('adaptivequiz_attempts');
-        $field = new xmldb_field('preview', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null, 'sumgrades');
-
-        // Conditionally launch add field preview.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Adaptivequiz savepoint reached.
-        upgrade_mod_savepoint(true, 2018030200, 'adaptivequiz');
-    }
-
-    if ($oldversion < 2018030500) {
-
-        // Changing type of field preview on table adaptivequiz_attempts to int.
-        $table = new xmldb_table('adaptivequiz_attempts');
-        $field = new xmldb_field('preview', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'sumgrades');
-
-        // Launch change of type for field preview.
-        $dbman->change_field_type($table, $field);
-
-        // Adaptivequiz savepoint reached.
-        upgrade_mod_savepoint(true, 2018030500, 'adaptivequiz');
-    }
+    
     return true;
 }

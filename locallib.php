@@ -48,6 +48,8 @@ class adaptivequiz {
     protected $mainblock = null;
     /** @var int the id of the main block of this adaptive quiz. */
     protected $mainblockid = 0;
+    /** @var int the method used for grading. 0: one attempt, 1: best attempt, 2: last attempt */
+    protected $grademethod = 0;
     /** @var int the total sum of the max grades of the main questions instances
      * (that is without any questions inside blocks) in the adaptive quiz */
     protected $maxgrade = 0;
@@ -60,11 +62,12 @@ class adaptivequiz {
      * @param int $mainblockid the id of the main block of this adaptive quiz.
      * @param int $maxgrade the best attainable grade of this quiz.
      */
-    public function __construct($id, $cmid, $mainblockid, $maxgrade) {
+    public function __construct($id, $cmid, $mainblockid, $grademethod, $maxgrade) {
         $this->id = $id;
         $this->cmid = $cmid;
         $this->mainblock = null;
         $this->mainblockid = $mainblockid;
+        $this->grademethod = $grademethod;
         $this->maxgrade = $maxgrade;
     }
 
@@ -80,7 +83,7 @@ class adaptivequiz {
         $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
         $cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
 
-        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock, $quiz->maxgrade);
+        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock, $quiz->grademethod, $quiz->maxgrade);
     }
 
     /**
@@ -257,7 +260,22 @@ class adaptivequiz {
 
         // Calculate the best grade.
         // TODO: wie die beste Note berechnen?
-        $bestgrade = end($attempts)->get_sumgrades();
+        if ($this->grademethod == 0) {
+            $bestgrade = end($attempts)->get_sumgrades();
+        } else if ($this->grademethod == 1) {
+            $max = 0;
+            foreach ($attempts as $attempt) {
+                $thisgrade = $attempt->get_sumgrades();
+                if ($thisgrade > $max) {
+                    $max = $thisgrade; 
+                }
+            }
+            $bestgrade = $max;
+        } else if ($this->grademethod == 2) {
+            $bestgrade = end($attempts)->get_sumgrades();
+        } else {
+            $bestgrade = end($attempts)->get_sumgrades();
+        }
         $bestgrade = $bestgrade * $quiz->grade / $this->get_maxgrade();
 
         // Save the best grade in the database.
@@ -321,5 +339,23 @@ class adaptivequiz {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Returns the grading method used by this quiz.
+     * 
+     * @return int 0 for one attempt, 1 for best attempt, 2 for last attempt.
+     */
+    public function get_grademethod() {
+        return $this->grademethod;
+    }
+    
+    /**
+     * Is a student allowed to try this quiz multiple times?
+     * 
+     * @return bool true if the quiz may be taken multiple times by one student.
+     */
+    public function multiple_attempts_allowed() {
+        return $this->grademethod == 1 || $this->grademethod == 2;
     }
 }

@@ -59,6 +59,8 @@ $mainblock = $quiz->get_main_block();
 $canpreview = has_capability('mod/adaptivequiz:preview', $context);
 $canattempt = has_capability('mod/adaptivequiz:attempt', $context);
 
+$canattempt = attempt::may_start_new_attempt($quiz, $USER->id);
+
 $viewobj = new mod_adaptivequiz_view_object();
 
 $viewobj->cmid = $id;

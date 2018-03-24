@@ -417,6 +417,9 @@ class attempt {
      * @return boolean wether this attempt is finished.
      */
     public function is_finished() {
+        if ($this->currentslot > $this->get_quiz()->get_slotcount() && $this->state != self::FINISHED) {
+            $this->finish_attempt(time());
+        }
         return $this->currentslot > $this->get_quiz()->get_slotcount();
     }
 
@@ -503,6 +506,30 @@ class attempt {
         },
                             array_values($attemptrows));
         return $attempts;
+    }
+    
+    /**
+     * Determines wether a user may start a new attempt.
+     * 
+     * @param adaptivequiz $quiz the quiz for which to check.
+     * @param int $userid the id of the user wanting to start a new attempt.
+     *
+     * @return bool true if a new attempt may be started.
+     */
+    public static function may_start_new_attempt(adaptivequiz $quiz, $userid) {
+        $context = $quiz->get_context();
+        // Previews may always be started.
+        if (has_capability('mod/adaptivequiz:preview', $context)) {
+            return true;
+        }
+        
+        if (has_capability('mod/adaptivequiz:attempt', $context) &&
+            (count(attempt::get_user_attempts($quiz->get_id(), $userid)) == 0 ||
+                $quiz->multiple_attempts_allowed())) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**

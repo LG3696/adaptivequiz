@@ -211,7 +211,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $output .= $this->edit_quiz_button($viewobj);
             }
         }
-        if (!$viewobj->buttontext) {
+        if (!$viewobj->buttontext && $viewobj->canmanage) {
             $output .= get_string('noquestions', 'adaptivequiz');
             $output .= $this->edit_quiz_button($viewobj);
         }

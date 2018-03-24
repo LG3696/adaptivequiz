@@ -294,6 +294,9 @@ class condition_part {
      */
     public function is_fullfilled(attempt $attempt) {
         $referencedelement = block_element::load($attempt->get_quiz(), $this->elementid);
+        if (is_null($referencedelement)) {
+            return false;
+        }
         $achievedgrade = $referencedelement->get_grade($attempt);
         if (is_null($achievedgrade)) {
             return false;

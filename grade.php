@@ -30,8 +30,7 @@ $id = required_param('id', PARAM_INT);// Course module ID.
 $itemnumber = optional_param('itemnumber', 0, PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT); // Graded user ID (optional).
 
-$cm = get_coursemodule_from_id('adaptivequiz', $id);
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 // Check login.
 require_login($course, false, $cm);

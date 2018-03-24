@@ -69,6 +69,14 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();
+        
+        $gradingoptions = array(
+            0 => get_string('grademethod_oneattempt', 'adaptivequiz'),
+            1 => get_string('grademethod_bestattempt', 'adaptivequiz'),
+            2 => get_string('grademethod_lastattempt', 'adaptivequiz')
+        );
+        $mform->addElement('select', 'grademethod', get_string('grademethod', 'adaptivequiz'), $gradingoptions);
+        $mform->setDefault('grademethod', 0);
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
