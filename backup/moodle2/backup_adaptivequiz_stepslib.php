@@ -84,8 +84,11 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         
         $blockelements = new backup_nested_element('block_elements');
         
-        $blockelement = new backup_nested_element('block_element', array('id'), array('blockid',
-                'blockelement', 'type', 'grade', 'slot'));
+        $blockelementquestion = new backup_nested_element('block_element_question', array('id'), array('blockid',
+            'blockelement', 'type', 'grade', 'slot'));
+        
+        $blockelementblock = new backup_nested_element('block_element_block', array('id'), array('blockid',
+            'blockelement', 'type', 'grade', 'slot'));
 
         $conditions = new backup_nested_element('conditions');
 
@@ -124,9 +127,10 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $blocks->add_child($block);
         
         $adaptivequiz->add_child($blockelements);
-        $blockelements->add_child($blockelement);
+        $blockelements->add_child($blockelementquestion);
+        $blockelements->add_child($blockelementblock);
         
-        $blockelement->add_child($conditionparts);
+        $adaptivequiz->add_child($conditionparts);
         $conditionparts->add_child($conditionpart);
         
         $adaptivequiz->add_child($feedbackblocks);
@@ -173,26 +177,33 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         
         if (count($conditionIds) > 0) {
             $sqlParams = implode(", ", $conditionIds);
-            $sql = 'SELECT * FROM mdl_adaptivequiz_condition WHERE id IN (' . $sqlParams . ');';
+            $sql = 'SELECT * FROM {adaptivequiz_condition} WHERE id IN (' . $sqlParams . ');';
             $condition->set_source_sql($sql, array());
         }
         
         if (count($blockids) > 0) {
             $sqlParams = implode(", ", $blockids);
-            $sql = 'SELECT * FROM mdl_adaptivequiz_block WHERE id IN (' . $sqlParams . ');';
+            $sql = 'SELECT * FROM {adaptivequiz_block} WHERE id IN (' . $sqlParams . ');';
             $block->set_source_sql($sql, array());
         }
         
         if (count($blockelementids) > 0) {
             $sqlParams = implode(", ", $blockelementids);
-            $sql = 'SELECT * FROM mdl_adaptivequiz_qinstance WHERE id IN (' . $sqlParams . ');';
-            $blockelement->set_source_sql($sql, array());
+            $questionsql = 'SELECT * FROM {adaptivequiz_qinstance} WHERE id IN (' . $sqlParams . ') AND type = 0;';
+            $blockelementquestion->set_source_sql($questionsql, array());
+            $blocksql = 'SELECT * FROM {adaptivequiz_qinstance} WHERE id IN (' . $sqlParams . ') AND type = 1;';
+            $blockelementblock->set_source_sql($blocksql, array());
         }
         
         $conditionpart->set_source_table('adaptivequiz_condition_part', array('on_qinstance' => backup::VAR_PARENTID));
         $feedbackblock->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
         $feedbackuse->set_source_table('adaptivequiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
-
+        
+        // Define id annotations.
+        $blockelementquestion->annotate_ids('question', 'blockelement');
+        $grade->annotate_ids('user', 'userid');
+        $attempt->annotate_ids('user', 'userid');
+        
         // Define file annotations (we do not use itemid in this example).
         $adaptivequiz->annotate_files('mod_adaptivequiz', 'intro', null);
 

@@ -56,9 +56,10 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
             $this->add_question_usages($quizattempt, $paths);
         }
         $paths[] = new restore_path_element('block', '/activity/adaptivequiz/blocks/block');
-        $paths[] = new restore_path_element('block_element', '/activity/adaptivequiz/block_elements/block_element');
+        $paths[] = new restore_path_element('block_element_question', '/activity/adaptivequiz/block_elements/block_element_question');
+        $paths[] = new restore_path_element('block_element_block', '/activity/adaptivequiz/block_elements/block_element_block');
         $paths[] = new restore_path_element('condition', '/activity/adaptivequiz/conditions/condition');
-        $paths[] = new restore_path_element('condition_part', '/activity/adaptivequiz/block_elements/block_element/condition_parts/condition_part');
+        $paths[] = new restore_path_element('condition_part', '/activity/adaptivequiz/condition_parts/condition_part');
         $paths[] = new restore_path_element('feedback_block', '/activity/adaptivequiz/feedback_blocks/feedback_block');
         $paths[] = new restore_path_element('feedback_use', '/activity/adaptivequiz/feedback_blocks/feedback_block/feedback_uses/feedback_use');
         
@@ -152,7 +153,7 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         $this->set_mapping('block', $oldid, $newitemid);
     }
     
-    protected function process_block_element($data) {
+    protected function process_block_element_question($data) {
         global $DB;
         
         $userinfo = $this->get_setting_value('userinfo');
@@ -160,11 +161,21 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
         $oldid = $data->id;
         
         $data->blockid = $this->get_mappingid('block', $data->blockid);
-        if ($data->type == 0) { // question
-            $data->blockelement = $this->get_mappingid('question', $data->blockelement);
-        } else { // block
-            $data->blockelement = $this->get_mappingid('block', $data->blockelement);
-        }
+        $data->blockelement = $this->get_mappingid('question', $data->blockelement);
+        
+        $newitemid = $DB->insert_record('adaptivequiz_qinstance', $data);
+        $this->set_mapping('block_element', $oldid, $newitemid);
+    }
+    
+    protected function process_block_element_block($data) {
+        global $DB;
+        
+        $userinfo = $this->get_setting_value('userinfo');
+        $data = (object) $data;
+        $oldid = $data->id;
+        
+        $data->blockid = $this->get_mappingid('block', $data->blockid);
+        $data->blockelement = $this->get_mappingid('block', $data->blockelement);
         
         $newitemid = $DB->insert_record('adaptivequiz_qinstance', $data);
         $this->set_mapping('block_element', $oldid, $newitemid);
