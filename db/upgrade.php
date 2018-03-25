@@ -41,21 +41,21 @@ function xmldb_adaptivequiz_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
-    
+
     if ($oldversion < 2018032500) {
-        
-        // Define field grademethod to be added to adaptivequiz.
+
+            // Define field grademethod to be added to adaptivequiz.
         $table = new xmldb_table('adaptivequiz');
         $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'timemodified');
-        
+
         // Conditionally launch add field grademethod.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         // Adaptivequiz savepoint reached.
         upgrade_mod_savepoint(true, 2018032500, 'adaptivequiz');
     }
-    
+
     return true;
 }

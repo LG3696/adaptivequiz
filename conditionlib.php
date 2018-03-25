@@ -34,11 +34,11 @@ defined('MOODLE_INTERNAL') || die();
  */
 class condition {
     /** @var int the id of this condition. */
-    var $id = 0;
+    protected $id = 0;
     /** @var array the parts this condition is made from. */
-    var $parts = null;
+    protected $parts = null;
     /** @var bool whether the parts are connected with and. Otherwise they are connected with or. */
-    var $useand = true;
+    protected $useand = true;
 
     // Constructor =============================================================
     /**
@@ -302,17 +302,17 @@ class condition_part {
             return false;
         }
         switch ($this->type) {
-            case condition_part::LESS:
+            case self::LESS:
                 return $achievedgrade < $this->grade;
-            case condition_part::LESS_OR_EQUAL:
+            case self::LESS_OR_EQUAL:
                 return $achievedgrade <= $this->grade;
-            case condition_part::GREATER:
+            case self::GREATER:
                 return $achievedgrade > $this->grade;
-            case condition_part::GREATER_OR_EQUAL:
+            case self::GREATER_OR_EQUAL:
                 return $achievedgrade >= $this->grade;
-            case condition_part::EQUAL:
+            case self::EQUAL:
                 return $achievedgrade == $this->grade;
-            case condition_part::NOT_EQUAL:
+            case self::NOT_EQUAL:
                 return $achievedgrade != $this->grade;
             default:
                 debugging('Unsupported condition part type: ' . $this->type);

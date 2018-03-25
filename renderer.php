@@ -264,13 +264,13 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
            array('action' => $processurl, 'method' => 'post',
                'enctype' => 'multipart/form-data', 'accept-charset' => 'utf-8',
                'id' => 'responseform'));
-           
-        // The progress bar
+
+        // The progress bar.
         $progress = floor(($slot - 1) * 100 / $attempt->get_quiz()->get_slotcount());
         $progressbar = \html_writer::div('', 'bar',
             array('role' => 'progressbar', 'style' => 'width: ' . $progress . '%;'));
         $output .= \html_writer::div($progressbar, 'progress');
-        
+
         $output .= html_writer::start_tag('div');
 
         $output .= $attempt->get_quba()->render_question($slot, $options);
