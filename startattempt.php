@@ -49,7 +49,7 @@ $adaptivequiz  = adaptivequiz::load($cm->instance);
 
 if (attempt::may_start_new_attempt($adaptivequiz, $USER->id)) {
     $attempt = attempt::create($adaptivequiz, $USER->id, $canpreview);
-    
+
     // Redirect to the attempt page.
     redirect($attempt->attempt_url());
 } else {

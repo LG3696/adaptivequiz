@@ -151,7 +151,7 @@ class attempt {
     public static function create(adaptivequiz $quiz, $userid, $preview = false) {
         global $DB;
 
-        $quba = attempt::create_quba($quiz);
+        $quba = self::create_quba($quiz);
 
         $override = $DB->get_records('adaptivequiz_attempts', array('userid' => $userid, 'preview' => 1));
 
@@ -476,9 +476,9 @@ class attempt {
      */
     public static function state_name($state) {
         switch ($state) {
-            case attempt::IN_PROGRESS:
+            case self::IN_PROGRESS:
                 return get_string('stateinprogress', 'adaptivequiz');
-            case attempt::FINISHED:
+            case self::FINISHED:
                 return get_string('statefinished', 'adaptivequiz');
             default:
                 throw new coding_exception('Unknown quiz attempt state.');
@@ -507,13 +507,12 @@ class attempt {
                             array_values($attemptrows));
         return $attempts;
     }
-    
+
     /**
      * Determines wether a user may start a new attempt.
-     * 
+     *
      * @param adaptivequiz $quiz the quiz for which to check.
      * @param int $userid the id of the user wanting to start a new attempt.
-     *
      * @return bool true if a new attempt may be started.
      */
     public static function may_start_new_attempt(adaptivequiz $quiz, $userid) {
@@ -522,13 +521,13 @@ class attempt {
         if (has_capability('mod/adaptivequiz:preview', $context)) {
             return true;
         }
-        
+
         if (has_capability('mod/adaptivequiz:attempt', $context) &&
-            (count(attempt::get_user_attempts($quiz->get_id(), $userid)) == 0 ||
+            (count(self::get_user_attempts($quiz->get_id(), $userid)) == 0 ||
                 $quiz->multiple_attempts_allowed())) {
             return true;
         }
-        
+
         return false;
     }
 
