@@ -65,7 +65,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
 
         // Define the root element describing the adaptivequiz instance.
         $adaptivequiz = new backup_nested_element('adaptivequiz', array('id'), array(
-                'name', 'intro', 'introformat', 'grade', 'maxgrade', 'mainblock'));
+                'name', 'intro', 'introformat', 'grade', 'maxgrade', 'grademethod', 'mainblock'));
 
         // Define elements.
         $grades = new backup_nested_element('grades');
@@ -82,28 +82,28 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
 
         $block = new backup_nested_element('block', array('id'), array('name', 'conditionid'));
         
-        $blockElements = new backup_nested_element('block_elements');
+        $blockelements = new backup_nested_element('block_elements');
         
-        $blockElement = new backup_nested_element('block_element', array('id'), array('blockid',
+        $blockelement = new backup_nested_element('block_element', array('id'), array('blockid',
                 'blockelement', 'type', 'grade', 'slot'));
 
         $conditions = new backup_nested_element('conditions');
 
         $condition = new backup_nested_element('condition', array('id'), array('useand'));
         
-        $conditionParts = new backup_nested_element('condition_parts');
+        $conditionparts = new backup_nested_element('condition_parts');
         
-        $conditionPart = new backup_nested_element('condition_part', array('id'),
+        $conditionpart = new backup_nested_element('condition_part', array('id'),
                 array('on_qinstance', 'type', 'grade', 'conditionid'));
         
-        $feedbackBlocks = new backup_nested_element('feedback_blocks');
+        $feedbackblocks = new backup_nested_element('feedback_blocks');
         
-        $feedbackBlock = new backup_nested_element('feedback_block', array('id'),
+        $feedbackblock = new backup_nested_element('feedback_block', array('id'),
                 array('name', 'quizid', 'conditionid', 'feedbacktext'));
         
-        $feedbackUses = new backup_nested_element('feedback_uses');
+        $feedbackuses = new backup_nested_element('feedback_uses');
         
-        $feedbackUse = new backup_nested_element('feedback_use', array('id'),
+        $feedbackuse = new backup_nested_element('feedback_use', array('id'),
                 array('feedbackblockid', 'questioninstanceid'));
 
         // This module is using questions, so produce the related question states and sessions
@@ -123,44 +123,44 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $adaptivequiz->add_child($blocks);
         $blocks->add_child($block);
         
-        $adaptivequiz->add_child($blockElements);
-        $blockElements->add_child($blockElement);
+        $adaptivequiz->add_child($blockelements);
+        $blockelements->add_child($blockelement);
         
-        $blockElement->add_child($conditionParts);
-        $conditionParts->add_child($conditionPart);
+        $blockelement->add_child($conditionparts);
+        $conditionparts->add_child($conditionpart);
         
-        $adaptivequiz->add_child($feedbackBlocks);
-        $feedbackBlocks->add_child($feedbackBlock);
+        $adaptivequiz->add_child($feedbackblocks);
+        $feedbackblocks->add_child($feedbackblock);
         
-        $feedbackBlock->add_child($feedbackUses);
-        $feedbackUses->add_child($feedbackUse);
+        $feedbackblock->add_child($feedbackuses);
+        $feedbackuses->add_child($feedbackuse);
         
         // Get ids.
         $cm = get_coursemodule_from_id('adaptivequiz', $this->cmid, 0, false, MUST_EXIST);
         $quizid = $cm->instance;
-        $quizInstance = adaptivequiz::load($quizid);
-        $mainblock = block::load($quizInstance, $quizInstance->get_main_block()->get_id());
-        $arrayOfBlocks = $mainblock->get_blocks();
-        $blockIds = array_merge(array($mainblock->get_id()),
+        $quizinstance = adaptivequiz::load($quizid);
+        $mainblock = block::load($quizinstance, $quizinstance->get_main_block()->get_id());
+        
+        $blockids = array_merge(array($mainblock->get_id()),
                         array_map(
                             function(block_element $blockelement) { return $blockelement->get_element()->get_id(); },
-                            $arrayOfBlocks
+                            $mainblock->get_blocks()
                         )
                     );
-        $blockElementIds = array_map(
+        $blockelementids = array_map(
                 function(block_element $blockelement) { return $blockelement->get_id(); },
                 $mainblock->get_elements()
                 );
-        $blockConditionIds = array_map(
+        $blockconditionids = array_map(
                 function(block_element $blockelement) { return $blockelement->get_element()->get_condition()->get_id(); },
-                $arrayOfBlocks
+                $mainblock->get_blocks()
                 );
-        $feedbackBlockRecords = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $quizid));
-        $feedbackblockConditionIds = array_map(
+        $feedbackblockrecords = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $quizid));
+        $feedbackblockconditionids = array_map(
                 function($record) { return $record->conditionid; },
-                $feedbackBlockRecords
+                $feedbackblockrecords
                 ); 
-        $conditionIds = array_merge($blockConditionIds, $feedbackblockConditionIds);
+        $conditionIds = array_merge($blockconditionids, $feedbackblockconditionids);
 
         // Define data sources.
         $adaptivequiz->set_source_table('adaptivequiz', array('id' => backup::VAR_ACTIVITYID));
@@ -177,23 +177,21 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
             $condition->set_source_sql($sql, array());
         }
         
-        if (count($blockIds) > 0) {
-            $sqlParams = implode(", ", $blockIds);
+        if (count($blockids) > 0) {
+            $sqlParams = implode(", ", $blockids);
             $sql = 'SELECT * FROM mdl_adaptivequiz_block WHERE id IN (' . $sqlParams . ');';
             $block->set_source_sql($sql, array());
         }
         
-        if (count($blockElementIds) > 0) {
-            $sqlParams = implode(", ", $blockElementIds);
+        if (count($blockelementids) > 0) {
+            $sqlParams = implode(", ", $blockelementids);
             $sql = 'SELECT * FROM mdl_adaptivequiz_qinstance WHERE id IN (' . $sqlParams . ');';
-            $blockElement->set_source_sql($sql, array());
+            $blockelement->set_source_sql($sql, array());
         }
         
-        $conditionPart->set_source_table('adaptivequiz_condition_part', array('on_qinstance' => backup::VAR_PARENTID));
-        
-        $feedbackBlock->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
-        
-        $feedbackUse->set_source_table('adaptivequiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
+        $conditionpart->set_source_table('adaptivequiz_condition_part', array('on_qinstance' => backup::VAR_PARENTID));
+        $feedbackblock->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
+        $feedbackuse->set_source_table('adaptivequiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
 
         // Define file annotations (we do not use itemid in this example).
         $adaptivequiz->annotate_files('mod_adaptivequiz', 'intro', null);

@@ -154,6 +154,8 @@ class restore_adaptivequiz_activity_structure_step extends restore_questions_act
     
     protected function process_block_element($data) {
         global $DB;
+        
+        $userinfo = $this->get_setting_value('userinfo');
         $data = (object) $data;
         $oldid = $data->id;
         
