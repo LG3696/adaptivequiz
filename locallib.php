@@ -60,6 +60,7 @@ class adaptivequiz {
      * @param int $id the id of this quiz.
      * @param int $cmid the course module id for this quiz.
      * @param int $mainblockid the id of the main block of this adaptive quiz.
+     * @param int $grademethod the method used for grading.
      * @param int $maxgrade the best attainable grade of this quiz.
      */
     public function __construct($id, $cmid, $mainblockid, $grademethod, $maxgrade) {
@@ -267,7 +268,7 @@ class adaptivequiz {
             foreach ($attempts as $attempt) {
                 $thisgrade = $attempt->get_sumgrades();
                 if ($thisgrade > $max) {
-                    $max = $thisgrade; 
+                    $max = $thisgrade;
                 }
             }
             $bestgrade = $max;
@@ -340,19 +341,19 @@ class adaptivequiz {
             return false;
         }
     }
-    
+
     /**
      * Returns the grading method used by this quiz.
-     * 
+     *
      * @return int 0 for one attempt, 1 for best attempt, 2 for last attempt.
      */
     public function get_grademethod() {
         return $this->grademethod;
     }
-    
+
     /**
      * Is a student allowed to try this quiz multiple times?
-     * 
+     *
      * @return bool true if the quiz may be taken multiple times by one student.
      */
     public function multiple_attempts_allowed() {
