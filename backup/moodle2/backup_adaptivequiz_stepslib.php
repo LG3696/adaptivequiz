@@ -179,6 +179,8 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
             $sqlParams = implode(", ", $conditionIds);
             $sql = 'SELECT * FROM {adaptivequiz_condition} WHERE id IN (' . $sqlParams . ');';
             $condition->set_source_sql($sql, array());
+            $sql = 'SELECT * FROM {adaptivequiz_condition_part} WHERE conditionid IN (' . $sqlParams . ');';
+            $conditionpart->set_source_sql($sql, array());
         }
         
         if (count($blockids) > 0) {
@@ -195,7 +197,6 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
             $blockelementblock->set_source_sql($blocksql, array());
         }
         
-        $conditionpart->set_source_table('adaptivequiz_condition_part', array('on_qinstance' => backup::VAR_PARENTID));
         $feedbackblock->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
         $feedbackuse->set_source_table('adaptivequiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
         
