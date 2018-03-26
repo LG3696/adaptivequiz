@@ -87,7 +87,7 @@ $summarydata['timetaken'] = array(
 
 $a = new stdClass();
 $a->grade = $ddtaquiz->format_grade($attempt->get_sumgrades());
-$a->maxgrade = $ddtaquiz>format_grade($ddtaquiz->get_maxgrade());
+$a->maxgrade = $ddtaquiz->format_grade($ddtaquiz->get_maxgrade());
 $summarydata['marks'] = array(
     'title'   => get_string('marks', 'ddtaquiz'),
     'content' => get_string('outofshort', 'ddtaquiz', $a));
