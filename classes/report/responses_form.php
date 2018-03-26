@@ -17,12 +17,12 @@
 /**
  * This file defines the setting form for the quiz responses report.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,12 +38,12 @@ class responses_form extends attempts_form {
     protected function other_preference_fields(\MoodleQuickForm $mform) {
         $mform->addGroup(array(
             $mform->createElement('advcheckbox', 'qtext', '',
-                get_string('questiontext', 'adaptivequiz')),
+                get_string('questiontext', 'ddtaquiz')),
             $mform->createElement('advcheckbox', 'resp', '',
-                get_string('response', 'adaptivequiz')),
+                get_string('response', 'ddtaquiz')),
             $mform->createElement('advcheckbox', 'right', '',
-                get_string('rightanswer', 'adaptivequiz')),
-        ), 'coloptions', get_string('showthe', 'adaptivequiz'), array(' '), false);
+                get_string('rightanswer', 'ddtaquiz')),
+        ), 'coloptions', get_string('showthe', 'ddtaquiz'), array(' '), false);
         $mform->disabledIf('qtext', 'attempts', 'eq', attempts::ENROLLED_WITHOUT);
         $mform->disabledIf('resp',  'attempts', 'eq', attempts::ENROLLED_WITHOUT);
         $mform->disabledIf('right', 'attempts', 'eq', attempts::ENROLLED_WITHOUT);
@@ -54,7 +54,7 @@ class responses_form extends attempts_form {
 
         if ($data['attempts'] != attempts::ENROLLED_WITHOUT && !(
                 $data['qtext'] || $data['resp'] || $data['right'])) {
-            $errors['coloptions'] = get_string('reportmustselectstate', 'adaptivequiz');
+            $errors['coloptions'] = get_string('reportmustselectstate', 'ddtaquiz');
         }
 
         return $errors;

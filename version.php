@@ -20,14 +20,14 @@
  * Setting the $plugin->version to 0 prevents the plugin from being installed.
  * See https://docs.moodle.org/dev/version.php for more info.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_adaptivequiz';
+$plugin->component = 'mod_ddtaquiz';
 $plugin->version = 2018032500;
 $plugin->release = 'v0.0';
 $plugin->requires = 2014051200;

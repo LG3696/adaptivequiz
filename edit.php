@@ -15,27 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Displays a page to edit an adaptive quiz.
+ * Displays a page to edit an ddta quiz.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
 $blockid = optional_param('bid', 0, PARAM_INT);
 $addquestion = optional_param('addquestion', 0, PARAM_INT);
 $save = optional_param('save', 0, PARAM_INT);
 
-list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) = question_edit_setup('editq', '/mod/adaptivequiz/edit.php', true);
+list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) = question_edit_setup('editq', '/mod/ddtaquiz/edit.php', true);
 
 // Check login.
 require_login($cm->course, false, $cm);
 
-require_capability('mod/adaptivequiz:manage', $contexts->lowest());
+require_capability('mod/ddtaquiz:manage', $contexts->lowest());
 
 // Trigger event.
 $params = array(
@@ -45,7 +45,7 @@ $params = array(
         'quizid' => $quiz->id
     )
 );
-$event = \mod_adaptivequiz\event\edit_page_viewed::create($params);
+$event = \mod_ddtaquiz\event\edit_page_viewed::create($params);
 $event->trigger();
 
 // If no block id was passed, we default to editing the main block of the quiz.
@@ -57,9 +57,9 @@ $thispageurl->param('bid', $blockid);
 
 $PAGE->set_url($thispageurl);
 
-$adaptivequiz = adaptivequiz::load($quiz->id);
-$block = block::load($adaptivequiz, $blockid);
-$feedback = feedback::get_feedback($adaptivequiz);
+$ddtaquiz = ddtaquiz::load($quiz->id);
+$block = block::load($ddtaquiz, $blockid);
+$feedback = feedback::get_feedback($ddtaquiz);
 if ($save) {
     // Save the name.
     $name = required_param('blockname', PARAM_TEXT);
@@ -79,14 +79,14 @@ if ($save) {
     $block->update_order($order);
 
     // Update the maximum grade of the quiz in case it changed.
-    $adaptivequiz->update_maxgrade();
+    $ddtaquiz->update_maxgrade();
 
     // Take different actions, depending on which submit button was clicked.
     if (optional_param('done', 0, PARAM_INT)) {
         if ($parentid = $block->get_parentid()) {
-            $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $parentid));
+            $nexturl = new moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $cmid, 'bid' => $parentid));
         } else {
-            $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
+            $nexturl = new moodle_url('/mod/ddtaquiz/view.php', array('id' => $cmid));
         }
     } else if ($delete = optional_param('delete', 0, PARAM_INT)) {
         $block->remove_child($delete);
@@ -95,12 +95,12 @@ if ($save) {
         $feedback->remove_block($feedbackdelete);
         $nexturl = $thispageurl;
     } else if ($edit = optional_param('edit', 0, PARAM_INT)) {
-        $element = block_element::load($adaptivequiz, $edit);
+        $element = block_element::load($ddtaquiz, $edit);
         $elementparams = array('cmid' => $cmid, 'returnurl' => $thispageurl->out_as_local_url(false));
         $nexturl = $element->get_edit_url($elementparams);
     } else if ($feedbackedit = optional_param('feedbackedit', 0, PARAM_INT)) {
-        $feedbackblock = feedback_block::load($feedbackedit, $adaptivequiz);
-        $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
+        $feedbackblock = feedback_block::load($feedbackedit, $ddtaquiz);
+        $nexturl = new moodle_url('/mod/ddtaquiz/editfeedback.php',
             array('cmid' => $cmid, 'bid' => $feedbackedit));
     } else if ($questionid = optional_param('addfromquestionbank', 0, PARAM_INT)) {
         $block->add_question($questionid);
@@ -116,9 +116,9 @@ if ($save) {
         }
         $nexturl = $thispageurl;
     } else if (optional_param('addnewblock', 0, PARAM_INT)) {
-        $newblock = block::create($adaptivequiz, get_string('blockname', 'adaptivequiz'));
+        $newblock = block::create($ddtaquiz, get_string('blockname', 'ddtaquiz'));
         $block->add_subblock($newblock);
-        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
+        $nexturl = new moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $cmid, 'bid' => $newblock->get_id()));
     } else if ($qtype = optional_param('qtype', null, PARAM_TEXT)) {
         $nexturl = new moodle_url('/question/question.php', array(
             'category' => question_make_default_categories($contexts->all())->id,
@@ -129,11 +129,11 @@ if ($save) {
             'appendqnumstring' => 'addquestion'
         ));
     } else if (optional_param('addfeedback', 0, PARAM_INT)) {
-        $feedbackblock = feedback_block::create($adaptivequiz, get_string('feedbackblockdefaultname', 'adaptivequiz'));
-        $nexturl = new moodle_url('/mod/adaptivequiz/editfeedback.php',
+        $feedbackblock = feedback_block::create($ddtaquiz, get_string('feedbackblockdefaultname', 'ddtaquiz'));
+        $nexturl = new moodle_url('/mod/ddtaquiz/editfeedback.php',
             array('cmid' => $cmid, 'bid' => $feedbackblock->get_id()));
     } else {
-        $nexturl = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
+        $nexturl = new moodle_url('/mod/ddtaquiz/view.php', array('id' => $cmid));
     }
     redirect($nexturl);
 }
@@ -144,12 +144,12 @@ if ($addquestion) {
 
 $PAGE->set_pagelayout('incourse');
 if ($block->is_main_block()) {
-    $PAGE->set_title(get_string('editingquizx', 'adaptivequiz', format_string($quiz->name)));
+    $PAGE->set_title(get_string('editingquizx', 'ddtaquiz', format_string($quiz->name)));
 } else {
-    $PAGE->set_title(get_string('editingblockx', 'adaptivequiz', format_string($block->get_name())));
+    $PAGE->set_title(get_string('editingblockx', 'ddtaquiz', format_string($block->get_name())));
 }
 
-$output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
+$output = $PAGE->get_renderer('mod_ddtaquiz', 'edit');
 
 echo $OUTPUT->header();
 

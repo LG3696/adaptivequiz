@@ -17,7 +17,7 @@
 /**
  * Back-end code for handling data about specialized feedback.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * A class encapsulating the specialized feedback of an adaptivequiz.
+ * A class encapsulating the specialized feedback of an ddtaquiz.
  *
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -40,19 +40,19 @@ class feedback {
     /**
      * Constructor, assuming we already have the necessary data loaded.
      *
-     * @param adaptivequiz $quiz the quiz the feedback belongs to.
+     * @param ddtaquiz $quiz the quiz the feedback belongs to.
      */
     public function __construct($quiz) {
         $this->quiz = $quiz;
     }
 
     /**
-     * Gets the specialized feedback for an adaptivequiz.
+     * Gets the specialized feedback for an ddtaquiz.
      *
-     * @param adaptivequiz $quiz the adaptivequiz to get the feedback for.
+     * @param ddtaquiz $quiz the ddtaquiz to get the feedback for.
      * @return feedback the feedback for this quiz.
      */
-    public static function get_feedback(adaptivequiz $quiz) {
+    public static function get_feedback(ddtaquiz $quiz) {
         return new feedback($quiz);
     }
 
@@ -65,7 +65,7 @@ class feedback {
         if (is_null($this->feedbackblocks)) {
             global $DB;
 
-            $records = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $this->quiz->get_id()));
+            $records = $DB->get_records('ddtaquiz_feedback_block', array('quizid' => $this->quiz->get_id()));
             $blocks = array_map(function ($block) {
                 return feedback_block::load($block->id, $this->quiz);
             }, $records);
@@ -124,7 +124,7 @@ class feedback {
     public function remove_block($id) {
         global $DB;
 
-        $DB->delete_records('adaptivequiz_feedback_block', array('id' => $id));
+        $DB->delete_records('ddtaquiz_feedback_block', array('id' => $id));
 
         $this->feedbackblocks = null;
     }
@@ -164,7 +164,7 @@ class feedback {
 class feedback_block {
     /** @var int the id of the feedback block. */
     protected $id = 0;
-    /** @var adaptivequiz the quiz, this block belongs to. */
+    /** @var ddtaquiz the quiz, this block belongs to. */
     protected $quiz = null;
     /** @var string the name of this feedback. */
     protected $name = '';
@@ -179,7 +179,7 @@ class feedback_block {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the feedback block.
-     * @param adaptivequiz $quiz the id of the quiz, this block belongs to.
+     * @param ddtaquiz $quiz the id of the quiz, this block belongs to.
      * @param string $name the name of this feedback.
      * @param condition $condition the condition under which to use this feedback instead of the standard feedback.
      * @param string $feedbacktext the feedbacktext.
@@ -196,13 +196,13 @@ class feedback_block {
      * Static function to get a feedback block object from an id.
      *
      * @param int $blockid the feedback block id.
-     * @param adaptivequiz $quiz the id of the quiz, this block belongs to.
+     * @param ddtaquiz $quiz the id of the quiz, this block belongs to.
      * @return feedback_block the new feedback block object.
      */
-    public static function load($blockid, adaptivequiz $quiz) {
+    public static function load($blockid, ddtaquiz $quiz) {
         global $DB;
 
-        $feedback = $DB->get_record('adaptivequiz_feedback_block', array('id' => $blockid));
+        $feedback = $DB->get_record('ddtaquiz_feedback_block', array('id' => $blockid));
 
         $condition = condition::load($feedback->conditionid);
 
@@ -212,11 +212,11 @@ class feedback_block {
     /**
      * Creates a new feedback block in the database.
      *
-     * @param adaptivequiz $quiz the quiz this feedbackblock belongs to.
+     * @param ddtaquiz $quiz the quiz this feedbackblock belongs to.
      * @param string $name the name of the feedback block.
      * @return feedback_block the created feedback block.
      */
-    public static function create(adaptivequiz $quiz, $name) {
+    public static function create(ddtaquiz $quiz, $name) {
         global $DB;
 
         $condition = condition::create();
@@ -227,7 +227,7 @@ class feedback_block {
         $record->conditionid = $condition->get_id();
         $record->feedbacktext = '';
 
-        $blockid = $DB->insert_record('adaptivequiz_feedback_block', $record);
+        $blockid = $DB->insert_record('ddtaquiz_feedback_block', $record);
 
         return new feedback_block($blockid, $quiz, $name, $condition, '');
     }
@@ -248,24 +248,24 @@ class feedback_block {
             $record->name = $name;
             $record->feedbacktext = $feedbacktext;
 
-            $DB->update_record('adaptivequiz_feedback_block', $record);
+            $DB->update_record('ddtaquiz_feedback_block', $record);
         }
 
-        $old = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
+        $old = $DB->get_records('ddtaquiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
         for ($i = 0; $i < max(array(count($usesquestions), count($old))); $i++) {
             if ($i >= count($old)) {
                 $record = new stdClass();
                 $record->feedbackblockid = $this->id;
                 $record->questioninstanceid = $usesquestions[array_keys($usesquestions)[$i]];
-                $DB->insert_record('adaptivequiz_feedback_uses', $record);
+                $DB->insert_record('ddtaquiz_feedback_uses', $record);
             } else if ($i >= count($usesquestions)) {
                 $record = $old[array_keys($old)[$i]];
-                $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $record->id));
+                $DB->delete_records('ddtaquiz_feedback_uses', array('id' => $record->id));
             } else {
                 $record = $old[array_keys($old)[$i]];
                 if ($record->questioninstanceid != $usesquestions[array_keys($usesquestions)[$i]]) {
                     $record->questioninstanceid = $usesquestions[array_keys($usesquestions)[$i]];
-                    $DB->update_record('adaptivequiz_feedback_uses', $record);
+                    $DB->update_record('ddtaquiz_feedback_uses', $record);
                 }
             }
 
@@ -303,7 +303,7 @@ class feedback_block {
         $record = new stdClass();
         $record->id = $this->id;
         $record->name = $name;
-        $DB->update_record('adaptivequiz_feedback_block', $record);
+        $DB->update_record('ddtaquiz_feedback_block', $record);
     }
 
     /**
@@ -318,7 +318,7 @@ class feedback_block {
     /**
      * Returns the quiz this block belongs to.
      *
-     * @return adaptivequiz the quiz this block belongs to.
+     * @return ddtaquiz the quiz this block belongs to.
      */
     public function get_quiz() {
         return $this->quiz;
@@ -341,7 +341,7 @@ class feedback_block {
     public function get_used_question_instances() {
         if (!$this->uses) {
             global $DB;
-            $records = $DB->get_records('adaptivequiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
+            $records = $DB->get_records('ddtaquiz_feedback_uses', array('feedbackblockid' => $this->id), 'id');
             if (is_null($records)) {
                 $records = array();
             }
@@ -380,7 +380,7 @@ class feedback_block {
         $record->feedbackblockid = $this->id;
         $record->questioninstanceid = $questioninstanceid;
 
-        $DB->insert_record('adaptivequiz_feedback_uses', $record);
+        $DB->insert_record('ddtaquiz_feedback_uses', $record);
 
         array_push($this->uses, $questioninstanceid);
     }
@@ -392,7 +392,7 @@ class feedback_block {
      */
     public function remove_uses($id) {
         global $DB;
-        $DB->delete_records('adaptivequiz_feedback_uses', array('id' => $id));
+        $DB->delete_records('ddtaquiz_feedback_uses', array('id' => $id));
         $this->uses = null;
     }
 

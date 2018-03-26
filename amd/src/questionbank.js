@@ -16,7 +16,7 @@
 /**
  * Javascript for the question type chooser, when adding a new question to a block.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -45,7 +45,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                     visible: false,
                     postmethod: 'form',
                     footerContent: null,
-                    extraClasses: ['mod_adaptivequiz_qbank_dialogue']
+                    extraClasses: ['mod_ddtaquiz_qbank_dialogue']
             };
             // Create the panel
             this.panel = new M.core.dialogue(params);
@@ -146,7 +146,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
             args.category = $('#id_selectacategory').val();
             this.panel.bodyNode.setHTML($('div.questionbankloading').parent().html());
             var promises = ajax.call([{
-                methodname: 'mod_adaptivequiz_get_questionbank', 
+                methodname: 'mod_ddtaquiz_get_questionbank', 
                 args: args
             }]);
             promises[0].done($.proxy(this.questionbank_loaded, this)).fail($.proxy(this.questionbank_load_failed, this));

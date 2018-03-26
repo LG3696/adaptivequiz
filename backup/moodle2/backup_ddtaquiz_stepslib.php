@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the backup steps that will be used by the backup_adaptivequiz_activity_task
+ * Define all the backup steps that will be used by the backup_ddtaquiz_activity_task
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @category  backup
  * @copyright 2018 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,16 +25,16 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 /**
- * Define the complete adaptivequiz structure for backup, with file and id annotations
+ * Define the complete ddtaquiz structure for backup, with file and id annotations
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @category  backup
  * @copyright 2018 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_adaptivequiz_activity_structure_step extends backup_questions_activity_structure_step {
+class backup_ddtaquiz_activity_structure_step extends backup_questions_activity_structure_step {
 
     /** @var int the id of this course module. */
     protected $cmid;
@@ -63,8 +63,8 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         // Get know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Define the root element describing the adaptivequiz instance.
-        $adaptivequiz = new backup_nested_element('adaptivequiz', array('id'), array(
+        // Define the root element describing the ddtaquiz instance.
+        $ddtaquiz = new backup_nested_element('ddtaquiz', array('id'), array(
                 'name', 'intro', 'introformat', 'grade', 'maxgrade', 'grademethod', 'mainblock'));
 
         // Define elements.
@@ -114,35 +114,35 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $this->add_question_usages($attempt, 'quba');
 
         // Build the tree.
-        $adaptivequiz->add_child($grades);
+        $ddtaquiz->add_child($grades);
         $grades->add_child($grade);
 
-        $adaptivequiz->add_child($attempts);
+        $ddtaquiz->add_child($attempts);
         $attempts->add_child($attempt);
 
-        $adaptivequiz->add_child($conditions);
+        $ddtaquiz->add_child($conditions);
         $conditions->add_child($condition);
         
-        $adaptivequiz->add_child($blocks);
+        $ddtaquiz->add_child($blocks);
         $blocks->add_child($block);
         
-        $adaptivequiz->add_child($blockelements);
+        $ddtaquiz->add_child($blockelements);
         $blockelements->add_child($blockelementquestion);
         $blockelements->add_child($blockelementblock);
         
-        $adaptivequiz->add_child($conditionparts);
+        $ddtaquiz->add_child($conditionparts);
         $conditionparts->add_child($conditionpart);
         
-        $adaptivequiz->add_child($feedbackblocks);
+        $ddtaquiz->add_child($feedbackblocks);
         $feedbackblocks->add_child($feedbackblock);
         
         $feedbackblock->add_child($feedbackuses);
         $feedbackuses->add_child($feedbackuse);
         
         // Get ids.
-        $cm = get_coursemodule_from_id('adaptivequiz', $this->cmid, 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('ddtaquiz', $this->cmid, 0, false, MUST_EXIST);
         $quizid = $cm->instance;
-        $quizinstance = adaptivequiz::load($quizid);
+        $quizinstance = ddtaquiz::load($quizid);
         $mainblock = block::load($quizinstance, $quizinstance->get_main_block()->get_id());
         
         $blockids = array_merge(array($mainblock->get_id()),
@@ -159,7 +159,7 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
                 function(block_element $blockelement) { return $blockelement->get_element()->get_condition()->get_id(); },
                 $mainblock->get_blocks()
                 );
-        $feedbackblockrecords = $DB->get_records('adaptivequiz_feedback_block', array('quizid' => $quizid));
+        $feedbackblockrecords = $DB->get_records('ddtaquiz_feedback_block', array('quizid' => $quizid));
         $feedbackblockconditionids = array_map(
                 function($record) { return $record->conditionid; },
                 $feedbackblockrecords
@@ -167,38 +167,38 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $conditionIds = array_merge($blockconditionids, $feedbackblockconditionids);
 
         // Define data sources.
-        $adaptivequiz->set_source_table('adaptivequiz', array('id' => backup::VAR_ACTIVITYID));
+        $ddtaquiz->set_source_table('ddtaquiz', array('id' => backup::VAR_ACTIVITYID));
 
         // These elements only happen if we are including user info.
         if ($userinfo) {
-            $grade->set_source_table('adaptivequiz_grades', array('quiz' => backup::VAR_PARENTID));
-            $attempt->set_source_table('adaptivequiz_attempts', array('quiz' => backup::VAR_PARENTID));
+            $grade->set_source_table('ddtaquiz_grades', array('quiz' => backup::VAR_PARENTID));
+            $attempt->set_source_table('ddtaquiz_attempts', array('quiz' => backup::VAR_PARENTID));
         }
         
         if (count($conditionIds) > 0) {
             $sqlParams = implode(", ", $conditionIds);
-            $sql = 'SELECT * FROM {adaptivequiz_condition} WHERE id IN (' . $sqlParams . ');';
+            $sql = 'SELECT * FROM {ddtaquiz_condition} WHERE id IN (' . $sqlParams . ');';
             $condition->set_source_sql($sql, array());
-            $sql = 'SELECT * FROM {adaptivequiz_condition_part} WHERE conditionid IN (' . $sqlParams . ');';
+            $sql = 'SELECT * FROM {ddtaquiz_condition_part} WHERE conditionid IN (' . $sqlParams . ');';
             $conditionpart->set_source_sql($sql, array());
         }
         
         if (count($blockids) > 0) {
             $sqlParams = implode(", ", $blockids);
-            $sql = 'SELECT * FROM {adaptivequiz_block} WHERE id IN (' . $sqlParams . ');';
+            $sql = 'SELECT * FROM {ddtaquiz_block} WHERE id IN (' . $sqlParams . ');';
             $block->set_source_sql($sql, array());
         }
         
         if (count($blockelementids) > 0) {
             $sqlParams = implode(", ", $blockelementids);
-            $questionsql = 'SELECT * FROM {adaptivequiz_qinstance} WHERE id IN (' . $sqlParams . ') AND type = 0;';
+            $questionsql = 'SELECT * FROM {ddtaquiz_qinstance} WHERE id IN (' . $sqlParams . ') AND type = 0;';
             $blockelementquestion->set_source_sql($questionsql, array());
-            $blocksql = 'SELECT * FROM {adaptivequiz_qinstance} WHERE id IN (' . $sqlParams . ') AND type = 1;';
+            $blocksql = 'SELECT * FROM {ddtaquiz_qinstance} WHERE id IN (' . $sqlParams . ') AND type = 1;';
             $blockelementblock->set_source_sql($blocksql, array());
         }
         
-        $feedbackblock->set_source_table('adaptivequiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
-        $feedbackuse->set_source_table('adaptivequiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
+        $feedbackblock->set_source_table('ddtaquiz_feedback_block', array('quizid' => backup::VAR_PARENTID));
+        $feedbackuse->set_source_table('ddtaquiz_feedback_uses', array('feedbackblockid' => backup::VAR_PARENTID));
         
         // Define id annotations.
         $blockelementquestion->annotate_ids('question', 'blockelement');
@@ -206,9 +206,9 @@ class backup_adaptivequiz_activity_structure_step extends backup_questions_activ
         $attempt->annotate_ids('user', 'userid');
         
         // Define file annotations (we do not use itemid in this example).
-        $adaptivequiz->annotate_files('mod_adaptivequiz', 'intro', null);
+        $ddtaquiz->annotate_files('mod_ddtaquiz', 'intro', null);
 
-        // Return the root element (adaptivequiz), wrapped into standard activity structure.
-        return $this->prepare_activity_structure($adaptivequiz);
+        // Return the root element (ddtaquiz), wrapped into standard activity structure.
+        return $this->prepare_activity_structure($ddtaquiz);
     }
 }

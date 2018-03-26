@@ -17,12 +17,12 @@
 /**
  * This file defines the setting form for the quiz overview report.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,6 +40,6 @@ class overview_form extends attempts_form {
 
     protected function other_preference_fields(\MoodleQuickForm $mform) {
         $mform->addElement('selectyesno', 'slotmarks',
-                get_string('showdetailedmarks', 'adaptivequiz'));
+                get_string('showdetailedmarks', 'ddtaquiz'));
     }
 }

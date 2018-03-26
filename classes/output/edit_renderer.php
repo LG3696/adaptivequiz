@@ -15,23 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the edit renderer for the adaptive quiz module.
+ * Defines the edit renderer for the ddta quiz module.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\output;
+namespace mod_ddtaquiz\output;
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 require_once($CFG->dirroot . '/lib/editorlib.php');
 
 use \html_writer;
 
 /**
- * The renderer for the adaptive quiz module.
+ * The renderer for the ddta quiz module.
  *
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -56,13 +56,13 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'bid', 'value' => $block->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
         if ($block->is_main_block()) {
-            $output .= $this->heading(get_string('editingquizx', 'adaptivequiz', format_string($block->get_name())));
+            $output .= $this->heading(get_string('editingquizx', 'ddtaquiz', format_string($block->get_name())));
             $output .= html_writer::empty_tag('input', array('type' => 'hidden',
                 'name' => 'blockname', 'value' => $block->get_name()));
         } else {
             $namefield = html_writer::tag('input', '', array('type' => 'text',
                 'name' => 'blockname', 'value' => $block->get_name()));
-            $output .= $this->heading(get_string('editingblock', 'adaptivequiz') . ' ' . $namefield);
+            $output .= $this->heading(get_string('editingblock', 'ddtaquiz') . ' ' . $namefield);
         }
 
         if (!$block->is_main_block()) {
@@ -75,7 +75,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         $container = '';
         
-        $container .= \html_writer::tag('h3', get_string('questions', 'adaptivequiz'), array('class' => 'questionheader'));
+        $container .= \html_writer::tag('h3', get_string('questions', 'ddtaquiz'), array('class' => 'questionheader'));
         $container .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
 
         $children = $block->get_children();
@@ -97,24 +97,24 @@ class edit_renderer extends \plugin_renderer_base {
             $output .= $this->feedback_block($feedback, $pageurl);
         }
 
-        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
+        $output .= html_writer::tag('button', get_string('done', 'ddtaquiz'),
             array('type' => 'submit', 'name' => 'done', 'value' => 1));
         $output .= html_writer::end_tag('form');
 
         $output .= $this->question_chooser($pageurl, $category);
-        $this->page->requires->js_call_amd('mod_adaptivequiz/questionchooser', 'init');
+        $this->page->requires->js_call_amd('mod_ddtaquiz/questionchooser', 'init');
 
         $output .= $this->questionbank_loading();
-        $this->page->requires->js_call_amd('mod_adaptivequiz/questionbank', 'init');
+        $this->page->requires->js_call_amd('mod_ddtaquiz/questionbank', 'init');
 
-        $this->page->requires->js_call_amd('mod_adaptivequiz/addnewblock', 'init');
+        $this->page->requires->js_call_amd('mod_ddtaquiz/addnewblock', 'init');
 
         if (!$block->is_main_block()) {
             $output .= $this->condition_type_chooser($block->get_condition_candidates());
-            $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
+            $this->page->requires->js_call_amd('mod_ddtaquiz/blockconditions', 'init');
         }
 
-        $this->page->requires->js_call_amd('mod_adaptivequiz/dragdrop', 'init');
+        $this->page->requires->js_call_amd('mod_ddtaquiz/dragdrop', 'init');
 
         return $output;
     }
@@ -280,7 +280,7 @@ class edit_renderer extends \plugin_renderer_base {
     protected function add_menu(\block $block, \moodle_url $pageurl, $category) {
         $menu = new \action_menu();
         $menu->set_alignment(\action_menu::TL, \action_menu::TL);
-        $trigger = html_writer::tag('span', get_string('add', 'adaptivequiz'));
+        $trigger = html_writer::tag('span', get_string('add', 'ddtaquiz'));
         $menu->set_menu_trigger($trigger);
         // The menu appears within an absolutely positioned element causing width problems.
         // Make sure no-wrap is set so that we don't get a squashed menu.
@@ -292,16 +292,16 @@ class edit_renderer extends \plugin_renderer_base {
         // Button to add a question.
         $addaquestion = new \action_menu_link_secondary(
             new \moodle_url('/question/addquestion.php', $params),
-            new \pix_icon('t/add', get_string('addaquestion', 'adaptivequiz'),
-                'moodle', array('class' => 'iconsmall', 'title' => '')), get_string('addaquestion', 'adaptivequiz'),
+            new \pix_icon('t/add', get_string('addaquestion', 'ddtaquiz'),
+                'moodle', array('class' => 'iconsmall', 'title' => '')), get_string('addaquestion', 'ddtaquiz'),
             array('class' => 'cm-edit-action addquestion', 'data-action' => 'addquestion')
             );
         $menu->add($addaquestion);
 
         // Button to add question from question bank.
         $questionbank = new \action_menu_link_secondary($pageurl,
-            new \pix_icon('t/add', get_string('questionbank', 'adaptivequiz'), 'moodle',
-                array('class' => 'iconsmall', 'title' => '')), get_string('questionbank', 'adaptivequiz'),
+            new \pix_icon('t/add', get_string('questionbank', 'ddtaquiz'), 'moodle',
+                array('class' => 'iconsmall', 'title' => '')), get_string('questionbank', 'ddtaquiz'),
             array('class' => 'cm-edit-action questionbank', 'data-action' => 'questionbank',
                 'data-cmid' => $block->get_quiz()->get_cmid(), 'data-bid' => $block->get_id()));
         $menu->add($questionbank);
@@ -310,8 +310,8 @@ class edit_renderer extends \plugin_renderer_base {
         // Button to add a block.
         $addblockurl = new \moodle_url($pageurl, array('addblock' => 1));
         $addablock = new \action_menu_link_secondary($addblockurl,
-            new \pix_icon('t/add', get_string('addablock', 'adaptivequiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
-            get_string('addablock', 'adaptivequiz'),
+            new \pix_icon('t/add', get_string('addablock', 'ddtaquiz'), 'moodle', array('class' => 'iconsmall', 'title' => '')),
+            get_string('addablock', 'ddtaquiz'),
             array('class' => 'cm-edit-action addnewblock'));
         $menu->add($addablock);
 
@@ -327,11 +327,11 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML of the condition block.
      */
     public function condition_block(\condition $condition, $candidates) {
-        $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
+        $header = \html_writer::tag('h3', get_string('conditions', 'ddtaquiz'), array('class' => 'conditionblockheader'));
         $start = \html_writer::start_tag('ul', array('id' => 'condition-list'));
         $conjunctionchooser = $this->conjunction_chooser($condition);
         $conditionlist = \html_writer::div($this->condition($condition, $candidates), 'conditionpartslist');
-        $addcondition = \html_writer::tag('a', get_string('addacondition', 'mod_adaptivequiz'),
+        $addcondition = \html_writer::tag('a', get_string('addacondition', 'ddtaquiz'),
             array('href' => '#', 'class' => 'addblockcondition'));
         $end = \html_writer::end_tag('ul');
         $container = $header . $start . $conjunctionchooser . $conditionlist . $addcondition . $end;
@@ -346,17 +346,17 @@ class edit_renderer extends \plugin_renderer_base {
      */
     protected function conjunction_chooser(\condition $condition) {
         if ($condition->get_useand()) {
-            $options = \html_writer::tag('option', get_string('all', 'adaptivequiz'), array('value' => 1, 'selected' => ''));
-            $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'), array('value' => 0));
+            $options = \html_writer::tag('option', get_string('all', 'ddtaquiz'), array('value' => 1, 'selected' => ''));
+            $options .= \html_writer::tag('option', get_string('atleastone', 'ddtaquiz'), array('value' => 0));
         } else {
-            $options = \html_writer::tag('option', get_string('all', 'adaptivequiz'), array('value' => 1));
-            $options .= \html_writer::tag('option', get_string('atleastone', 'adaptivequiz'),
+            $options = \html_writer::tag('option', get_string('all', 'ddtaquiz'), array('value' => 1));
+            $options .= \html_writer::tag('option', get_string('atleastone', 'ddtaquiz'),
                 array('value' => 0, 'selected' => ''));
         }
 
         $chooser = \html_writer::tag('select', $options, array('name' => 'use_and'));
-        $output = \html_writer::tag('label', get_string('mustfullfill', 'adaptivequiz') . ' ' .
-            $chooser . ' ' . get_string('oftheconditions', 'adaptivequiz'));
+        $output = \html_writer::tag('label', get_string('mustfullfill', 'ddtaquiz') . ' ' .
+            $chooser . ' ' . get_string('oftheconditions', 'ddtaquiz'));
         return \html_writer::div(\html_writer::span($output, 'conjunctionchooserspan'));
     }
 
@@ -367,14 +367,14 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML of the condtion type chooser.
      */
     protected function condition_type_chooser($candidates) {
-        $output = \html_writer::start_tag('form', array('action' => new \moodle_url('/mod/adaptivequiz/view.php'),
+        $output = \html_writer::start_tag('form', array('action' => new \moodle_url('/mod/ddtaquiz/view.php'),
             'id' => 'chooserform', 'method' => 'get'));
         $output .= \html_writer::tag('input', '',
                 array('type' => 'submit', 'name' => 'addpointscondition', 'class' => 'submitbutton',
-                    'value' => get_string('addpointscondition', 'mod_adaptivequiz')));
+                    'value' => get_string('addpointscondition', 'ddtaquiz')));
         $output .= \html_writer::end_tag('form');
         $formdiv = \html_writer::div($output, 'choseform');
-        $header = html_writer::div(get_string('choosecondtiontypetoadd', 'mod_adaptivequiz'), 'chooserheader hd');
+        $header = html_writer::div(get_string('choosecondtiontypetoadd', 'ddtaquiz'), 'chooserheader hd');
         $dialogue = $header . \html_writer::div(\html_writer::div($formdiv, 'choosercontainer'), 'chooserdialogue');
         $container = html_writer::div($dialogue, '',
             array('id' => 'conditiontypechoicecontainer'));
@@ -430,10 +430,10 @@ class edit_renderer extends \plugin_renderer_base {
      */
     protected function points_condition($candidates, $index = '', $part = null) {
         $questionspan = \html_writer::tag('span', $this->question_selector($candidates, $index, $part));
-        $condition = \html_writer::tag('label', get_string('gradeat', 'adaptivequiz') . ' ' . $questionspan,
+        $condition = \html_writer::tag('label', get_string('gradeat', 'ddtaquiz') . ' ' . $questionspan,
             array('class' => 'conditionelement'));
         $comparatorspan = \html_writer::tag('span', $this->comparator_selector($index, $part));
-        $condition .= ' ' . \html_writer::tag('label', get_string('mustbe', 'adaptivequiz') . ' ' . $comparatorspan,
+        $condition .= ' ' . \html_writer::tag('label', get_string('mustbe', 'ddtaquiz') . ' ' . $comparatorspan,
             array('class' => 'conditionelement'));
         $value = 0;
         if ($part) {
@@ -533,7 +533,7 @@ class edit_renderer extends \plugin_renderer_base {
         return html_writer::div(html_writer::div(html_writer::empty_tag('img',
             array('alt' => 'loading', 'class' => 'loading-icon', 'src' => $this->pix_url('i/loading'))),
             'questionbankloading'), 'questionbankloadingcontainer',
-            array('data-title' => get_string('addfromquestionbank', 'adaptivequiz')));
+            array('data-title' => get_string('addfromquestionbank', 'ddtaquiz')));
     }
 
 
@@ -541,11 +541,11 @@ class edit_renderer extends \plugin_renderer_base {
     /**
      * Return the contents of the question bank, to be displayed in the question-bank pop-up.
      *
-     * @param \mod_adaptivequiz\question\bank\custom_view $questionbank the question bank view object.
+     * @param \mod_ddtaquiz\question\bank\custom_view $questionbank the question bank view object.
      * @param array $pagevars the variables from {@link \question_edit_setup()}.
      * @return string HTML to output / send back in response to an AJAX request.
      */
-    public function question_bank_contents(\mod_adaptivequiz\question\bank\custom_view $questionbank, array $pagevars) {
+    public function question_bank_contents(\mod_ddtaquiz\question\bank\custom_view $questionbank, array $pagevars) {
         return $questionbank->render('editq', $pagevars['page'], $pagevars['qperpage'], $pagevars['cat'], true, false, false);
     }
 
@@ -557,14 +557,14 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML of the condition block.
      */
     public function show_condition_block($condition, $candidates) {
-        $header = \html_writer::tag('h3', get_string('conditions', 'mod_adaptivequiz'), array('class' => 'conditionblockheader'));
+        $header = \html_writer::tag('h3', get_string('conditions', 'ddtaquiz'), array('class' => 'conditionblockheader'));
         $start = \html_writer::start_tag('ul', array('id' => 'condition-list'));
         if ($condition->get_useand()) {
-            $option = \html_writer::tag('b', get_string('all', 'adaptivequiz'));
+            $option = \html_writer::tag('b', get_string('all', 'ddtaquiz'));
         } else {
-            $option = \html_writer::tag('b', get_string('atleastone', 'adaptivequiz'));
+            $option = \html_writer::tag('b', get_string('atleastone', 'ddtaquiz'));
         }
-        $conjunction = \html_writer::div(get_string('mustfullfill', 'adaptivequiz') . ' ' . $option . ' ' . get_string('oftheconditions', 'adaptivequiz'), 'conjunction');
+        $conjunction = \html_writer::div(get_string('mustfullfill', 'ddtaquiz') . ' ' . $option . ' ' . get_string('oftheconditions', 'ddtaquiz'), 'conjunction');
         $conditionlist = \html_writer::div($this->show_condition($condition, $candidates));
         $end = \html_writer::end_tag('ul');
         
@@ -596,13 +596,13 @@ class edit_renderer extends \plugin_renderer_base {
      */
     protected function show_condition_part($part, $candidates) {
         $condition = '';
-        $condition .= get_string('gradeat', 'adaptivequiz') . ' ';
+        $condition .= get_string('gradeat', 'ddtaquiz') . ' ';
         foreach ($candidates as $element) {
             if ($part->get_elementid() == $element->get_id()) {
                 $condition .= \html_writer::tag('b', $element->get_name() . ' ');
             }
         }
-        $condition .= get_string('mustbe', 'adaptivequiz'). ' ';
+        $condition .= get_string('mustbe', 'ddtaquiz'). ' ';
         switch ($part->get_type()) {
             case \condition_part::EQUAL:
                 $condition .= \html_writer::tag('b', '=');
@@ -635,7 +635,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML of the feedback block.
      */
     public function feedback_block($feedback, $pageurl) {
-        $header = html_writer::tag('h3', get_string('feedback', 'mod_adaptivequiz'), array('class' => 'feedbackheader'));
+        $header = html_writer::tag('h3', get_string('feedback', 'ddtaquiz'), array('class' => 'feedbackheader'));
         $output = '';
 
         $output .= html_writer::start_tag('ul', array('id' => 'feedbackblock-children-list'));
@@ -644,7 +644,7 @@ class edit_renderer extends \plugin_renderer_base {
         foreach ($blocks as $block) {
             $output .= $this->feedback_block_elem($block, $pageurl);
         }
-        $addbutton = html_writer::tag('button', get_string('addfeedback', 'adaptivequiz'),
+        $addbutton = html_writer::tag('button', get_string('addfeedback', 'ddtaquiz'),
             array('type' => 'submit', 'name' => 'addfeedback', 'value' => 1));
         $container = $header . $output . $addbutton;
         return html_writer::div($container, 'feedbackblock');
@@ -689,7 +689,7 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'save', 'value' => 1));
 
         $namefield = html_writer::tag('input', '', array('type' => 'text', 'name' => 'blockname', 'value' => $block->get_name()));
-        $output .= $this->heading(get_string('editingfeedback', 'adaptivequiz') . ' ' . $namefield);
+        $output .= $this->heading(get_string('editingfeedback', 'ddtaquiz') . ' ' . $namefield);
 
         $output .= \html_writer::div($this->uses_block($block), 'feedbackblock');
 
@@ -697,12 +697,12 @@ class edit_renderer extends \plugin_renderer_base {
 
         $output .= $this->feedback_editor($block->get_feedback_text());
 
-        $output .= html_writer::tag('button', get_string('done', 'adaptivequiz'),
+        $output .= html_writer::tag('button', get_string('done', 'ddtaquiz'),
             array('type' => 'submit', 'name' => 'done', 'value' => 1));
         $output .= html_writer::end_tag('form');
 
         $output .= $this->condition_type_chooser($candidates);
-        $this->page->requires->js_call_amd('mod_adaptivequiz/blockconditions', 'init');
+        $this->page->requires->js_call_amd('mod_ddtaquiz/blockconditions', 'init');
 
         return $output;
     }
@@ -716,7 +716,7 @@ class edit_renderer extends \plugin_renderer_base {
     public function uses_block(\feedback_block $block) {
         $output = '';
 
-        $output .= \html_writer::tag('h3', get_string('usesquestions', 'mod_adaptivequiz'),
+        $output .= \html_writer::tag('h3', get_string('usesquestions', 'ddtaquiz'),
             array('class' => 'usesquestionblockheader'));
 
         $output .= \html_writer::start_div('usedquestions');
@@ -725,11 +725,11 @@ class edit_renderer extends \plugin_renderer_base {
         }
         $output .= \html_writer::end_div();
 
-        $output .= \html_writer::link('#', get_string('addusedquestion', 'adaptivequiz'), array('class' => 'addusedquestion'));
+        $output .= \html_writer::link('#', get_string('addusedquestion', 'ddtaquiz'), array('class' => 'addusedquestion'));
 
         $output .= \html_writer::div($this->uses_element($block), 'usesquestioncontainer');
 
-        $this->page->requires->js_call_amd('mod_adaptivequiz/feedback', 'init');
+        $this->page->requires->js_call_amd('mod_ddtaquiz/feedback', 'init');
         return $output;
     }
 
@@ -791,8 +791,7 @@ class edit_renderer extends \plugin_renderer_base {
      * @return string the HTML output.
      */
     public function feedback_editor($feedbacktext = '') {
-        $heading = $this->heading_with_help(get_string('feedbacktext', 'adaptivequiz'), 'feedbackquestion', 'adaptivequiz');
-        // $heading = $this->heading(get_string('feedbacktext', 'adaptivequiz'));
+        $heading = $this->heading_with_help(get_string('feedbacktext', 'ddtaquiz'), 'feedbackquestion', 'ddtaquiz');
         $editor = editors_get_preferred_editor();
         $editor->set_text($feedbacktext);
         $editor->use_editor('feedbacktext');

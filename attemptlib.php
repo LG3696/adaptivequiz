@@ -20,7 +20,7 @@
  * There are classes for loading all the information about a quiz and attempts,
  * and for displaying the navigation panel.
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @copyright 2017 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -52,7 +52,7 @@ class attempt {
     /** @var string to identify the abandoned state. */
     // ... const ABANDONED   = 'abandoned'; .
 
-    /** @var int the id of this adaptivequiz_attempt. */
+    /** @var int the id of this ddtaquiz_attempt. */
     protected $id;
 
     /** @var question_usage_by_activity the question usage for this quiz attempt. */
@@ -95,7 +95,7 @@ class attempt {
      *
      * @param int $id the id of this attempt.
      * @param question_usage_by_activity $quba the question_usages_by_activity this attempt belongs to.
-     * @param adaptivequiz $quiz the quiz this attempt belongs to.
+     * @param ddtaquiz $quiz the quiz this attempt belongs to.
      * @param int $userid the id of the user this attempt belongs to.
      * @param int $attemptnumber the number of this attempt.
      * @param int $currentslot the current slot of this attempt.
@@ -105,7 +105,7 @@ class attempt {
      * @param float $sumgrades the sumof the grades.
      * @param boolean $preview attempt is a preview attempt.
      */
-    public function __construct($id, question_usage_by_activity $quba, adaptivequiz $quiz,
+    public function __construct($id, question_usage_by_activity $quba, ddtaquiz $quiz,
             $userid, $attemptnumber, $currentslot = 1, $timestart, $state, $timefinish,
             $sumgrades, $preview) {
         $this->id = $id;
@@ -131,9 +131,9 @@ class attempt {
     public static function load($attemptid) {
         global $DB;
 
-        $attemptrow = $DB->get_record('adaptivequiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
+        $attemptrow = $DB->get_record('ddtaquiz_attempts', array('id' => $attemptid), '*', MUST_EXIST);
         $quba = question_engine::load_questions_usage_by_activity($attemptrow->quba);
-        $quiz = adaptivequiz::load($attemptrow->quiz);
+        $quiz = ddtaquiz::load($attemptrow->quiz);
 
         return new attempt($attemptid, $quba, $quiz, $attemptrow->userid, $attemptrow->attempt,
             $attemptrow->currentslot, $attemptrow->timestart, $attemptrow->state,
@@ -143,17 +143,17 @@ class attempt {
     /**
      * Static function to create a new attempt in the database.
      *
-     * @param adaptivequiz $quiz the quiz this attempt belongs to.
+     * @param ddtaquiz $quiz the quiz this attempt belongs to.
      * @param int $userid the id of the user this attempt belongs to.
      * @param boolean $preview attempt is a preview attempt.
      * @return attempt the new attempt object.
      */
-    public static function create(adaptivequiz $quiz, $userid, $preview = false) {
+    public static function create(ddtaquiz $quiz, $userid, $preview = false) {
         global $DB;
 
         $quba = self::create_quba($quiz);
 
-        $override = $DB->get_records('adaptivequiz_attempts', array('userid' => $userid, 'preview' => 1));
+        $override = $DB->get_records('ddtaquiz_attempts', array('userid' => $userid, 'preview' => 1));
 
         $attemptrow = new stdClass();
         $attemptrow->quba = $quba->get_id();
@@ -164,17 +164,17 @@ class attempt {
         $attemptrow->state = self::IN_PROGRESS;
         $attemptrow->timefinish = 0;
         $attemptrow->sumgrades = null;
-        $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
+        $attemptrow->attempt = $DB->count_records('ddtaquiz_attempts',
             array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
         $attemptrow->preview = $preview;
 
         if (!$override) {
-            $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
+            $attemptid = $DB->insert_record('ddtaquiz_attempts', $attemptrow);
         } else {
-            $DB->delete_records('adaptivequiz_attempts', array('userid' => $userid, 'preview' => 1));
-            $attemptrow->attempt = $DB->count_records('adaptivequiz_attempts',
+            $DB->delete_records('ddtaquiz_attempts', array('userid' => $userid, 'preview' => 1));
+            $attemptrow->attempt = $DB->count_records('ddtaquiz_attempts',
                 array('quiz' => $quiz->get_id(), 'userid' => $userid)) + 1;
-            $attemptid = $DB->insert_record('adaptivequiz_attempts', $attemptrow);
+            $attemptid = $DB->insert_record('ddtaquiz_attempts', $attemptrow);
 
         }
 
@@ -192,9 +192,9 @@ class attempt {
                 $params['other'] = array(
 		        'quizid' => $quizobj->get_quizid()
             );
-            $event = \mod_adaptivequiz\event\attempt_preview_started::create($params);
+            $event = \mod_ddtaquiz\event\attempt_preview_started::create($params);
             } else { **/
-            $event = \mod_adaptivequiz\event\attempt_started::create($params);
+        $event = \mod_ddtaquiz\event\attempt_started::create($params);
 
         // }
 
@@ -230,7 +230,7 @@ class attempt {
     /**
      * Returns the quiz belonging to the attempt.
      *
-     * @return adaptivequiz the quiz this attempt belongs to.
+     * @return ddtaquiz the quiz this attempt belongs to.
      */
     public function get_quiz() {
         return $this->quiz;
@@ -330,7 +330,7 @@ class attempt {
         $record->id = $this->id;
         $record->currentslot = $slot;
 
-        $DB->update_record('adaptivequiz_attempts', $record);
+        $DB->update_record('ddtaquiz_attempts', $record);
 
         $this->currentslot = $slot;
     }
@@ -377,7 +377,7 @@ class attempt {
         $attemptrow->sumgrades = $this->quba->get_total_mark();
         $attemptrow->timefinish = $timenow;
         $attemptrow->state = self::FINISHED;
-        $DB->update_record('adaptivequiz_attempts', $attemptrow);
+        $DB->update_record('ddtaquiz_attempts', $attemptrow);
 
         $this->get_quiz()->save_best_grade();
 
@@ -393,7 +393,7 @@ class attempt {
             )
         );
 
-        $event = \mod_adaptivequiz\event\attempt_finished::create($params);
+        $event = \mod_ddtaquiz\event\attempt_finished::create($params);
         $event->trigger();
 
         $transaction->allow_commit();
@@ -408,7 +408,7 @@ class attempt {
         $record = new stdClass();
         $record->id = $this->get_id();
         $record->sumgrades = $this->quba->get_total_mark();
-        $DB->update_record('adaptivequiz_attempts', $record);
+        $DB->update_record('ddtaquiz_attempts', $record);
     }
 
     /**
@@ -457,7 +457,7 @@ class attempt {
      * @return moodle_url the URL of that attempt.
      */
     public function attempt_url() {
-        return new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $this->id));
+        return new moodle_url('/mod/ddtaquiz/attempt.php', array('attempt' => $this->id));
     }
 
     /**
@@ -466,7 +466,7 @@ class attempt {
      * @return moodle_url the URL to review this attempt.
      */
     public function review_url() {
-        return new moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->id));
+        return new moodle_url('/mod/ddtaquiz/review.php', array('attempt' => $this->id));
     }
 
     /**
@@ -477,9 +477,9 @@ class attempt {
     public static function state_name($state) {
         switch ($state) {
             case self::IN_PROGRESS:
-                return get_string('stateinprogress', 'adaptivequiz');
+                return get_string('stateinprogress', 'ddtaquiz');
             case self::FINISHED:
-                return get_string('statefinished', 'adaptivequiz');
+                return get_string('statefinished', 'ddtaquiz');
             default:
                 throw new coding_exception('Unknown quiz attempt state.');
         }
@@ -496,9 +496,9 @@ class attempt {
     public static function get_user_attempts($quizid, $userid, $state = 'all') {
         global $DB;
         if ($state == 'all') {
-            $attemptrows = $DB->get_records('adaptivequiz_attempts', array('quiz' => $quizid, 'userid' => $userid), 'id');
+            $attemptrows = $DB->get_records('ddtaquiz_attempts', array('quiz' => $quizid, 'userid' => $userid), 'id');
         } else {
-            $attemptrows = $DB->get_records('adaptivequiz_attempts',
+            $attemptrows = $DB->get_records('ddtaquiz_attempts',
                 array('quiz' => $quizid, 'userid' => $userid, 'state' => $state), 'id');
         }
         $attempts = array_map(function($attempt) {
@@ -511,18 +511,18 @@ class attempt {
     /**
      * Determines wether a user may start a new attempt.
      *
-     * @param adaptivequiz $quiz the quiz for which to check.
+     * @param ddtaquiz $quiz the quiz for which to check.
      * @param int $userid the id of the user wanting to start a new attempt.
      * @return bool true if a new attempt may be started.
      */
-    public static function may_start_new_attempt(adaptivequiz $quiz, $userid) {
+    public static function may_start_new_attempt(ddtaquiz $quiz, $userid) {
         $context = $quiz->get_context();
         // Previews may always be started.
-        if (has_capability('mod/adaptivequiz:preview', $context)) {
+        if (has_capability('mod/ddtaquiz:preview', $context)) {
             return true;
         }
 
-        if (has_capability('mod/adaptivequiz:attempt', $context) &&
+        if (has_capability('mod/ddtaquiz:attempt', $context) &&
             (count(self::get_user_attempts($quiz->get_id(), $userid)) == 0 ||
                 $quiz->multiple_attempts_allowed())) {
             return true;
@@ -534,11 +534,11 @@ class attempt {
     /**
      * Creates a new question usage for this attempt.
      *
-     * @param adaptivequiz $quiz the quiz to create the usage for.
+     * @param ddtaquiz $quiz the quiz to create the usage for.
      * @return question_usage_by_activity the created question usage.
      */
-    protected static function create_quba(adaptivequiz $quiz) {
-        $quba = question_engine::make_questions_usage_by_activity('mod_adaptivequiz', $quiz->get_context());
+    protected static function create_quba(ddtaquiz $quiz) {
+        $quba = question_engine::make_questions_usage_by_activity('mod_ddtaquiz', $quiz->get_context());
         $quba->set_preferred_behaviour('deferredfeedback');
         $quiz->add_questions_to_quba($quba);
         $quba->start_all_questions();

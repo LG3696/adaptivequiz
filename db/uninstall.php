@@ -19,7 +19,7 @@
  *
  * @see uninstall_plugin()
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,6 +30,6 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Custom uninstallation procedure
  */
-function xmldb_adaptivequiz_uninstall() {
+function xmldb_ddtaquiz_uninstall() {
     return true;
 }

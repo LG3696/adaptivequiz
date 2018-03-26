@@ -18,12 +18,12 @@
  * Base class for the settings form for reports.
  *
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,38 +42,38 @@ abstract class attempts_form extends \moodleform {
         $mform = $this->_form;
 
         $mform->addElement('header', 'preferencespage',
-            get_string('reportwhattoinclude', 'adaptivequiz'));
+            get_string('reportwhattoinclude', 'ddtaquiz'));
 
         $this->standard_attempt_fields($mform);
         $this->other_attempt_fields($mform);
 
         $mform->addElement('header', 'preferencesuser',
-            get_string('reportdisplayoptions', 'adaptivequiz'));
+            get_string('reportdisplayoptions', 'ddtaquiz'));
 
         $this->standard_preference_fields($mform);
         $this->other_preference_fields($mform);
 
         $mform->addElement('submit', 'submitbutton',
-            get_string('showreport', 'adaptivequiz'));
+            get_string('showreport', 'ddtaquiz'));
     }
 
     protected function standard_attempt_fields(\MoodleQuickForm $mform) {
 
-        $mform->addElement('select', 'attempts', get_string('reportattemptsfrom', 'adaptivequiz'), array(
-            attempts::ENROLLED_WITH     => get_string('reportuserswith', 'adaptivequiz'),
-            attempts::ENROLLED_WITHOUT  => get_string('reportuserswithout', 'adaptivequiz'),
-            attempts::ENROLLED_ALL      => get_string('reportuserswithorwithout', 'adaptivequiz'),
-            attempts::ALL_WITH          => get_string('reportusersall', 'adaptivequiz'),
+        $mform->addElement('select', 'attempts', get_string('reportattemptsfrom', 'ddtaquiz'), array(
+            attempts::ENROLLED_WITH     => get_string('reportuserswith', 'ddtaquiz'),
+            attempts::ENROLLED_WITHOUT  => get_string('reportuserswithout', 'ddtaquiz'),
+            attempts::ENROLLED_ALL      => get_string('reportuserswithorwithout', 'ddtaquiz'),
+            attempts::ALL_WITH          => get_string('reportusersall', 'ddtaquiz'),
         ));
 
         $stategroup = array(
             $mform->createElement('advcheckbox', 'stateinprogress', '',
-                get_string('stateinprogress', 'adaptivequiz')),
+                get_string('stateinprogress', 'ddtaquiz')),
             $mform->createElement('advcheckbox', 'statefinished', '',
-                get_string('statefinished', 'adaptivequiz')),
+                get_string('statefinished', 'ddtaquiz')),
         );
         $mform->addGroup($stategroup, 'stateoptions',
-            get_string('reportattemptsthatare', 'adaptivequiz'), array(' '), false);
+            get_string('reportattemptsthatare', 'ddtaquiz'), array(' '), false);
         $mform->setDefault('stateinprogress', 1);
         $mform->setDefault('statefinished',   1);
         $mform->disabledIf('stateinprogress', 'attempts', 'eq', attempts::ENROLLED_WITHOUT);
@@ -84,7 +84,7 @@ abstract class attempts_form extends \moodleform {
     }
 
     protected function standard_preference_fields(\MoodleQuickForm $mform) {
-        $mform->addElement('text', 'pagesize', get_string('pagesize', 'adaptivequiz'));
+        $mform->addElement('text', 'pagesize', get_string('pagesize', 'ddtaquiz'));
         $mform->setType('pagesize', PARAM_INT);
     }
 
@@ -96,7 +96,7 @@ abstract class attempts_form extends \moodleform {
 
         if ($data['attempts'] != attempts::ENROLLED_WITHOUT && !(
             $data['stateinprogress'] || $data['stateoverdue'] || $data['statefinished'] || $data['stateabandoned'])) {
-                $errors['stateoptions'] = get_string('reportmustselectstate', 'adaptivequiz');
+                $errors['stateoptions'] = get_string('reportmustselectstate', 'ddtaquiz');
         }
 
             return $errors;

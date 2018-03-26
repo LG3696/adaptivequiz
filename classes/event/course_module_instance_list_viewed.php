@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_adaptivequiz instance list viewed event.
+ * The mod_ddtaquiz instance list viewed event.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\event;
+namespace mod_ddtaquiz\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_adaptivequiz instance list viewed event class.
+ * The mod_ddtaquiz instance list viewed event class.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @since      Moodle 2.7
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

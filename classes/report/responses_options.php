@@ -17,12 +17,12 @@
 /**
  * Class to store the options for a responses report.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -85,17 +85,17 @@ class responses_options extends attempts_options {
     public function setup_from_user_preferences() {
         parent::setup_from_user_preferences();
 
-        $this->showqtext     = get_user_preferences('adaptivequiz_report_responses_qtext', $this->showqtext);
-        $this->showresponses = get_user_preferences('adaptivequiz_report_responses_resp',  $this->showresponses);
-        $this->showright     = get_user_preferences('adaptivequiz_report_responses_right', $this->showright);
+        $this->showqtext     = get_user_preferences('ddtaquiz_report_responses_qtext', $this->showqtext);
+        $this->showresponses = get_user_preferences('ddtaquiz_report_responses_resp',  $this->showresponses);
+        $this->showright     = get_user_preferences('ddtaquiz_report_responses_right', $this->showright);
     }
 
     public function update_user_preferences() {
         parent::update_user_preferences();
 
-        set_user_preference('adaptivequiz_report_responses_qtext', $this->showqtext);
-        set_user_preference('adaptivequiz_report_responses_resp',  $this->showresponses);
-        set_user_preference('adaptivequiz_report_responses_right', $this->showright);
+        set_user_preference('ddtaquiz_report_responses_qtext', $this->showqtext);
+        set_user_preference('ddtaquiz_report_responses_resp',  $this->showresponses);
+        set_user_preference('ddtaquiz_report_responses_right', $this->showright);
     }
 
     public function resolve_dependencies() {

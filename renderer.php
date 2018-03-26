@@ -15,30 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the renderer for the quiz module.
+ * Defines the renderer for the ddtaquiz module.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 
 
 /**
- * The renderer for the quiz module.
+ * The renderer for the ddtaquiz module.
  *
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_adaptivequiz_renderer extends plugin_renderer_base {
+class mod_ddtaquiz_renderer extends plugin_renderer_base {
     /**
      * Generates the view page.
      *
      * @param array $quiz Array containing quiz data.
-     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
+     * @param mod_ddtaquiz_view_object $viewobj the information required to display the view page.
      * @return $output html data.
      */
     public function view_page($quiz, $viewobj) {
@@ -81,14 +81,14 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $output .= $this->heading($attempt->get_quiz()->get_name());
         $output .= $this->review_summary_table($summarydata);
 
-        $url = new moodle_url('/mod/adaptivequiz/comment.php');
+        $url = new moodle_url('/mod/ddtaquiz/comment.php');
         $output .= \html_writer::start_tag('form', array('method' => 'post', 'action' => $url->out()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'attempt', 'value' => $attempt->get_id()));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'slot', 'value' => $slot));
         $output .= html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
         $output .= $attempt->get_quba()->render_question($slot, $options);
         $output .= \html_writer::tag('input', '', array('type' => 'submit', 'id' => 'id_submitbutton',
-                'name' => 'submit', 'value' => get_string('save', 'adaptivequiz')));
+                'name' => 'submit', 'value' => get_string('save', 'ddtaquiz')));
         $output .= \html_writer::end_tag('form');
         return $output;
     }
@@ -97,7 +97,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Generates the table of data
      *
      * @param array $quiz Array contining quiz data.
-     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
+     * @param mod_ddtaquiz_view_object $viewobj the information required to display the view page.
      * @return $output html data.
      */
     public function view_table($quiz, $viewobj) {
@@ -112,19 +112,19 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
         $table->align = array();
         $table->size = array();
 
-        $table->head[] = get_string('attemptnumber', 'adaptivequiz');
+        $table->head[] = get_string('attemptnumber', 'ddtaquiz');
         $table->align[] = 'left';
         $table->size[] = '';
 
-        $table->head[] = get_string('attemptstate', 'adaptivequiz');
+        $table->head[] = get_string('attemptstate', 'ddtaquiz');
         $table->align[] = 'left';
         $table->size[] = '';
 
-        $table->head[] = get_string('marks', 'adaptivequiz') . ' / ' . $quiz->get_maxgrade();
+        $table->head[] = get_string('marks', 'ddtaquiz') . ' / ' . $quiz->get_maxgrade();
         $table->align[] = 'center';
         $table->size[] = '';
 
-        $table->head[] = get_string('review', 'adaptivequiz');
+        $table->head[] = get_string('review', 'ddtaquiz');
         $table->align[] = 'center';
         $table->size[] = '';
 
@@ -133,7 +133,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             $row = array();
 
             if ($attempt->is_preview()) {
-                $row[] = get_string('preview', 'adaptivequiz');
+                $row[] = get_string('preview', 'ddtaquiz');
             } else {
                 $row[] = $attempt->get_attempt_number();
             }
@@ -144,8 +144,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
                 $row[] = '';
             } else {
                 $row[] = round($attempt->get_quba()->get_total_mark(), 2);
-                $row[] = html_writer::link($attempt->review_url(), get_string('review', 'adaptivequiz'),
-                    array('title' => get_string('reviewthisattempt', 'adaptivequiz')));
+                $row[] = html_writer::link($attempt->review_url(), get_string('review', 'ddtaquiz'),
+                    array('title' => get_string('reviewthisattempt', 'ddtaquiz')));
             }
 
             if ($attempt->is_preview()) {
@@ -167,7 +167,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @return string the table heading.
      */
     public function view_table_heading() {
-        return $this->heading(get_string('summaryofattempts', 'adaptivequiz'), 3);
+        return $this->heading(get_string('summaryofattempts', 'ddtaquiz'), 3);
     }
 
     /**
@@ -179,11 +179,11 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     public function attempt_state(attempt $attempt) {
         switch ($attempt->get_state()) {
             case attempt::IN_PROGRESS:
-                return get_string('stateinprogress', 'adaptivequiz');
+                return get_string('stateinprogress', 'ddtaquiz');
 
             case attempt::FINISHED:
-                return get_string('statefinished', 'adaptivequiz') . html_writer::tag('span',
-                get_string('statefinisheddetails', 'adaptivequiz',
+                return get_string('statefinished', 'ddtaquiz') . html_writer::tag('span',
+                get_string('statefinisheddetails', 'ddtaquiz',
                 userdate($attempt->get_finish_time())),
                 array('class' => 'statedetails'));
         }
@@ -193,16 +193,16 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * Work out, and render, whatever buttons, and surrounding info, should appear.
      * at the end of the review page.
      *
-     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
+     * @param mod_ddtaquiz_view_object $viewobj the information required to display the view page.
      * @return string HTML to output.
      */
     public function view_page_buttons($viewobj) {
         global $CFG;
         $output = '';
-        $url = new \moodle_url('/mod/adaptivequiz/startattempt.php', array('cmid' => $viewobj->cmid));
+        $url = new \moodle_url('/mod/ddtaquiz/startattempt.php', array('cmid' => $viewobj->cmid));
         if ($viewobj->buttontext) {
             if ($viewobj->unfinishedattempt) {
-                $attempturl = new moodle_url('/mod/adaptivequiz/attempt.php', array('attempt' => $viewobj->unfinishedattempt));
+                $attempturl = new moodle_url('/mod/ddtaquiz/attempt.php', array('attempt' => $viewobj->unfinishedattempt));
                 $output .= $this->start_attempt_button($viewobj->buttontext, $attempturl);
             } else {
                 $output .= $this->start_attempt_button($viewobj->buttontext, $url);
@@ -212,7 +212,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
             }
         }
         if (!$viewobj->buttontext && $viewobj->canmanage) {
-            $output .= get_string('noquestions', 'adaptivequiz');
+            $output .= get_string('noquestions', 'ddtaquiz');
             $output .= $this->edit_quiz_button($viewobj);
         }
         return $output;
@@ -234,12 +234,12 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     /**
      * Generates the edit quiz button.
      *
-     * @param mod_adaptivequiz_view_object $viewobj the information required to display the view page.
+     * @param mod_ddtaquiz_view_object $viewobj the information required to display the view page.
      * @return string HTML fragment.
      */
     public function edit_quiz_button($viewobj) {
-        $url = new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $viewobj->cmid));
-        $buttontext = get_string('editquiz', 'adaptivequiz');
+        $url = new \moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $viewobj->cmid));
+        $buttontext = get_string('editquiz', 'ddtaquiz');
         $button = new single_button($url, $buttontext);
         $button->class .= ' quizstartbuttondiv';
         return $this->render($button);
@@ -258,7 +258,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
     public function attempt_page(attempt $attempt, $slot, $options, $cmid) {
         $output = '';
 
-        $processurl = new \moodle_url('/mod/adaptivequiz/processslot.php');
+        $processurl = new \moodle_url('/mod/ddtaquiz/processslot.php');
 
         $output .= html_writer::start_tag('form',
            array('action' => $processurl, 'method' => 'post',
@@ -301,7 +301,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
 
         $output .= html_writer::start_tag('div');
 
-        $nextlabel = get_string('nextpage', 'adaptivequiz');
+        $nextlabel = get_string('nextpage', 'ddtaquiz');
         $output .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next',
             'value' => $nextlabel));
         $output .= html_writer::end_tag('div');
@@ -320,7 +320,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      */
     public function review_page(attempt $attempt, $options, $summarydata, $feedback) {
         $output = '';
-        $output .= $this->heading(get_string('quizfinished', 'adaptivequiz'));
+        $output .= $this->heading(get_string('quizfinished', 'ddtaquiz'));
         $output .= $this->review_summary_table($summarydata);
         $output .= $this->review_block($attempt->get_quiz()->get_main_block(), $attempt, $options, $feedback);
         $output .= $this->finish_review_button($attempt->get_quiz()->get_cmid());
@@ -473,8 +473,8 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
      * @return string HTML fragment.
      */
     public function finish_review_button($cmid) {
-        $url = new moodle_url('/mod/adaptivequiz/view.php', array('id' => $cmid));
-        $buttontext = get_string('finishreview', 'adaptivequiz');
+        $url = new moodle_url('/mod/ddtaquiz/view.php', array('id' => $cmid));
+        $buttontext = get_string('finishreview', 'ddtaquiz');
         $button = new single_button($url, $buttontext);
         return $this->render($button);
     }
@@ -486,7 +486,7 @@ class mod_adaptivequiz_renderer extends plugin_renderer_base {
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_adaptivequiz_view_object {
+class mod_ddtaquiz_view_object {
     /** @var bool $quizhasquestions whether the quiz has any questions. */
     public $quizhasquestions;
     /** @var string $buttontext caption for the start attempt button. If this is null, show no

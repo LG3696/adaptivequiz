@@ -17,12 +17,12 @@
 /**
  * This file defines the responses table for showing last try at question.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +37,7 @@ class responses_table extends attempts_table {
 
     /**
      * Constructor
-     * @param \adaptivequiz $quiz
+     * @param \ddtaquiz $quiz
      * @param \context $context
      * @param string $qmsubselect
      * @param responses_options $options
@@ -46,9 +46,9 @@ class responses_table extends attempts_table {
      * @param array $questions
      * @param \moodle_url $reporturl
      */
-    public function __construct(\adaptivequiz $quiz, $context, $qmsubselect, responses_options $options,
+    public function __construct(\ddtaquiz $quiz, $context, $qmsubselect, responses_options $options,
             $groupstudents, $students, $questions, $reporturl) {
-        parent::__construct('mod-adaptivequiz-report-responses', $quiz, $context,
+        parent::__construct('mod-ddtaquiz-report-responses', $quiz, $context,
                 $qmsubselect, $options, $groupstudents, $students, $questions, $reporturl);
     }
 
@@ -71,7 +71,7 @@ class responses_table extends attempts_table {
             return $grade;
         }
         return \html_writer::link(
-            new \moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $attempt->attempt)),
+            new \moodle_url('/mod/ddtaquiz/review.php', array('attempt' => $attempt->attempt)),
             $grade, array('class' => 'reviewlink'));
     }
 

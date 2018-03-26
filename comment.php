@@ -18,18 +18,18 @@
  * This page allows the teacher to enter a manual grade for a particular question.
  * This page is expected to only be used in a popup window.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 
 $attemptid = required_param('attempt', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 
-$url = new moodle_url('/mod/adaptivequiz/comment.php', array('attempt' => $attemptid, 'slot' => $slot));
+$url = new moodle_url('/mod/ddtaquiz/comment.php', array('attempt' => $attemptid, 'slot' => $slot));
 
 $PAGE->set_url($url);
 
@@ -40,7 +40,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($quiz->get_cmid());
 // Check login.
 require_login($cm->course, false, $cm);
 $context = $quiz->get_context();
-require_capability('mod/adaptivequiz:grade', $context);
+require_capability('mod/ddtaquiz:grade', $context);
 
 $student = $DB->get_record('user', array('id' => $attempt->get_userid()));
 $quba = $attempt->get_quba();
@@ -52,19 +52,13 @@ $options->flags = question_display_options::HIDDEN;
 $options->hide_all_feedback();
 $options->manualcomment = question_display_options::EDITABLE;
 
-// Can only grade finished attempts.
-
-/*if (!$attempt->is_finished()) {
-    print_error('attemptnotclosed', 'adaptivequiz');
-}*/
-
 // Print the page header.
 $PAGE->set_pagelayout('popup');
-$PAGE->set_title(get_string('manualgradequestion', 'adaptivequiz', array(
+$PAGE->set_title(get_string('manualgradequestion', 'ddtaquiz', array(
         'question' => format_string($question->name),
         'quiz' => format_string($quiz->get_name()), 'user' => fullname($student))));
 $PAGE->set_heading($course->fullname);
-$output = $PAGE->get_renderer('mod_adaptivequiz');
+$output = $PAGE->get_renderer('mod_ddtaquiz');
 
 // Prepare summary information about this question attempt.
 $summarydata = array();
@@ -81,13 +75,13 @@ $summarydata['user'] = array(
 
 // Quiz name.
 $summarydata['quizname'] = array(
-    'title'   => get_string('modulename', 'adaptivequiz'),
+    'title'   => get_string('modulename', 'ddtaquiz'),
     'content' => format_string($quiz->get_name()),
 );
 
 // Question name.
 $summarydata['questionname'] = array(
-    'title'   => get_string('question', 'adaptivequiz'),
+    'title'   => get_string('question', 'ddtaquiz'),
     'content' => $question->name,
 );
 
@@ -118,7 +112,7 @@ if (data_submitted() && confirm_sesskey()) {
                 'slot' => $slot
             )
         );
-        $event = \mod_adaptivequiz\event\question_manually_graded::create($params);
+        $event = \mod_ddtaquiz\event\question_manually_graded::create($params);
         $event->trigger();
 
         echo $output->notification(get_string('changessaved'), 'notifysuccess');

@@ -18,19 +18,19 @@
  * This page prints a review of a particular question attempt.
  * This page is expected to only be used in a popup window.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 
 $attemptid = required_param('attempt', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 
-$url = new moodle_url('/mod/adaptivequiz/reviewquestion.php',
+$url = new moodle_url('/mod/ddtaquiz/reviewquestion.php',
         array('attempt' => $attemptid, 'slot' => $slot));
 $PAGE->set_url($url);
 
@@ -41,7 +41,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($quiz->get_cmid());
 // Check login.
 require_login($cm->course, false, $cm);
 $context = $quiz->get_context();
-require_capability('mod/adaptivequiz:grade', $context);
+require_capability('mod/ddtaquiz:grade', $context);
 
 $student = $DB->get_record('user', array('id' => $attempt->get_userid()));
 
@@ -56,11 +56,11 @@ $options->flags = question_display_options::HIDDEN;
 $options->rightanswer = question_display_options::VISIBLE;
 
 $PAGE->set_pagelayout('popup');
-$PAGE->set_title(get_string('reviewofquestion', 'adaptivequiz', array(
+$PAGE->set_title(get_string('reviewofquestion', 'ddtaquiz', array(
         'question' => $question->name,
         'quiz' => $quiz->get_name(), 'user' => fullname($student))));
 $PAGE->set_heading($course->fullname);
-$output = $PAGE->get_renderer('mod_adaptivequiz');
+$output = $PAGE->get_renderer('mod_ddtaquiz');
 
 // Prepare summary informat about this question attempt.
 $summarydata = array();
@@ -77,39 +77,28 @@ $summarydata['user'] = array(
 
 // Quiz name.
 $summarydata['quizname'] = array(
-    'title'   => get_string('modulename', 'adaptivequiz'),
+    'title'   => get_string('modulename', 'ddtaquiz'),
     'content' => format_string($quiz->get_name()),
 );
 
 // Question name.
 $summarydata['questionname'] = array(
-    'title'   => get_string('question', 'adaptivequiz'),
+    'title'   => get_string('question', 'ddtaquiz'),
     'content' => $question->name,
 );
-
-// Other attempts at the quiz.
-/*TODO: if ($attemptobj->has_capability('mod/adaptivequiz:viewreports')) {
-    $attemptlist = $attemptobj->links_to_other_attempts($baseurl);
-    if ($attemptlist) {
-        $summarydata['attemptlist'] = array(
-            'title'   => get_string('attempts', 'quiz'),
-            'content' => $attemptlist,
-        );
-    }
-}*/
 
 // Timestamp of this action.
 $timestamp = $attempt->get_quba()->get_question_action_time($slot);
 if ($timestamp) {
     $summarydata['timestamp'] = array(
-        'title'   => get_string('completedon', 'adaptivequiz'),
+        'title'   => get_string('completedon', 'ddtaquiz'),
         'content' => userdate($timestamp),
     );
 }
 
 if (question_has_capability_on($question, 'edit', $question->category)) {
     $options->manualcomment = question_display_options::VISIBLE;
-    $options->manualcommentlink = new moodle_url('/mod/adaptivequiz/comment.php',
+    $options->manualcommentlink = new moodle_url('/mod/ddtaquiz/comment.php',
         array('attempt' => $attempt->get_id()));
 }
 

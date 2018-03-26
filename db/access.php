@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for the adaptivequiz module
+ * Capability definitions for the ddtaquiz module
  *
  * The capabilities are loaded into the database table when the module is
  * installed or updated. Whenever the capability definitions are updated,
@@ -39,7 +39,7 @@
  *
  * The variable name for the capability definitions array is $capabilities
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -49,7 +49,7 @@ defined('MOODLE_INTERNAL') || die();
 // Modify capabilities as needed and remove this comment.
 $capabilities = array(
     // Ability to add a new quiz to the course.
-    'mod/adaptivequiz:addinstance' => array(
+    'mod/ddtaquiz:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -62,7 +62,7 @@ $capabilities = array(
 
     // Ability to see that the quiz exists, and the basic information
     // about it, for example the start date and time limit.
-    'mod/adaptivequiz:view' => array(
+    'mod/ddtaquiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -71,7 +71,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/adaptivequiz:submit' => array(
+    'mod/ddtaquiz:submit' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -81,7 +81,7 @@ $capabilities = array(
     ),
 
     // Edit the quiz settings, add and remove questions.
-    'mod/adaptivequiz:manage' => array(
+    'mod/ddtaquiz:manage' => array(
         'captype' => 'write', // Only just a write.
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -92,7 +92,7 @@ $capabilities = array(
     ),
 
     // Preview the quiz.
-    'mod/adaptivequiz:preview' => array(
+    'mod/ddtaquiz:preview' => array(
         'captype' => 'write', // Only just a write.
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -103,7 +103,7 @@ $capabilities = array(
     ),
 
     // Ability to do the quiz as a 'student'.
-    'mod/adaptivequiz:attempt' => array(
+    'mod/ddtaquiz:attempt' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -113,7 +113,7 @@ $capabilities = array(
     ),
 
     // View the quiz reports.
-    'mod/adaptivequiz:viewreports' => array(
+    'mod/ddtaquiz:viewreports' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -125,7 +125,7 @@ $capabilities = array(
     ),
 
     // Grade quiz attempts.
-    'mod/adaptivequiz:grade' => array(
+    'mod/ddtaquiz:grade' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

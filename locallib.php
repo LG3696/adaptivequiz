@@ -15,43 +15,43 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module adaptivequiz.
+ * Internal library of functions for module ddtaquiz.
  *
- * All the adaptivequiz specific functions, needed to implement the module
+ * All the ddtaquiz specific functions, needed to implement the module
  * logic, should go here. Never include this file from your lib.php!
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/adaptivequiz/blocklib.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/conditionlib.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/feedbacklib.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/attemptlib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/blocklib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/conditionlib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/feedbacklib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/attemptlib.php');
 
 /**
- * A class encapsulating a adaptive quiz.
+ * A class encapsulating a ddta quiz.
  *
  * @copyright  2017 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.1
  */
-class adaptivequiz {
-    /** @var int the id of this adaptive quiz. */
+class ddtaquiz {
+    /** @var int the id of this ddta quiz. */
     protected $id = 0;
     /** @var int the course module id for this quiz. */
     protected $cmid = 0;
     /** @var block the main block of this quiz. */
     protected $mainblock = null;
-    /** @var int the id of the main block of this adaptive quiz. */
+    /** @var int the id of the main block of this ddta quiz. */
     protected $mainblockid = 0;
     /** @var int the method used for grading. 0: one attempt, 1: best attempt, 2: last attempt */
     protected $grademethod = 0;
     /** @var int the total sum of the max grades of the main questions instances
-     * (that is without any questions inside blocks) in the adaptive quiz */
+     * (that is without any questions inside blocks) in the ddta quiz */
     protected $maxgrade = 0;
 
     // Constructor =============================================================
@@ -59,7 +59,7 @@ class adaptivequiz {
      * Constructor assuming we already have the necessary data loaded.
      * @param int $id the id of this quiz.
      * @param int $cmid the course module id for this quiz.
-     * @param int $mainblockid the id of the main block of this adaptive quiz.
+     * @param int $mainblockid the id of the main block of this ddta quiz.
      * @param int $grademethod the method used for grading.
      * @param int $maxgrade the best attainable grade of this quiz.
      */
@@ -75,16 +75,16 @@ class adaptivequiz {
     /**
      * Static function to get a quiz object from a quiz id.
      *
-     * @param int $quizid the id of this adaptive quiz.
-     * @return adaptivequiz the new adaptivequiz object.
+     * @param int $quizid the id of this ddta quiz.
+     * @return ddtaquiz the new ddtaquiz object.
      */
     public static function load($quizid) {
         global $DB;
 
-        $quiz = $DB->get_record('adaptivequiz', array('id' => $quizid), '*', MUST_EXIST);
-        $cm = get_coursemodule_from_instance('adaptivequiz', $quizid, $quiz->course, false, MUST_EXIST);
+        $quiz = $DB->get_record('ddtaquiz', array('id' => $quizid), '*', MUST_EXIST);
+        $cm = get_coursemodule_from_instance('ddtaquiz', $quizid, $quiz->course, false, MUST_EXIST);
 
-        return new adaptivequiz($quizid, $cm->id, $quiz->mainblock, $quiz->grademethod, $quiz->maxgrade);
+        return new ddtaquiz($quizid, $cm->id, $quiz->mainblock, $quiz->grademethod, $quiz->maxgrade);
     }
 
     /**
@@ -240,20 +240,20 @@ class adaptivequiz {
             $record = new stdClass();
             $record->id = $this->id;
             $record->maxgrade = $grade;
-            $DB->update_record('adaptivequiz', $record);
+            $DB->update_record('ddtaquiz', $record);
             $this->maxgrade = $grade;
         }
     }
 
     /**
-     * Save the overall grade for a user at a quiz to the adaptivequiz_grades table
+     * Save the overall grade for a user at a quiz to the ddtaquiz_grades table
      *
      * @return bool Indicates success or failure.
      */
     public function save_best_grade() {
         global $DB, $USER;
 
-        $quiz = $DB->get_record('adaptivequiz', array('id' => $this->get_id()), '*', MUST_EXIST);
+        $quiz = $DB->get_record('ddtaquiz', array('id' => $this->get_id()), '*', MUST_EXIST);
         $userid = $USER->id;
 
         // Get all the attempts made by the user.
@@ -280,11 +280,11 @@ class adaptivequiz {
         $bestgrade = $bestgrade * $quiz->grade / $this->get_maxgrade();
 
         // Save the best grade in the database.
-        if ($grade = $DB->get_record('adaptivequiz_grades',
+        if ($grade = $DB->get_record('ddtaquiz_grades',
                 array('quiz' => $quiz->id, 'userid' => $userid))) {
             $grade->grade = $bestgrade;
             $grade->timemodified = time();
-            $DB->update_record('adaptivequiz_grades', $grade);
+            $DB->update_record('ddtaquiz_grades', $grade);
 
         } else {
             $grade = new stdClass();
@@ -292,10 +292,10 @@ class adaptivequiz {
             $grade->userid = $userid;
             $grade->grade = $bestgrade;
             $grade->timemodified = time();
-            $DB->insert_record('adaptivequiz_grades', $grade);
+            $DB->insert_record('ddtaquiz_grades', $grade);
         }
 
-        adaptivequiz_update_grades($quiz, $userid);
+        ddtaquiz_update_grades($quiz, $userid);
     }
 
     /**
@@ -324,7 +324,7 @@ class adaptivequiz {
      */
     public function get_num_attempts() {
         global $DB;
-        return $DB->count_records('adaptivequiz_attempts', array('quiz' => $this->id));
+        return $DB->count_records('ddtaquiz_attempts', array('quiz' => $this->id));
     }
 
     /**
@@ -334,7 +334,7 @@ class adaptivequiz {
      */
     public function has_attempts() {
         global $DB;
-        $count = $DB->count_records('adaptivequiz_attempts', array('quiz' => $this->id, 'preview' => 0));
+        $count = $DB->count_records('ddtaquiz_attempts', array('quiz' => $this->id, 'preview' => 0));
         if ($count > 0) {
             return true;
         } else {

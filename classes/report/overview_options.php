@@ -17,12 +17,12 @@
 /**
  * Class to store the options for an overview report.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -74,13 +74,13 @@ class overview_options extends attempts_options {
     public function setup_from_user_preferences() {
         parent::setup_from_user_preferences();
 
-        $this->slotmarks = get_user_preferences('adaptivequiz_overview_slotmarks', $this->slotmarks);
+        $this->slotmarks = get_user_preferences('ddtaquiz_overview_slotmarks', $this->slotmarks);
     }
 
     public function update_user_preferences() {
         parent::update_user_preferences();
 
-        set_user_preference('adaptivequiz_overview_slotmarks', $this->slotmarks);
+        set_user_preference('ddtaquiz_overview_slotmarks', $this->slotmarks);
     }
 
     public function resolve_dependencies() {

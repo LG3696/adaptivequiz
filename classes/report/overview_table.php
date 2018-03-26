@@ -15,20 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file defines the adaptivequiz grades table.
+ * This file defines the ddtaquiz grades table.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * This is a table subclass for displaying the adaptivequiz grades report.
+ * This is a table subclass for displaying the ddtaquiz grades report.
  *
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -40,7 +40,7 @@ class overview_table extends attempts_table {
 
     /**
      * Constructor
-     * @param \adaptivequiz $quiz
+     * @param \ddtaquiz $quiz
      * @param \context $context
      * @param string $qmsubselect
      * @param overview_options $options
@@ -49,9 +49,9 @@ class overview_table extends attempts_table {
      * @param array $questions
      * @param \moodle_url $reporturl
      */
-    public function __construct(\adaptivequiz $quiz, $context, $qmsubselect,
+    public function __construct(\ddtaquiz $quiz, $context, $qmsubselect,
         overview_options $options, $groupstudents, $students, $questions, $reporturl) {
-            parent::__construct('mod-adaptivequiz-report-overview', $quiz , $context,
+            parent::__construct('mod-ddtaquiz-report-overview', $quiz , $context,
                 $qmsubselect, $options, $groupstudents, $students, $questions, $reporturl);
     }
 
@@ -63,148 +63,7 @@ class overview_table extends attempts_table {
         }
         $this->strtimeformat = str_replace(',', ' ', get_string('strftimedatetime'));
         parent::build_table();
-
-        // End of adding the data from attempts. Now add averages at bottom.
-        /*TODO
-        $this->add_separator();
-        if ($this->groupstudents) {
-            $this->add_average_row(get_string('groupavg', 'grades'), $this->groupstudents);
-        }
-
-        if ($this->students) {
-            $this->add_average_row(get_string('overallaverage', 'grades'), $this->students);
-        }*/
     }
-    /* TODO:
-         /**
-          * Add an average grade over the attempts of a set of users.
-          * @param string $label the title ot use for this row.
-          * @param array $users the users to average over.
-          */
-    /* protected function add_average_row($label, $users) {
-             global $DB;
-
-             list($fields, $from, $where, $params) = $this->base_sql($users);
-             $record = $DB->get_record_sql("
-                     SELECT AVG(quiza.sumgrades) AS grade, COUNT(quiza.sumgrades) AS numaveraged
-                       FROM $from
-                      WHERE $where", $params);
-             $record->grade = quiz_rescale_grade($record->grade, $this->quiz, false);
-
-             if ($this->is_downloading()) {
-                 $namekey = 'lastname';
-             } else {
-                 $namekey = 'fullname';
-             }
-             $averagerow = array(
-                 $namekey    => $label,
-                 'sumgrades' => $this->format_average($record),
-                 'feedbacktext'=> strip_tags(quiz_report_feedback_for_grade(
-                     $record->grade, $this->quiz->id, $this->context))
-             );
-
-             if ($this->options->slotmarks) {
-                 $dm = new question_engine_data_mapper();
-                 $qubaids = new qubaid_join($from, 'quiza.uniqueid', $where, $params);
-                 $avggradebyq = $dm->load_average_marks($qubaids, array_keys($this->questions));
-
-                 $averagerow += $this->format_average_grade_for_questions($avggradebyq);
-             }
-
-             $this->add_data_keyed($averagerow);
-         }
-
-         /**
-          * Helper userd by {@link add_average_row()}.
-          * @param array $gradeaverages the raw grades.
-          * @return array the (partial) row of data.
-          */
-    /* protected function format_average_grade_for_questions($gradeaverages) {
-             $row = array();
-
-             if (!$gradeaverages) {
-                 $gradeaverages = array();
-             }
-
-             foreach ($this->questions as $question) {
-                 if (isset($gradeaverages[$question->slot]) && $question->maxmark > 0) {
-                     $record = $gradeaverages[$question->slot];
-                     $record->grade = quiz_rescale_grade(
-                         $record->averagefraction * $question->maxmark, $this->quiz, false);
-
-                 } else {
-                     $record = new stdClass();
-                     $record->grade = null;
-                     $record->numaveraged = 0;
-                 }
-
-                 $row['qsgrade' . $question->slot] = $this->format_average($record, true);
-             }
-
-             return $row;
-         }
-
-         /**
-          * Format an entry in an average row.
-          * @param object $record with fields grade and numaveraged
-          */
-    /* protected function format_average($record, $question = false) {
-             if (is_null($record->grade)) {
-                 $average = '-';
-             } else if ($question) {
-                 $average = quiz_format_question_grade($this->quiz, $record->grade);
-             } else {
-                 $average = quiz_format_grade($this->quiz, $record->grade);
-             }
-
-             if ($this->download) {
-                 return $average;
-             } else if (is_null($record->numaveraged) || $record->numaveraged == 0) {
-                 return html_writer::tag('span', html_writer::tag('span',
-                     $average, array('class' => 'average')), array('class' => 'avgcell'));
-             } else {
-                 return html_writer::tag('span', html_writer::tag('span',
-                     $average, array('class' => 'average')) . ' ' . html_writer::tag('span',
-                         '(' . $record->numaveraged . ')', array('class' => 'count')),
-                     array('class' => 'avgcell'));
-             }
-         }
-
-         public function col_sumgrades($attempt) {
-             if ($attempt->state != quiz_attempt::FINISHED) {
-                 return '-';
-             }
-
-             $grade = quiz_rescale_grade($attempt->sumgrades, $this->quiz);
-             if ($this->is_downloading()) {
-                 return $grade;
-             }
-
-             if (isset($this->regradedqs[$attempt->usageid])) {
-                 $newsumgrade = 0;
-                 $oldsumgrade = 0;
-                 foreach ($this->questions as $question) {
-                     if (isset($this->regradedqs[$attempt->usageid][$question->slot])) {
-                         $newsumgrade += $this->regradedqs[$attempt->usageid]
-                         [$question->slot]->newfraction * $question->maxmark;
-                         $oldsumgrade += $this->regradedqs[$attempt->usageid]
-                         [$question->slot]->oldfraction * $question->maxmark;
-                     } else {
-                         $newsumgrade += $this->lateststeps[$attempt->usageid]
-                         [$question->slot]->fraction * $question->maxmark;
-                         $oldsumgrade += $this->lateststeps[$attempt->usageid]
-                         [$question->slot]->fraction * $question->maxmark;
-                     }
-                 }
-                 $newsumgrade = quiz_rescale_grade($newsumgrade, $this->quiz);
-                 $oldsumgrade = quiz_rescale_grade($oldsumgrade, $this->quiz);
-                 $grade = html_writer::tag('del', $oldsumgrade) . '/' .
-                     html_writer::empty_tag('br') . $newsumgrade;
-             }
-             return html_writer::link(new moodle_url('/mod/adaptivequiz/review.php',
-                 array('attempt' => $attempt->attempt)), $grade,
-                 array('title' => get_string('reviewattempt', 'adaptivequiz')));
-         } */
 
     /**
      * @param string $colname the name of the column.

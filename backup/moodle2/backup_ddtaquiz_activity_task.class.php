@@ -15,27 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines backup_adaptivequiz_activity_task class
+ * Defines backup_ddtaquiz_activity_task class
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @category  backup
- * @copyright 2016 Your Name <your@email.address>
+ * @copyright 2018 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/mod/adaptivequiz/backup/moodle2/backup_adaptivequiz_stepslib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/backup/moodle2/backup_ddtaquiz_stepslib.php');
 
 /**
- * Provides the steps to perform one complete backup of the adaptivequiz instance
+ * Provides the steps to perform one complete backup of the ddtaquiz instance
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @category  backup
  * @copyright 2018 Jan Emrich <jan.emrich@stud.tu-darmstadt.de>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_adaptivequiz_activity_task extends backup_activity_task {
+class backup_ddtaquiz_activity_task extends backup_activity_task {
 
     /**
      * No specific settings for this activity
@@ -44,11 +44,11 @@ class backup_adaptivequiz_activity_task extends backup_activity_task {
     }
 
     /**
-     * Defines a backup step to store the instance data in the adaptivequiz.xml file.
+     * Defines a backup step to store the instance data in the ddtaquiz.xml file.
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_adaptivequiz_activity_structure_step('adaptivequiz_structure',
-            'adaptivequiz.xml', $this->moduleid));
+        $this->add_step(new backup_ddtaquiz_activity_structure_step('ddtaquiz_structure',
+            'ddtaquiz.xml', $this->moduleid));
 
         // Process all the annotated questions to calculate the question
         // categories needing to be included in backup for this activity
@@ -72,13 +72,13 @@ class backup_adaptivequiz_activity_task extends backup_activity_task {
 
         $base = preg_quote($CFG->wwwroot, '/');
 
-        // Link to the list of adaptivequizs.
-        $search = '/('.$base.'\/mod\/adaptivequiz\/index.php\?id\=)([0-9]+)/';
-        $content = preg_replace($search, '$@ADAPTIVEQUIZINDEX*$2@$', $content);
+        // Link to the list of ddtaquizs.
+        $search = '/('.$base.'\/mod\/ddtaquiz\/index.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@DDTAQUIZINDEX*$2@$', $content);
 
-        // Link to adaptivequiz view by moduleid.
-        $search = '/('.$base.'\/mod\/adaptivequiz\/view.php\?id\=)([0-9]+)/';
-        $content = preg_replace($search, '$@ADAPTIVEQUIZVIEWBYID*$2@$', $content);
+        // Link to ddtaquiz view by moduleid.
+        $search = '/('.$base.'\/mod\/ddtaquiz\/view.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@DDTAQUIZVIEWBYID*$2@$', $content);
 
         return $content;
     }

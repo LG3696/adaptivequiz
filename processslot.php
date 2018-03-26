@@ -17,14 +17,13 @@
 /**
  * This script displays a particular page of a quiz attempt that is in progress.
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @copyright  2018 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
 $attemptid = required_param('attempt',  PARAM_INT);
@@ -32,7 +31,7 @@ $cmid = required_param('cmid', PARAM_INT);
 
 $timenow = time();
 
-if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
+if (!$cm = get_coursemodule_from_id('ddtaquiz', $cmid)) {
     print_error('invalidcoursemodule');
 }
 if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
@@ -50,7 +49,7 @@ $nexturl = new \moodle_url($url, array('cmid' => $cmid));
 
 // Check that this attempt belongs to this user.
 if ($attempt->get_userid() != $USER->id) {
-    // TODO: adaptivequiz not quiz...
+    // TODO: ddtaquiz not quiz...
     throw new moodle_quiz_exception($attempt->get_quiz(), 'notyourattempt');
 }
 

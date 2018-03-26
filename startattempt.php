@@ -19,19 +19,18 @@
  *
  * Normally, it will end up redirecting to attempt.php - unless a password form is displayed.
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
 $cmid = required_param('cmid', PARAM_INT);
 
-if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
+if (!$cm = get_coursemodule_from_id('ddtaquiz', $cmid)) {
     print_error('invalidcoursemodule');
 }
 if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
@@ -43,21 +42,21 @@ require_login($course, false, $cm);
 require_sesskey();
 
 $context = context_module::instance($cmid);
-$canpreview = has_capability('mod/adaptivequiz:preview', $context);
+$canpreview = has_capability('mod/ddtaquiz:preview', $context);
 
-$adaptivequiz  = adaptivequiz::load($cm->instance);
+$ddtaquiz  = ddtaquiz::load($cm->instance);
 
-if (attempt::may_start_new_attempt($adaptivequiz, $USER->id)) {
-    $attempt = attempt::create($adaptivequiz, $USER->id, $canpreview);
+if (attempt::may_start_new_attempt($ddtaquiz, $USER->id)) {
+    $attempt = attempt::create($ddtaquiz, $USER->id, $canpreview);
 
     // Redirect to the attempt page.
     redirect($attempt->attempt_url());
 } else {
-    $attempts = attempt::get_user_attempts($adaptivequiz->get_id(), $USER->id);
+    $attempts = attempt::get_user_attempts($ddtaquiz->get_id(), $USER->id);
     if (count($attempts) > 0) {
         redirect($attempts[count($attempts) - 1]->attempt_url());
     } else {
-        redirect(new moodle_url('/mod/adaptivequiz/view.php', array('id' => $adaptivequiz->get_id())));
+        redirect(new moodle_url('/mod/ddtaquiz/view.php', array('id' => $ddtaquiz->get_id())));
     }
 }
 

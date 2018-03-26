@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_adaptivequiz edit page viewed event.
+ * The mod_ddtaquiz edit page viewed event.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\event;
+namespace mod_ddtaquiz\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_adaptivequiz edit page viewed event class.
+ * The mod_ddtaquiz edit page viewed event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  *      - int quizid: the id of the quiz.
  * }
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @since      Moodle 2.7
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -66,7 +66,7 @@ class edit_page_viewed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventeditpageviewed', 'adaptivequiz');
+        return get_string('eventeditpageviewed', 'ddtaquiz');
     }
 
     /**
@@ -75,6 +75,6 @@ class edit_page_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $this->contextinstanceid));
+        return new \moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $this->contextinstanceid));
     }
 }

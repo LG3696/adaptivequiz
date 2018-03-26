@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_quiz report viewed event.
+ * The mod_ddtaquiz report viewed event.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\event;
+namespace mod_ddtaquiz\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quiz report viewed event class.
+ * The mod_ddtaquiz report viewed event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -36,8 +36,8 @@ defined('MOODLE_INTERNAL') || die();
  *      - string reportname: the name of the report.
  * }
  *
- * @package    mod_adaptivequiz
- * @since      Moodle 2.7
+ * @package    mod_ddtaquiz
+ * @since      Moodle 3.1
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -69,7 +69,7 @@ class report_viewed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventreportviewed', 'adaptivequiz');
+        return get_string('eventreportviewed', 'ddtaquiz');
     }
 
     /**
@@ -78,7 +78,7 @@ class report_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/adaptivequiz/report.php', array('id' => $this->contextinstanceid,
+        return new \moodle_url('/mod/ddtaquiz/report.php', array('id' => $this->contextinstanceid,
             'mode' => $this->other['reportname']));
     }
 }

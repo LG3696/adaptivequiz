@@ -17,34 +17,32 @@
 /**
  * Displays a page to edit a feedback block.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/locallib.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/locallib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
 $blockid = required_param('bid', PARAM_INT);
 $save = optional_param('save', 0, PARAM_INT);
 
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) = question_edit_setup('editq',
-    '/mod/adaptivequiz/editfeedback.php', true);
+    '/mod/ddtaquiz/editfeedback.php', true);
 
 // Check login.
 require_login($cm->course, false, $cm);
 
-require_capability('mod/adaptivequiz:manage', $contexts->lowest());
+require_capability('mod/ddtaquiz:manage', $contexts->lowest());
 
-$adaptivequiz = adaptivequiz::load($quiz->id);
-$feedbackblock = feedback_block::load($blockid, $adaptivequiz);
+$ddtaquiz = ddtaquiz::load($quiz->id);
+$feedbackblock = feedback_block::load($blockid, $ddtaquiz);
 
 $thispageurl->param('bid', $blockid);
 
 $PAGE->set_url($thispageurl);
-
-$adaptivequiz = adaptivequiz::load($quiz->id);
 
 if (optional_param('save', 0, PARAM_INT)) {
     $name = required_param('blockname', PARAM_TEXT);
@@ -64,15 +62,15 @@ if (optional_param('save', 0, PARAM_INT)) {
         $feedbackblock->get_condition()->set_use_and($useand);
     }
     if (optional_param('done', 0, PARAM_INT)) {
-        $nexturl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $cmid));
+        $nexturl = new moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $cmid));
         redirect($nexturl);
     }
 }
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('editingfeedbackx', 'adaptivequiz', $feedbackblock->get_name()));
+$PAGE->set_title(get_string('editingfeedbackx', 'ddtaquiz', $feedbackblock->get_name()));
 
-$output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
+$output = $PAGE->get_renderer('mod_ddtaquiz', 'edit');
 
 echo $OUTPUT->header();
 

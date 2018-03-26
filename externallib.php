@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adaptiveuiz external API
+ * DDTA Quiz external API
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @category   external
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,15 +30,15 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
 /**
- * Adaptiveuiz external functions
+ * DDTA Quiz external functions
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @category   external
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.1
  */
-class mod_adaptivequiz_external extends external_api {
+class mod_ddtaquiz_external extends external_api {
     /**
      * Returns the description of get_questionbank.
      * @return external_function_parameters the function parameters.
@@ -76,7 +76,7 @@ class mod_adaptivequiz_external extends external_api {
         external_api::validate_context($context);
 
         $cmid = $params['cmid'];
-        $thispageurl = new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $params['cmid'], 'bid' => $params['bid']));
+        $thispageurl = new moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $params['cmid'], 'bid' => $params['bid']));
         
         list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
@@ -101,14 +101,14 @@ class mod_adaptivequiz_external extends external_api {
             $_POST['qbs1'] = $decoded;
         }
 
-        require_capability('mod/adaptivequiz:manage', $contexts->lowest());
-        $questionbank = new \mod_adaptivequiz\question\bank\custom_view($contexts, $thispageurl, $course, $cm);
+        require_capability('mod/ddtaquiz:manage', $contexts->lowest());
+        $questionbank = new \mod_ddtaquiz\question\bank\custom_view($contexts, $thispageurl, $course, $cm);
 
-        $output = $PAGE->get_renderer('mod_adaptivequiz', 'edit');
+        $output = $PAGE->get_renderer('mod_ddtaquiz', 'edit');
 
         // Output.
         $content = $output->question_bank_contents($questionbank, $pagevars);
-        return external_api::clean_returnvalue(mod_adaptivequiz_external::get_questionbank_returns(),
+        return external_api::clean_returnvalue(mod_ddtaquiz_external::get_questionbank_returns(),
             $content);
     }
 

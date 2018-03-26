@@ -16,28 +16,28 @@
 
 
 /**
- * English strings for adaptivequiz.
+ * English strings for ddtaquiz.
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'Adaptive Quiz';
-$string['modulenameplural'] = 'Adaptive Quizes';
-$string['modulename_help'] = 'Use the adaptivequiz module for... | The adaptivequiz module allows...';
-$string['adaptivequiz:addinstance'] = 'Add a new Adaptive Quiz';
-$string['adaptivequiz:submit'] = 'Submit Adaptive Quiz';
-$string['adaptivequiz:view'] = 'View Adaptive Quiz';
-$string['adaptivequizfieldset'] = 'Custom example fieldset';
-$string['adaptivequizname'] = 'Adaptive Quiz name';
-$string['adaptivequizname_help'] = 'This is the content of the help tooltip associated with the adaptivequizname field. Markdown syntax is supported.';
-$string['adaptivequiz'] = 'Adaptive Quiz';
+$string['modulename'] = 'DDTA Quiz';
+$string['modulenameplural'] = 'DDTA Quizes';
+$string['modulename_help'] = 'Use the ddtaquiz module for... | The ddtaquiz module allows...';
+$string['ddtaquiz:addinstance'] = 'Add a new DDTA Quiz';
+$string['ddtaquiz:submit'] = 'Submit DDTA Quiz';
+$string['ddtaquiz:view'] = 'View DDTA Quiz';
+$string['ddtaquizfieldset'] = 'Custom example fieldset';
+$string['ddtaquizname'] = 'DDTA Quiz name';
+$string['ddtaquizname_help'] = 'This is the content of the help tooltip associated with the ddtaquizname field. Markdown syntax is supported.';
+$string['ddtaquiz'] = 'DDTA Quiz';
 $string['add'] = 'Add';
 $string['addablock'] = 'a new block';
 $string['addaquestion'] = 'a new question';
@@ -70,13 +70,13 @@ $string['editingfeedbackx'] = 'Editing feedback: {$a}';
 $string['editingquizx'] = 'Editing quiz: {$a}';
 $string['editquiz'] = 'Edit quiz';
 $string['endtest'] = 'Finish attempt';
-$string['eventadaptivequizattemptfinished'] = 'Adaptive Quiz attempt finished';
-$string['eventadaptivequizattemptstarted'] = 'Adaptive Quiz attempt sarted';
-$string['eventattemptpreviewstarted'] = 'Adaptive Quiz attempt preview started';
+$string['eventddtaquizattemptfinished'] = 'DDTA Quiz attempt finished';
+$string['eventddtaquizattemptstarted'] = 'DDTA Quiz attempt sarted';
+$string['eventattemptpreviewstarted'] = 'DDTA Quiz attempt preview started';
 $string['eventattemptreviewed'] = 'Attempt reviewed';
-$string['eventeditpageviewed'] = 'Adaptive Quiz edit page viewed';
-$string['eventquestionmanuallygraded'] = 'Adaptive Quiz question manually graded';
-$string['eventreportviewed'] = 'Adaptive Quiz report viewed';
+$string['eventeditpageviewed'] = 'DDTA Quiz edit page viewed';
+$string['eventquestionmanuallygraded'] = 'DDTA Quiz question manually graded';
+$string['eventreportviewed'] = 'DDTA Quiz report viewed';
 $string['feedback'] = 'Feedback';
 $string['feedbackblockdefaultname'] = 'new feedback block';
 $string['feedbacktext'] = 'Text of the feedback';
@@ -100,8 +100,8 @@ $string['oftheconditions'] = 'of the conditions to see this block.';
 $string['outofshort'] = '{$a->grade}/{$a->maxgrade}';
 $string['overviewfilename'] = 'grades';
 $string['pagesize'] = 'Page size';
-$string['pluginadministration'] = 'Adaptive Quiz administration';
-$string['pluginname'] = 'Adaptive Quiz';
+$string['pluginadministration'] = 'DDTA Quiz administration';
+$string['pluginname'] = 'DDTA Quiz';
 $string['preview'] = 'Preview';
 $string['previewquiznow'] = 'Preview quiz now';
 $string['qbrief'] = 'Q. {$a}';

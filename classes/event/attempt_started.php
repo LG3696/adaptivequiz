@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_adaptivequiz attempt started event.
+ * The mod_ddtaquiz attempt started event.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_adaptivequiz\event;
+namespace mod_ddtaquiz\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_adaptivequiz attempt started event class.
+ * The mod_ddtaquiz attempt started event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  *      - int quizid: (optional) the id of the quiz.
  * }
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @since      Moodle 2.6
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -44,7 +44,7 @@ class attempt_started extends \core\event\base {
      * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'adaptivequiz_attempts';
+        $this->data['objecttable'] = 'ddtaquiz_attempts';
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }
@@ -65,7 +65,7 @@ class attempt_started extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventadaptivequizattemptstarted', 'adaptivequiz');
+        return get_string('eventddtaquizattemptstarted', 'ddtaquiz');
     }
     
     /**
@@ -74,6 +74,6 @@ class attempt_started extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->objectid));
+        return new \moodle_url('/mod/ddtaquiz/review.php', array('attempt' => $this->objectid));
     }
 }

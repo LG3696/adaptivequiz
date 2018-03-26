@@ -17,12 +17,12 @@
 /**
  * Base class for the options that control what is visible in a report.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -121,7 +121,7 @@ class attempts_options {
      * @return \moodle_url the URL.
      */
     public function get_url() {
-        return new \moodle_url('/mod/adaptivequiz/report.php', $this->get_url_params());
+        return new \moodle_url('/mod/ddtaquiz/report.php', $this->get_url_params());
     }
 
     /**
@@ -206,7 +206,7 @@ class attempts_options {
      * (For those settings that are backed by user-preferences).
      */
     public function setup_from_user_preferences() {
-        $this->pagesize = get_user_preferences('adaptivequiz_report_pagesize', $this->pagesize);
+        $this->pagesize = get_user_preferences('ddtaquiz_report_pagesize', $this->pagesize);
     }
 
     /**
@@ -214,7 +214,7 @@ class attempts_options {
      * (For those settings that are backed by user-preferences).
      */
     public function update_user_preferences() {
-        set_user_preference('adaptivequiz_report_pagesize', $this->pagesize);
+        set_user_preference('ddtaquiz_report_pagesize', $this->pagesize);
     }
 
     /**

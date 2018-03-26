@@ -17,7 +17,7 @@
 /**
  * This script displays a particular page of a quiz attempt that is in progress.
  *
- * @package   mod_adaptivequiz
+ * @package   mod_ddtaquiz
  * @copyright  2017 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,7 +32,7 @@ $attemptid = required_param('attempt', PARAM_INT);
 $attempt = attempt::load($attemptid);
 $cmid = $attempt->get_quiz()->get_cmid();
 
-if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
+if (!$cm = get_coursemodule_from_id('ddtaquiz', $cmid)) {
     print_error('invalidcoursemodule');
 }
 if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
@@ -46,12 +46,12 @@ if ($attempt->is_finished()) {
     redirect($attempt->review_url());
 }
 
-$adaptivequiz = adaptivequiz::load($cm->instance);
+$ddtaquiz = ddtaquiz::load($cm->instance);
 $PAGE->set_url($attempt->attempt_url());
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(format_string($adaptivequiz->get_main_block()->get_name()));
+$PAGE->set_title(format_string($ddtaquiz->get_main_block()->get_name()));
 $PAGE->set_heading($course->fullname);
-$output = $PAGE->get_renderer('mod_adaptivequiz');
+$output = $PAGE->get_renderer('mod_ddtaquiz');
 
 $options = new question_display_options();
 $options->flags = question_display_options::HIDDEN;

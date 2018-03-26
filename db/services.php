@@ -17,7 +17,7 @@
 /**
  * Quiz external functions and service definitions.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @category   external
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,20 +27,20 @@
 defined('MOODLE_INTERNAL') || die;
 
 $functions = array(
-    'mod_adaptivequiz_get_questionbank' => array(
-        'classname' => 'mod_adaptivequiz_external',
+    'mod_ddtaquiz_get_questionbank' => array(
+        'classname' => 'mod_ddtaquiz_external',
         'methodname' => 'get_questionbank',
-        'classpath' => 'mod/adaptivequiz/externallib.php',
+        'classpath' => 'mod/ddtaquiz/externallib.php',
         'description' => 'Returns the HTML for the questionbank.',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'mod/adaptivequiz:manage'
+        'capabilities' => 'mod/ddtaquiz:manage'
     )
 );
 
 $services = array(
-  'Adaptivequiz service' => array(
-      'functions' => array('mod_adaptivequiz_get_questionbank'),
+  'DDTA quiz service' => array(
+      'functions' => array('mod_ddtaquiz_get_questionbank'),
       'restrictedusers' => 0,
       'enabled' => 1
   )

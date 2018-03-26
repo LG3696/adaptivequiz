@@ -20,12 +20,10 @@
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-// Replace adaptivequiz with the name of your module and remove this line.
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
@@ -39,12 +37,12 @@ require_course_login($course);
 $params = array(
     'context' => context_course::instance($course->id)
 );
-$event = \mod_adaptivequiz\event\course_module_instance_list_viewed::create($params);
+$event = \mod_ddtaquiz\event\course_module_instance_list_viewed::create($params);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
-$strname = get_string('modulenameplural', 'mod_adaptivequiz');
-$PAGE->set_url('/mod/adaptivequiz/index.php', array('id' => $id));
+$strname = get_string('modulenameplural', 'ddtaquiz');
+$PAGE->set_url('/mod/ddtaquiz/index.php', array('id' => $id));
 $PAGE->navbar->add($strname);
 $PAGE->set_title("$course->shortname: $strname");
 $PAGE->set_heading($course->fullname);
@@ -53,8 +51,8 @@ $PAGE->set_pagelayout('incourse');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($strname);
 
-if (! $adaptivequizs = get_all_instances_in_course('adaptivequiz', $course)) {
-    notice(get_string('noadaptivequizs', 'adaptivequiz'), new moodle_url('/course/view.php', array('id' => $course->id)));
+if (! $ddtaquizs = get_all_instances_in_course('ddtaquiz', $course)) {
+    notice(get_string('noddtaquizs', 'ddtaquiz'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
 $usesections = course_format_uses_sections($course->format);
@@ -73,7 +71,7 @@ if ($usesections) {
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($modinfo->instances['adaptivequiz'] as $cm) {
+foreach ($modinfo->instances['ddtaquiz'] as $cm) {
     $row = array();
     if ($usesections) {
         if ($cm->sectionnum !== $currentsection) {

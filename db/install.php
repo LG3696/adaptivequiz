@@ -20,7 +20,7 @@
  * This file replaces the legacy STATEMENTS section in db/install.xml,
  * lib.php/modulename_install() post installation hook and partially defaults.php.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @see upgrade_plugins_modules()
  */
-function xmldb_adaptivequiz_install() {
+function xmldb_ddtaquiz_install() {
 }
 
 /**
@@ -42,5 +42,5 @@ function xmldb_adaptivequiz_install() {
  *
  * @see upgrade_plugins_modules()
  */
-function xmldb_adaptivequiz_install_recovery() {
+function xmldb_ddtaquiz_install_recovery() {
 }

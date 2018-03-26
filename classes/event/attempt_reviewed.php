@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_adaptivequiz attempt reviewed event.
+ * The mod_ddtaquiz attempt reviewed event.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_adaptivequiz\event;
+namespace mod_ddtaquiz\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_adaptivequiz attempt reviewed event class.
+ * The mod_ddtaquiz attempt reviewed event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  *      - int quizid: the id of the quiz.
  * }
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @since      Moodle 2.7
  * @copyright  2018 Johanna Heinz <johanna.heinz@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -45,7 +45,7 @@ class attempt_reviewed extends \core\event\base {
      * Init method.
      */
     protected function init() {
-        $this->data['objecttable'] = 'adaptivequiz_attempts';
+        $this->data['objecttable'] = 'ddtaquiz_attempts';
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
@@ -66,7 +66,7 @@ class attempt_reviewed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventattemptreviewed', 'adaptivequiz');
+        return get_string('eventattemptreviewed', 'ddtaquiz');
     }
     
     /**
@@ -75,6 +75,6 @@ class attempt_reviewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $this->objectid));
+        return new \moodle_url('/mod/ddtaquiz/review.php', array('attempt' => $this->objectid));
     }
 }

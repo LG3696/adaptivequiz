@@ -19,7 +19,7 @@
  *
  * There are classes for loading all the information about a quiz and attempts.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 class block {
     /** @var int the id of the block. */
     protected $id = 0;
-    /** @var adaptivequiz the quiz, this block belongs to. */
+    /** @var ddtaquiz the quiz, this block belongs to. */
     protected $quiz = null;
     /** @var string the name of the block. */
     protected $name = '';
@@ -58,12 +58,12 @@ class block {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block.
-     * @param adaptivequiz $quiz the id of the quiz, this block belongs to.
+     * @param ddtaquiz $quiz the id of the quiz, this block belongs to.
      * @param string $name the name of the block.
      * @param array $children an array of block_element representing the parts of this block.
      * @param condition $condition the condition under which this block should
      */
-    public function __construct($id, adaptivequiz $quiz, $name, $children, condition $condition) {
+    public function __construct($id, ddtaquiz $quiz, $name, $children, condition $condition) {
         $this->id = $id;
         $this->quiz = $quiz;
         $this->name = $name;
@@ -74,14 +74,14 @@ class block {
     /**
      * Static function to get a block object from a block id.
      *
-     * @param adaptivequiz $quiz the quiz, this block belongs to.
+     * @param ddtaquiz $quiz the quiz, this block belongs to.
      * @param int $blockid the block id.
      * @return block the new block object.
      */
-    public static function load(adaptivequiz $quiz, $blockid) {
+    public static function load(ddtaquiz $quiz, $blockid) {
         global $DB;
 
-        $block = $DB->get_record('adaptivequiz_block', array('id' => $blockid), '*', MUST_EXIST);
+        $block = $DB->get_record('ddtaquiz_block', array('id' => $blockid), '*', MUST_EXIST);
         $condition = condition::load($block->conditionid);
 
         return new block($blockid, $quiz, $block->name, null, $condition);
@@ -90,18 +90,18 @@ class block {
     /**
      * Static function to create a new block in the database.
      *
-     * @param adaptivequiz $quiz the quiz this block belongs to.
+     * @param ddtaquiz $quiz the quiz this block belongs to.
      * @param string $name the name of the block.
      * @return block the new block object.
      */
-    public static function create(adaptivequiz $quiz, $name) {
+    public static function create(ddtaquiz $quiz, $name) {
         global $DB;
 
         $condition = condition::create();
         $block = new stdClass();
         $block->name = $name;
         $block->conditionid = $condition->get_id();
-        $blockid = $DB->insert_record('adaptivequiz_block', $block);
+        $blockid = $DB->insert_record('ddtaquiz_block', $block);
 
         return new block($blockid, $quiz, $block->name, null, $condition);
     }
@@ -117,7 +117,7 @@ class block {
             return;
         }
 
-        $children = $DB->get_records('adaptivequiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
+        $children = $DB->get_records('ddtaquiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
 
         $this->children = array_map(function($id) {
                                         return block_element::load($this->quiz, $id->id);
@@ -138,10 +138,10 @@ class block {
             $qinstance->blockid = $this->id;
             $qinstance->blockelement = $questionid;
             $qinstance->type = 0;
-            $qinstance->grade = 0; // TODO: ???
+            $qinstance->grade = 0;
             $qinstance->slot = count($this->get_children());
     
-            $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
+            $id = $DB->insert_record('ddtaquiz_qinstance', $qinstance);
     
             $this->load_children();
             array_push($this->children, block_element::load($this->quiz, $id));
@@ -161,10 +161,10 @@ class block {
             $qinstance->blockid = $this->id;
             $qinstance->blockelement = $block->get_id();
             $qinstance->type = 1;
-            $qinstance->grade = 0; // TODO: ???
+            $qinstance->grade = 0;
             $qinstance->slot = count($this->get_children());
     
-            $id = $DB->insert_record('adaptivequiz_qinstance', $qinstance);
+            $id = $DB->insert_record('ddtaquiz_qinstance', $qinstance);
     
             $this->load_children();
             array_push($this->children, block_element::load($this->quiz, $id));
@@ -239,7 +239,7 @@ class block {
     }
 
     /**
-     * Removes the child with the give adaptivequiz_qinstance id.
+     * Removes the child with the given ddtaquiz_qinstance id.
      *
      * @param int $id the id of the child to remove.
      */
@@ -247,7 +247,7 @@ class block {
         if (!$this->get_quiz()->has_attempts()) {
             global $DB;
     
-            $DB->delete_records('adaptivequiz_qinstance', array('id' => $id));
+            $DB->delete_records('ddtaquiz_qinstance', array('id' => $id));
     
             // Necessary because now the loaded children information is outdated.
             $this->children = null;
@@ -286,7 +286,7 @@ class block {
         $record = new stdClass();
         $record->id = $this->id;
         $record->name = $name;
-        $DB->update_record('adaptivequiz_block', $record);
+        $DB->update_record('ddtaquiz_block', $record);
     }
 
     /**
@@ -301,7 +301,7 @@ class block {
     /**
      * Returns the quiz of the block.
      *
-     * @return adaptivequiz the quiz, this block belongs to.
+     * @return ddtaquiz the quiz, this block belongs to.
      */
     public function get_quiz() {
         return $this->quiz;
@@ -575,7 +575,7 @@ class block {
 class block_element {
     /** @var int the id of the block_element. */
     protected $id = 0;
-    /** @var adaptivequiz the quiz, this element belongs to. */
+    /** @var ddtaquiz the quiz, this element belongs to. */
     protected $quiz = null;
     /** @var int the type of the block_element: 0 = question, 1 = block. */
     protected $type = 0;
@@ -591,13 +591,13 @@ class block_element {
      * Constructor, assuming we already have the necessary data loaded.
      *
      * @param int $id the id of the block_elem.
-     * @param adaptivequiz $quiz the quiz this reference belongs to.
+     * @param ddtaquiz $quiz the quiz this reference belongs to.
      * @param int $type the type of this block_element.
      * @param int $elementid the id of the element referenced.
      * @param object $element the element referenced by this block.
      * @param int $slot the slot of this element.
      */
-    public function __construct($id, adaptivequiz $quiz, $type, $elementid, $element, $slot) {
+    public function __construct($id, ddtaquiz $quiz, $type, $elementid, $element, $slot) {
         $this->id = $id;
         $this->quiz = $quiz;
         $this->type = $type;
@@ -609,14 +609,14 @@ class block_element {
     /**
      * Static function to get a block_element object from a its id.
      *
-     * @param adaptivequiz $quiz the quiz this reference belongs to.
+     * @param ddtaquiz $quiz the quiz this reference belongs to.
      * @param int $blockelementid the blockelement id.
      * @return block the new block object.
      */
-    public static function load(adaptivequiz $quiz, $blockelementid) {
+    public static function load(ddtaquiz $quiz, $blockelementid) {
         global $DB;
 
-        $questioninstance = $DB->get_record('adaptivequiz_qinstance', array('id' => $blockelementid), '*', IGNORE_MISSING);
+        $questioninstance = $DB->get_record('ddtaquiz_qinstance', array('id' => $blockelementid), '*', IGNORE_MISSING);
 
         $element = null;
         if (!$questioninstance) {
@@ -758,7 +758,7 @@ class block_element {
     /**
      * Returns the quiz this block element belongs to.
      *
-     * @return adaptivequiz the quiz.
+     * @return ddtaquiz the quiz.
      */
     public function get_quiz() {
         return $this->quiz;
@@ -791,7 +791,7 @@ class block_element {
             $record->id = $this->id;
             $record->slot = $slot;
 
-            $DB->update_record('adaptivequiz_qinstance', $record);
+            $DB->update_record('ddtaquiz_qinstance', $record);
         }
     }
 }

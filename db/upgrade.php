@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the adaptivequiz module
+ * This file keeps track of upgrades to the ddtaquiz module
  *
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
@@ -24,7 +24,7 @@
  * it cannot do itself, it will tell you what you need to do.  The commands in
  * here will all be database-neutral, using the functions defined in DLL libraries.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,30 +32,15 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute adaptivequiz upgrade from the given old version.
+ * Execute ddtaquiz upgrade from the given old version.
  *
  * @param int $oldversion the current version number.
  * @return bool
  */
-function xmldb_adaptivequiz_upgrade($oldversion) {
+function xmldb_ddtaquiz_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
-
-    if ($oldversion < 2018032500) {
-
-            // Define field grademethod to be added to adaptivequiz.
-        $table = new xmldb_table('adaptivequiz');
-        $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'timemodified');
-
-        // Conditionally launch add field grademethod.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Adaptivequiz savepoint reached.
-        upgrade_mod_savepoint(true, 2018032500, 'adaptivequiz');
-    }
-
+    
     return true;
 }

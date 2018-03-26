@@ -18,13 +18,13 @@
  * A column type for the add this question to the block action.
  *
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @category   question
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\question\bank;
+namespace mod_ddtaquiz\question\bank;
 defined('MOODLE_INTERNAL') || die();
 
 
@@ -40,7 +40,7 @@ class add_action_column extends \core_question\bank\action_column_base {
 
     public function init() {
         parent::init();
-        $this->stradd = get_string('addtoblock', 'adaptivequiz');
+        $this->stradd = get_string('addtoblock', 'ddtaquiz');
     }
 
     public function get_name() {
@@ -52,7 +52,7 @@ class add_action_column extends \core_question\bank\action_column_base {
             return;
         }
         echo \html_writer::start_div('addfromquestionbank', array('data-id' => $question->id));
-        $this->print_icon('t/add', $this->stradd, new \moodle_url('/mod/adaptivequiz/edit.php'));
+        $this->print_icon('t/add', $this->stradd, new \moodle_url('/mod/ddtaquiz/edit.php'));
         echo \html_writer::end_div();
     }
 

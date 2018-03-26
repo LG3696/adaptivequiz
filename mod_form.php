@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The main adaptivequiz configuration form.
+ * The main ddtaquiz configuration form.
  *
  * It uses the standard core Moodle formslib. For more info about them, please
  * visit: http://docs.moodle.org/en/Development:lib/formslib.php
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,11 +32,11 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
 /**
  * Module instance settings form.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_adaptivequiz_mod_form extends moodleform_mod {
+class mod_ddtaquiz_mod_form extends moodleform_mod {
 
     /**
      * Defines forms elements.
@@ -50,7 +50,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('adaptivequizname', 'adaptivequiz'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('ddtaquizname', 'ddtaquiz'), array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -58,7 +58,7 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('name', 'adaptivequizname', 'adaptivequiz');
+        $mform->addHelpButton('name', 'ddtaquizname', 'ddtaquiz');
 
         // Adding the standard "intro" and "introformat" fields.
         if ($CFG->branch >= 29) {
@@ -71,11 +71,11 @@ class mod_adaptivequiz_mod_form extends moodleform_mod {
         $this->standard_grading_coursemodule_elements();
 
         $gradingoptions = array(
-            0 => get_string('grademethod_oneattempt', 'adaptivequiz'),
-            1 => get_string('grademethod_bestattempt', 'adaptivequiz'),
-            2 => get_string('grademethod_lastattempt', 'adaptivequiz')
+            0 => get_string('grademethod_oneattempt', 'ddtaquiz'),
+            1 => get_string('grademethod_bestattempt', 'ddtaquiz'),
+            2 => get_string('grademethod_lastattempt', 'ddtaquiz')
         );
-        $mform->addElement('select', 'grademethod', get_string('grademethod', 'adaptivequiz'), $gradingoptions);
+        $mform->addElement('select', 'grademethod', get_string('grademethod', 'ddtaquiz'), $gradingoptions);
         $mform->setDefault('grademethod', 0);
 
         // Add standard elements, common to all modules.

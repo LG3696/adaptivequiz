@@ -1,5 +1,5 @@
-# Adaptive Quiz for Moodle
-The "Adaptive Quiz" activity is a plugin for the open-source learning platform Moodle.
+# DDTA Quiz for Moodle
+The "DDTA Quiz" (Digital Diagnostive Test Assignment) activity is a plugin for the open-source learning platform Moodle.
 Like the standard "Quiz" activity, a teacher can create a test for students to take.
 The test consist of a number of questions aswell, but in contrast to the standard quiz 
 it is possible to show questions depending on the performance of the student in previous questions.

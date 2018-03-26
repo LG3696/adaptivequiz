@@ -17,12 +17,12 @@
 /**
  * This file defines the responses report class.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,10 +42,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class responses extends attempts {
 
-    public function display($cm, $course, \adaptivequiz $quiz) {
+    public function display($cm, $course, \ddtaquiz $quiz) {
         global $OUTPUT;
 
-        list($currentgroup, $students, $groupstudents, $allowed) = $this->init('\mod_adaptivequiz\report\responses_form',
+        list($currentgroup, $students, $groupstudents, $allowed) = $this->init('\mod_ddtaquiz\report\responses_form',
             $quiz, $cm, $course);
         $options = new responses_options($quiz, $cm, $course);
 
@@ -73,7 +73,7 @@ class responses extends attempts {
                 array('context' => \context_course::instance($course->id)));
         $table = new responses_table($quiz, $this->context, $this->qmsubselect,
             $options, $groupstudents, $students, $questions, $options->get_url());
-        $filename = $this->download_filename(get_string('responsesfilename', 'adaptivequiz'),
+        $filename = $this->download_filename(get_string('responsesfilename', 'ddtaquiz'),
             $courseshortname, $quiz->get_name());
         $table->is_downloading($options->download, $filename,
                 $courseshortname . ' ' . format_string($quiz->get_name(), true));
@@ -100,7 +100,7 @@ class responses extends attempts {
         if (!$table->is_downloading()) {
             // Do not print notices when downloading.
             $numattempts = $quiz->get_num_attempts();
-            $strattemptsnum = get_string('attemptsnum', 'adaptivequiz', $numattempts);
+            $strattemptsnum = get_string('attemptsnum', 'ddtaquiz', $numattempts);
             echo '<div class="quizattemptcounts">' . $strattemptsnum . '</div>';
         }
 
@@ -144,11 +144,11 @@ class responses extends attempts {
                 }
                 if ($options->showresponses) {
                     $columns[] = 'response' . $id;
-                    $headers[] = $question->name;// get_string('responsex', 'adaptivequiz', $question->number);
+                    $headers[] = $question->name;
                 }
                 if ($options->showright) {
                     $columns[] = 'right' . $id;
-                    $headers[] = get_string('rightanswerx', 'adaptivequiz', $question->number);
+                    $headers[] = get_string('rightanswerx', 'ddtaquiz', $question->number);
                 }
             }
 
@@ -160,7 +160,7 @@ class responses extends attempts {
     }
 
     protected function get_base_url() {
-        return new \moodle_url('/mod/adaptivequiz/report.php',
+        return new \moodle_url('/mod/ddtaquiz/report.php',
             array('id' => $this->context->instanceid, 'mode' => 'responses'));
     }
 }

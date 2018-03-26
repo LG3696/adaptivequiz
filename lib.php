@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of interface functions and constants for module adaptivequiz.
+ * Library of interface functions and constants for module ddtaquiz.
  *
  * All the core Moodle functions, neeeded to allow the module to work
  * integrated in Moodle should be placed here.
  *
- * All the adaptivequiz specific functions, needed to implement all the module
+ * All the ddtaquiz specific functions, needed to implement all the module
  * logic, should go to locallib.php. This will help to save some memory when
  * Moodle is performing actions across all modules.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,7 +41,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param string $feature FEATURE_xx constant for requested feature.
  * @return mixed true if the feature is supported, null if unknown.
  */
-function adaptivequiz_supports($feature) {
+function ddtaquiz_supports($feature) {
 
     switch($feature) {
         case FEATURE_MOD_INTRO:
@@ -60,56 +60,56 @@ function adaptivequiz_supports($feature) {
 }
 
 /**
- * Saves a new instance of the adaptivequiz into the database.
+ * Saves a new instance of the ddtaquiz into the database.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param stdClass $adaptivequiz Submitted data from the form in mod_form.php.
- * @param mod_adaptivequiz_mod_form $mform The form instance itself (if needed).
- * @return int The id of the newly inserted adaptivequiz record.
+ * @param stdClass $ddtaquiz Submitted data from the form in mod_form.php.
+ * @param mod_ddtaquiz_mod_form $mform The form instance itself (if needed).
+ * @return int The id of the newly inserted ddtaquiz record.
  */
-function adaptivequiz_add_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_form $mform = null) {
+function ddtaquiz_add_instance(stdClass $ddtaquiz, mod_ddtaquiz_mod_form $mform = null) {
     global $DB;
 
-    $adaptivequiz->timecreated = time();
+    $ddtaquiz->timecreated = time();
 
     $mainblock = new stdClass();
-    $mainblock->name = $adaptivequiz->name;
-    $mainblockid = $DB->insert_record('adaptivequiz_block', $mainblock);
+    $mainblock->name = $ddtaquiz->name;
+    $mainblockid = $DB->insert_record('ddtaquiz_block', $mainblock);
 
-    $adaptivequiz->mainblock = $mainblockid;
-    $adaptivequiz->id = $DB->insert_record('adaptivequiz', $adaptivequiz);
+    $ddtaquiz->mainblock = $mainblockid;
+    $ddtaquiz->id = $DB->insert_record('ddtaquiz', $ddtaquiz);
 
-    adaptivequiz_grade_item_update($adaptivequiz);
+    ddtaquiz_grade_item_update($ddtaquiz);
 
-    return $adaptivequiz->id;
+    return $ddtaquiz->id;
 }
 
 /**
- * Updates an instance of the adaptivequiz in the database.
+ * Updates an instance of the ddtaquiz in the database.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param stdClass $adaptivequiz An object from the form in mod_form.php.
- * @param mod_adaptivequiz_mod_form $mform The form instance itself (if needed).
+ * @param stdClass $ddtaquiz An object from the form in mod_form.php.
+ * @param mod_ddtaquiz_mod_form $mform The form instance itself (if needed).
  * @return boolean Success/Fail.
  */
-function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_mod_form $mform = null) {
+function ddtaquiz_update_instance(stdClass $ddtaquiz, mod_ddtaquiz_mod_form $mform = null) {
     global $DB;
 
-    $adaptivequiz->timemodified = time();
-    $adaptivequiz->id = $adaptivequiz->instance;
+    $ddtaquiz->timemodified = time();
+    $ddtaquiz->id = $ddtaquiz->instance;
 
     // You may have to add extra stuff in here.
 
-    $result = $DB->update_record('adaptivequiz', $adaptivequiz);
+    $result = $DB->update_record('ddtaquiz', $ddtaquiz);
 
-    adaptivequiz_grade_item_update($adaptivequiz);
+    ddtaquiz_grade_item_update($ddtaquiz);
 
     return $result;
 }
@@ -117,36 +117,36 @@ function adaptivequiz_update_instance(stdClass $adaptivequiz, mod_adaptivequiz_m
 /**
  * This standard function will check all instances of this module.
  * and make sure there are up-to-date events created for each of them.
- * If courseid = 0, then every adaptivequiz event in the site is checked, else
- * only adaptivequiz events belonging to the course specified are checked.
+ * If courseid = 0, then every ddtaquiz event in the site is checked, else
+ * only ddtaquiz events belonging to the course specified are checked.
  * This is only required if the module is generating calendar events.
  *
  * @param int $courseid the Course ID.
  * @return bool
  */
-function adaptivequiz_refresh_events($courseid = 0) {
+ function ddtaquiz_refresh_events($courseid = 0) {
     global $DB;
 
     if ($courseid == 0) {
-        if (!$adaptivequizs = $DB->get_records('adaptivequiz')) {
+        if (!$ddtaquizs = $DB->get_records('ddtaquiz')) {
             return true;
         }
     } else {
-        if (!$adaptivequizs = $DB->get_records('adaptivequiz', array('course' => $courseid))) {
+        if (!$ddtaquizs = $DB->get_records('ddtaquiz', array('course' => $courseid))) {
             return true;
         }
     }
 
-    foreach ($adaptivequizs as $adaptivequiz) {
+    foreach ($ddtaquizs as $ddtaquiz) {
         // Create a function such as the one below to deal with updating calendar events.
-        // adaptivequiz_update_events($adaptivequiz); .
+        // ddtaquiz_update_events($ddtaquiz); .
     }
 
     return true;
 }
 
 /**
- * Removes an instance of the adaptivequiz from the database.
+ * Removes an instance of the ddtaquiz from the database.
  *
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
@@ -155,18 +155,18 @@ function adaptivequiz_refresh_events($courseid = 0) {
  * @param int $id Id of the module instance.
  * @return boolean Success/Failure.
  */
-function adaptivequiz_delete_instance($id) {
+function ddtaquiz_delete_instance($id) {
     global $DB;
 
-    if (! $adaptivequiz = $DB->get_record('adaptivequiz', array('id' => $id))) {
+    if (! $ddtaquiz = $DB->get_record('ddtaquiz', array('id' => $id))) {
         return false;
     }
 
     // Delete any dependent records here.
 
-    $DB->delete_records('adaptivequiz', array('id' => $adaptivequiz->id));
+    $DB->delete_records('ddtaquiz', array('id' => $ddtaquiz->id));
 
-    adaptivequiz_grade_item_delete($adaptivequiz);
+    ddtaquiz_grade_item_delete($ddtaquiz);
 
     return true;
 }
@@ -182,10 +182,10 @@ function adaptivequiz_delete_instance($id) {
  * @param stdClass $course The course record.
  * @param stdClass $user The user record.
  * @param cm_info|stdClass $mod The course module info object or record.
- * @param stdClass $adaptivequiz The adaptivequiz instance record.
+ * @param stdClass $ddtaquiz The ddtaquiz instance record.
  * @return stdClass|null information about what a user has done with a given particular instance of this module.
  */
-function adaptivequiz_user_outline($course, $user, $mod, $adaptivequiz) {
+function ddtaquiz_user_outline($course, $user, $mod, $ddtaquiz) {
 
     $return = new stdClass();
     $return->time = 0;
@@ -202,21 +202,21 @@ function adaptivequiz_user_outline($course, $user, $mod, $adaptivequiz) {
  * @param stdClass $course the current course record.
  * @param stdClass $user the record of the user we are generating report for.
  * @param cm_info $mod course module info.
- * @param stdClass $adaptivequiz the module instance record.
+ * @param stdClass $ddtaquiz the module instance record.
  */
-function adaptivequiz_user_complete($course, $user, $mod, $adaptivequiz) {
+function ddtaquiz_user_complete($course, $user, $mod, $ddtaquiz) {
 }
 
 /**
  * Given a course and a time, this module should find recent activity
- * that has occurred in adaptivequiz activities and print it out.
+ * that has occurred in ddtaquiz activities and print it out.
  *
  * @param stdClass $course The course record.
  * @param bool $viewfullnames Should we display full names.
  * @param int $timestart Print activity since this timestamp.
  * @return boolean True if anything was printed, otherwise false.
  */
-function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart) {
+function ddtaquiz_print_recent_activity($course, $viewfullnames, $timestart) {
     return false;
 }
 
@@ -225,7 +225,7 @@ function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart)
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link adaptivequiz_print_recent_mod_activity()}.
+ * {@link ddtaquiz_print_recent_mod_activity()}.
  *
  * Returns void, it adds items into $activities and increases $index.
  *
@@ -237,11 +237,11 @@ function adaptivequiz_print_recent_activity($course, $viewfullnames, $timestart)
  * @param int $userid check for a particular user's activity only, defaults to 0 (all users).
  * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups).
  */
-function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+function ddtaquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
 }
 
 /**
- * Prints single activity item prepared by {@link adaptivequiz_get_recent_mod_activity()}.
+ * Prints single activity item prepared by {@link ddtaquiz_get_recent_mod_activity()}.
  *
  * @param stdClass $activity activity record with added 'cmid' property.
  * @param int $courseid the id of the course we produce the report for.
@@ -249,7 +249,7 @@ function adaptivequiz_get_recent_mod_activity(&$activities, &$index, $timestart,
  * @param array $modnames as returned by {@link get_module_types_names()}.
  * @param bool $viewfullnames display users' full names.
  */
-function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
+function ddtaquiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
 }
 
 /**
@@ -262,7 +262,7 @@ function adaptivequiz_print_recent_mod_activity($activity, $courseid, $detail, $
  *
  * @return boolean
  */
-function adaptivequiz_cron () {
+function ddtaquiz_cron () {
     return true;
 }
 
@@ -274,26 +274,26 @@ function adaptivequiz_cron () {
  *
  * @return array
  */
-function adaptivequiz_get_extra_capabilities() {
+function ddtaquiz_get_extra_capabilities() {
     return array();
 }
 
 /* Gradebook API */
 
 /**
- * Is a given scale used by the instance of adaptivequiz?
+ * Is a given scale used by the instance of ddtaquiz?
  *
- * This function returns if a scale is being used by one adaptivequiz
+ * This function returns if a scale is being used by one ddtaquiz
  * if it has support for grading and scales.
  *
- * @param int $adaptivequizid ID of an instance of this module.
+ * @param int $ddtaquizid ID of an instance of this module.
  * @param int $scaleid ID of the scale.
- * @return bool true if the scale is used by the given adaptivequiz instance.
+ * @return bool true if the scale is used by the given ddtaquiz instance.
  */
-function adaptivequiz_scale_used($adaptivequizid, $scaleid) {
+function ddtaquiz_scale_used($ddtaquizid, $scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('adaptivequiz', array('id' => $adaptivequizid, 'grade' => -$scaleid))) {
+    if ($scaleid and $DB->record_exists('ddtaquiz', array('id' => $ddtaquizid, 'grade' => -$scaleid))) {
         return true;
     } else {
         return false;
@@ -301,17 +301,17 @@ function adaptivequiz_scale_used($adaptivequizid, $scaleid) {
 }
 
 /**
- * Checks if scale is being used by any instance of adaptivequiz.
+ * Checks if scale is being used by any instance of ddtaquiz.
  *
  * This is used to find out if scale used anywhere.
  *
  * @param int $scaleid ID of the scale.
- * @return boolean true if the scale is used by any adaptivequiz instance.
+ * @return boolean true if the scale is used by any ddtaquiz instance.
  */
-function adaptivequiz_scale_used_anywhere($scaleid) {
+function ddtaquiz_scale_used_anywhere($scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('adaptivequiz', array('grade' => -$scaleid))) {
+    if ($scaleid and $DB->record_exists('ddtaquiz', array('grade' => -$scaleid))) {
         return true;
     } else {
         return false;
@@ -319,29 +319,29 @@ function adaptivequiz_scale_used_anywhere($scaleid) {
 }
 
 /**
- * Creates or updates grade item for the given adaptivequiz instance
+ * Creates or updates grade item for the given ddtaquiz instance
  *
  * Needed by {@link grade_update_mod_grades()}.
  *
- * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property.
+ * @param stdClass $ddtaquiz instance object with extra cmidnumber and modname property.
  * @param mixed  $grades Grade (object, array) or several grades (arrays of arrays or objects),
  *  NULL if updating grade_item definition only. If $grades equals 'reset'resets grades in the gradebook.
  */
-function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades=null) {
+function ddtaquiz_grade_item_update(stdClass $ddtaquiz, $grades=null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
     $item = array();
-    $item['itemname'] = clean_param($adaptivequiz->name, PARAM_NOTAGS);
+    $item['itemname'] = clean_param($ddtaquiz->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
 
-    if ($adaptivequiz->grade > 0) {
+    if ($ddtaquiz->grade > 0) {
         $item['gradetype'] = GRADE_TYPE_VALUE;
-        $item['grademax']  = $adaptivequiz->grade;
+        $item['grademax']  = $ddtaquiz->grade;
         $item['grademin']  = 0;
-    } else if ($adaptivequiz->grade < 0) {
+    } else if ($ddtaquiz->grade < 0) {
         $item['gradetype'] = GRADE_TYPE_SCALE;
-        $item['scaleid']   = -$adaptivequiz->grade;
+        $item['scaleid']   = -$ddtaquiz->grade;
     } else {
         $item['gradetype'] = GRADE_TYPE_NONE;
     }
@@ -350,40 +350,40 @@ function adaptivequiz_grade_item_update(stdClass $adaptivequiz, $grades=null) {
         $item['reset'] = true;
     }
 
-    grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz',
-            $adaptivequiz->id, 0, $grades, $item);
+    grade_update('mod/ddtaquiz', $ddtaquiz->course, 'mod', 'ddtaquiz',
+        $ddtaquiz->id, 0, $grades, $item);
 }
 
 /**
- * Delete grade item for given adaptivequiz instance.
+ * Delete grade item for given ddtaquiz instance.
  *
- * @param stdClass $adaptivequiz instance object.
+ * @param stdClass $ddtaquiz instance object.
  * @return grade_item
  */
-function adaptivequiz_grade_item_delete($adaptivequiz) {
+function ddtaquiz_grade_item_delete($ddtaquiz) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    return grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz',
-            $adaptivequiz->id, 0, null, array('deleted' => 1));
+    return grade_update('mod/ddtaquiz', $ddtaquiz->course, 'mod', 'ddtaquiz',
+        $ddtaquiz->id, 0, null, array('deleted' => 1));
 }
 
 /**
- * Update adaptivequiz grades in the gradebook.
+ * Update ddtaquiz grades in the gradebook.
  *
  * Needed by {@link grade_update_mod_grades()}.
  *
- * @param stdClass $adaptivequiz instance object with extra cmidnumber and modname property.
+ * @param stdClass $ddtaquiz instance object with extra cmidnumber and modname property.
  * @param int $userid update grade of specific user only, 0 means all participants.
  */
-function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid = 0) {
+function ddtaquiz_update_grades(stdClass $ddtaquiz, $userid = 0) {
     global $CFG, $DB;
     require_once($CFG->libdir.'/gradelib.php');
 
     // Populate array of grade objects indexed by userid.
-    $grades = adaptivequiz_get_user_grades($adaptivequiz, $userid);
+    $grades = ddtaquiz_get_user_grades($ddtaquiz, $userid);
 
-    grade_update('mod/adaptivequiz', $adaptivequiz->course, 'mod', 'adaptivequiz', $adaptivequiz->id, 0, $grades);
+    grade_update('mod/ddtaquiz', $ddtaquiz->course, 'mod', 'ddtaquiz', $ddtaquiz->id, 0, $grades);
 }
 
 /* File API */
@@ -399,14 +399,14 @@ function adaptivequiz_update_grades(stdClass $adaptivequiz, $userid = 0) {
  * @param stdClass $context
  * @return array of [(string)filearea] => (string)description
  */
-function adaptivequiz_get_file_areas($course, $cm, $context) {
+function ddtaquiz_get_file_areas($course, $cm, $context) {
     return array();
 }
 
 /**
- * File browsing support for adaptivequiz file areas
+ * File browsing support for ddtaquiz file areas
  *
- * @package mod_adaptivequiz
+ * @package mod_ddtaquiz
  * @category files
  *
  * @param file_browser $browser
@@ -420,25 +420,25 @@ function adaptivequiz_get_file_areas($course, $cm, $context) {
  * @param string $filename
  * @return file_info instance or null if not found
  */
-function adaptivequiz_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
+function ddtaquiz_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
     return null;
 }
 
 /**
- * Serves the files from the adaptivequiz file areas.
+ * Serves the files from the ddtaquiz file areas.
  *
- * @package mod_adaptivequiz
+ * @package mod_ddtaquiz
  * @category files
  *
  * @param stdClass $course the course object.
  * @param stdClass $cm the course module object.
- * @param stdClass $context the adaptivequiz's context.
+ * @param stdClass $context the ddtaquiz's context.
  * @param string $filearea the name of the file area.
  * @param array $args extra arguments (itemid, path).
  * @param bool $forcedownload whether or not force download.
  * @param array $options additional options affecting the file serving.
  */
-function adaptivequiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
+function ddtaquiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
     global $DB, $CFG;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -453,36 +453,22 @@ function adaptivequiz_pluginfile($course, $cm, $context, $filearea, array $args,
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding adaptivequiz nodes if there is a relevant content.
+ * Extends the settings navigation with the ddtaquiz settings.
  *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the adaptivequiz module instance.
- * @param stdClass $course current course record.
- * @param stdClass $module current adaptivequiz instance record.
- * @param cm_info $cm course module information.
- */
-function adaptivequiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // TODO Delete this function and its docblock, or implement it.
-}
-
-/**
- * Extends the settings navigation with the adaptivequiz settings.
- *
- * This function is called when the context for the page is a adaptivequiz module. This is not called by AJAX
+ * This function is called when the context for the page is a ddtaquiz module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
  *
  * @param settings_navigation $settingsnav complete settings navigation tree.
- * @param navigation_node $adaptivequiznode adaptivequiz administration node.
+ * @param navigation_node $ddtaquiznode ddtaquiz administration node.
  */
-function adaptivequiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $adaptivequiznode=null) {
+function ddtaquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $ddtaquiznode=null) {
     global $PAGE, $CFG, $DB;
 
     require_once($CFG->dirroot . '/question/editlib.php');
 
     // We want to add these new nodes after the Edit settings node, and before the
     // Locally assigned roles node. Of course, both of those are controlled by capabilities.
-    $keys = $adaptivequiznode->get_children_key_list();
+    $keys = $ddtaquiznode->get_children_key_list();
     $beforekey = null;
     $i = array_search('modedit', $keys);
     if ($i === false and array_key_exists(0, $keys)) {
@@ -492,39 +478,39 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
     }
 
     // Edit Quiz button.
-    if (has_capability('mod/adaptivequiz:manage', $PAGE->cm->context)) {
-        $node = navigation_node::create(get_string('editquiz', 'adaptivequiz'),
-                new moodle_url('/mod/adaptivequiz/edit.php', array('cmid' => $PAGE->cm->id)),
-                navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_edit',
+    if (has_capability('mod/ddtaquiz:manage', $PAGE->cm->context)) {
+        $node = navigation_node::create(get_string('editquiz', 'ddtaquiz'),
+                new moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $PAGE->cm->id)),
+                navigation_node::TYPE_SETTING, null, 'mod_ddtaquiz_edit',
                 new pix_icon('t/edit', ''));
-        $adaptivequiznode->add_node($node, $beforekey);
+        $ddtaquiznode->add_node($node, $beforekey);
     }
 
     // Preview Quiz button.
-    if (has_capability('mod/adaptivequiz:preview', $PAGE->cm->context)) {
-        $url = new moodle_url('/mod/adaptivequiz/startattempt.php',
+    if (has_capability('mod/ddtaquiz:preview', $PAGE->cm->context)) {
+        $url = new moodle_url('/mod/ddtaquiz/startattempt.php',
             array('cmid' => $PAGE->cm->id, 'sesskey' => sesskey()));
-        $node = navigation_node::create(get_string('preview', 'adaptivequiz'), $url,
-            navigation_node::TYPE_SETTING, null, 'mod_adaptivequiz_preview',
+        $node = navigation_node::create(get_string('preview', 'ddtaquiz'), $url,
+            navigation_node::TYPE_SETTING, null, 'mod_ddtaquiz_preview',
             new pix_icon('i/preview', ''));
-        $adaptivequiznode->add_node($node, $beforekey);
+        $ddtaquiznode->add_node($node, $beforekey);
     }
 
     // Report buttons.
-    if (has_any_capability(array('mod/adaptivequiz:viewreports', 'mod/adaptivequiz:grade'), $PAGE->cm->context)) {
-        $url = new moodle_url('/mod/adaptivequiz/report.php',
+    if (has_any_capability(array('mod/ddtaquiz:viewreports', 'mod/ddtaquiz:grade'), $PAGE->cm->context)) {
+        $url = new moodle_url('/mod/ddtaquiz/report.php',
             array('id' => $PAGE->cm->id, 'mode' => 'overview'));
-        $reportnode = $adaptivequiznode->add_node(navigation_node::create(get_string('results', 'adaptivequiz'), $url,
+        $reportnode = $ddtaquiznode->add_node(navigation_node::create(get_string('results', 'ddtaquiz'), $url,
             navigation_node::TYPE_SETTING,
             null, null, new pix_icon('i/report', '')), $beforekey);
 
-        $reportnode->add_node(navigation_node::create(get_string('grades', 'adaptivequiz'), $url,
+        $reportnode->add_node(navigation_node::create(get_string('grades', 'ddtaquiz'), $url,
             navigation_node::TYPE_SETTING,
             null, null, new pix_icon('i/item', '')));
 
-        $url = new moodle_url('/mod/adaptivequiz/report.php',
+        $url = new moodle_url('/mod/ddtaquiz/report.php',
             array('id' => $PAGE->cm->id, 'mode' => 'responses'));
-        $reportnode->add_node(navigation_node::create(get_string('responses', 'adaptivequiz'), $url,
+        $reportnode->add_node(navigation_node::create(get_string('responses', 'ddtaquiz'), $url,
             navigation_node::TYPE_SETTING,
             null, null, new pix_icon('i/item', '')));
     }
@@ -533,14 +519,14 @@ function adaptivequiz_extend_settings_navigation(settings_navigation $settingsna
 /**
  * Return grade for given user or all users.
  *
- * @param stdClass $adaptivequiz id of adaptivequiz.
+ * @param stdClass $ddtaquiz id of ddtaquiz.
  * @param int $userid optional user id, 0 means all users.
  * @return array array of grades, false if none.
  */
-function adaptivequiz_get_user_grades(stdClass $adaptivequiz, $userid = 0) {
+function ddtaquiz_get_user_grades(stdClass $ddtaquiz, $userid = 0) {
     global $CFG, $DB;
 
-    $params = array($adaptivequiz->id);
+    $params = array($ddtaquiz->id);
     $usertest = '';
     if ($userid) {
         $params[] = $userid;
@@ -555,8 +541,8 @@ function adaptivequiz_get_user_grades(stdClass $adaptivequiz, $userid = 0) {
                 MAX(qa.timefinish) AS datesubmitted
 
             FROM {user} u
-            JOIN {adaptivequiz_grades} qg ON u.id = qg.userid
-            JOIN {adaptivequiz_attempts} qa ON qa.quiz = qg.quiz AND qa.userid = u.id
+            JOIN {ddtaquiz_grades} qg ON u.id = qg.userid
+            JOIN {ddtaquiz_attempts} qa ON qa.quiz = qg.quiz AND qa.userid = u.id
 
             WHERE qg.quiz = ?
             $usertest

@@ -18,12 +18,12 @@
  * The file defines a base class that can be used to build a report like the
  * overview or responses report, that has one row per attempt.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -54,7 +54,7 @@ abstract class attempts {
     /** @var object the quiz context. */
     protected $context;
 
-    /** @var \adaptivequiz $quiz the quiz. */
+    /** @var \ddtaquiz $quiz the quiz. */
     protected $quiz = null;
 
     /** @var attempts_form The settings form to use. */
@@ -71,9 +71,9 @@ abstract class attempts {
      * Override this function to displays the report.
      * @param object $cm the course-module for this quiz.
      * @param object $course the coures we are in.
-     * @param \adaptivequiz $quiz this quiz.
+     * @param \ddtaquiz $quiz this quiz.
      */
-    public abstract function display($cm, $course, \adaptivequiz $quiz);
+    public abstract function display($cm, $course, \ddtaquiz $quiz);
 
     /**
      *  Initialise various aspects of this report.
@@ -102,7 +102,7 @@ abstract class attempts {
      *
      * @param object $cm the course_module information.
      * @param object $coures the course settings.
-     * @param \adaptivequiz $quiz the quiz.
+     * @param \ddtaquiz $quiz the quiz.
      */
     public function print_header_and_tabs($cm, $course, $quiz) {
         global $PAGE, $OUTPUT;
@@ -160,7 +160,7 @@ abstract class attempts {
         }
 
         if (!$students = get_users_by_capability($this->context,
-            array('mod/adaptivequiz:attempt'),
+            array('mod/ddtaquiz:attempt'),
             'u.id, 1', '', '', '', '', '', false)) {
             $students = array();
         } else {
@@ -173,7 +173,7 @@ abstract class attempts {
 
         // We have a currently selected group.
         if (!$groupstudents = get_users_by_capability($this->context,
-            array('mod/adaptivequiz:attempt'),
+            array('mod/ddtaquiz:attempt'),
             'u.id, 1', '', '', '', $currentgroup, '', false)) {
             $groupstudents = array();
         } else {
@@ -251,7 +251,7 @@ abstract class attempts {
      */
     protected function add_state_column(&$columns, &$headers) {
         $columns[] = 'state';
-        $headers[] = get_string('attemptstate', 'adaptivequiz');
+        $headers[] = get_string('attemptstate', 'ddtaquiz');
     }
 
     /**
@@ -261,26 +261,26 @@ abstract class attempts {
      */
     protected function add_time_columns(&$columns, &$headers) {
         $columns[] = 'timestart';
-        $headers[] = get_string('startedon', 'adaptivequiz');
+        $headers[] = get_string('startedon', 'ddtaquiz');
 
         $columns[] = 'timefinish';
-        $headers[] = get_string('timecompleted', 'adaptivequiz');
+        $headers[] = get_string('timecompleted', 'ddtaquiz');
 
         $columns[] = 'duration';
-        $headers[] = get_string('attemptduration', 'adaptivequiz');
+        $headers[] = get_string('attemptduration', 'ddtaquiz');
     }
 
     /**
      * Add all the grade and feedback columns, if applicable, to the $columns
      * and $headers arrays.
-     * @param \adaptivequiz $quiz the quiz.
+     * @param \ddtaquiz $quiz the quiz.
      * @param array $columns the list of columns. Added to.
      * @param array $headers the columns headings. Added to.
      * @param bool $includefeedback whether to include the feedbacktext columns
      */
-    protected function add_grade_columns(\adaptivequiz $quiz, &$columns, &$headers, $includefeedback = true) {
+    protected function add_grade_columns(\ddtaquiz $quiz, &$columns, &$headers, $includefeedback = true) {
         $columns[] = 'sumgrades';
-        $headers[] = get_string('grade', 'adaptivequiz') . '/' .
+        $headers[] = get_string('grade', 'ddtaquiz') . '/' .
             $quiz->format_grade($quiz->get_maxgrade());
     }
 

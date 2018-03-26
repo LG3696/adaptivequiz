@@ -17,14 +17,13 @@
 /**
  * This page prints a review of a particular quiz attempt.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2018 Jana Vatter <jana.vatter@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/attemptlib.php');
 
 // Get submitted parameters.
 $attemptid = required_param('attempt', PARAM_INT);
@@ -32,7 +31,7 @@ $attemptid = required_param('attempt', PARAM_INT);
 $attempt = attempt::load($attemptid);
 $cmid = $attempt->get_quiz()->get_cmid();
 
-if (!$cm = get_coursemodule_from_id('adaptivequiz', $cmid)) {
+if (!$cm = get_coursemodule_from_id('ddtaquiz', $cmid)) {
     print_error('invalidcoursemodule');
 }
 if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
@@ -53,16 +52,16 @@ $params = array(
     )
 );
 
-$event = \mod_adaptivequiz\event\attempt_reviewed::create($params);
+$event = \mod_ddtaquiz\event\attempt_reviewed::create($params);
 $event->trigger();
 
 $options = new question_display_options();
 $options->flags = question_display_options::HIDDEN;
 
-$adaptivequiz = adaptivequiz::load($cm->instance);
+$ddtaquiz = ddtaquiz::load($cm->instance);
 $PAGE->set_url($attempt->review_url());
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(format_string($adaptivequiz->get_main_block()->get_name()));
+$PAGE->set_title(format_string($ddtaquiz->get_main_block()->get_name()));
 $PAGE->set_heading($course->fullname);
 
 $timestart = $attempt->get_start_time();
@@ -71,29 +70,29 @@ $timetaken = format_time($timefinish - $timestart);
 
 $summarydata = array();
 $summarydata['startedon'] = array(
-    'title'   => get_string('startedon', 'adaptivequiz'),
+    'title'   => get_string('startedon', 'ddtaquiz'),
     'content' => userdate($timestart));
 
 $summarydata['state'] = array(
-    'title'   => get_string('attemptstate', 'adaptivequiz'),
+    'title'   => get_string('attemptstate', 'ddtaquiz'),
     'content' => $attempt->get_state());
 
 $summarydata['completedon'] = array(
-    'title'   => get_string('completedon', 'adaptivequiz'),
+    'title'   => get_string('completedon', 'ddtaquiz'),
     'content' => userdate($timefinish));
 
 $summarydata['timetaken'] = array(
-    'title'   => get_string('timetaken', 'adaptivequiz'),
+    'title'   => get_string('timetaken', 'ddtaquiz'),
     'content' => $timetaken);
 
 $a = new stdClass();
-$a->grade = $adaptivequiz->format_grade($attempt->get_sumgrades());
-$a->maxgrade = $adaptivequiz->format_grade($adaptivequiz->get_maxgrade());
+$a->grade = $ddtaquiz->format_grade($attempt->get_sumgrades());
+$a->maxgrade = $ddtaquiz>format_grade($ddtaquiz->get_maxgrade());
 $summarydata['marks'] = array(
-    'title'   => get_string('marks', 'adaptivequiz'),
-    'content' => get_string('outofshort', 'adaptivequiz', $a));
+    'title'   => get_string('marks', 'ddtaquiz'),
+    'content' => get_string('outofshort', 'ddtaquiz', $a));
 
-$output = $PAGE->get_renderer('mod_adaptivequiz');
+$output = $PAGE->get_renderer('mod_ddtaquiz');
 
 $feedback = feedback::get_feedback($attempt->get_quiz());
 

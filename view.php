@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints a particular adaptive quiz.
+ * Prints a particular ddta quiz.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,53 +25,53 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
-require_once($CFG->dirroot . '/mod/adaptivequiz/renderer.php');
+require_once($CFG->dirroot . '/mod/ddtaquiz/renderer.php');
 
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$n  = optional_param('n', 0, PARAM_INT);  // ... adaptivequiz instance ID - it should be named as the first character of the module.
+$n  = optional_param('n', 0, PARAM_INT);  // ... ddtaquiz instance ID - it should be named as the first character of the module.
 
 if ($id) {
-    $cm         = get_coursemodule_from_id('adaptivequiz', $id, 0, false, MUST_EXIST);
+    $cm         = get_coursemodule_from_id('ddtaquiz', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $cm->instance), '*', MUST_EXIST);
+    $ddtaquiz  = $DB->get_record('ddtaquiz', array('id' => $cm->instance), '*', MUST_EXIST);
 } else if ($n) {
-    $adaptivequiz  = $DB->get_record('adaptivequiz', array('id' => $n), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $adaptivequiz->course), '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance('adaptivequiz', $adaptivequiz->id, $course->id, false, MUST_EXIST);
+    $ddtaquiz  = $DB->get_record('ddtaquiz', array('id' => $n), '*', MUST_EXIST);
+    $course     = $DB->get_record('course', array('id' => $ddtaquiz->course), '*', MUST_EXIST);
+    $cm         = get_coursemodule_from_instance('ddtaquiz', $ddtaquiz->id, $course->id, false, MUST_EXIST);
 } else {
     error('You must specify a course_module ID or an instance ID');
 }
 
 require_login($course, true, $cm);
 
-$event = \mod_adaptivequiz\event\course_module_viewed::create(array(
+$event = \mod_ddtaquiz\event\course_module_viewed::create(array(
     'objectid' => $PAGE->cm->instance,
     'context' => $PAGE->context,
 ));
 $event->add_record_snapshot('course', $PAGE->course);
-$event->add_record_snapshot($PAGE->cm->modname, $adaptivequiz);
+$event->add_record_snapshot($PAGE->cm->modname, $ddtaquiz);
 $event->trigger();
 
 $context = context_module::instance($id);
-$quiz = adaptivequiz::load($adaptivequiz->id);
+$quiz = ddtaquiz::load($ddtaquiz->id);
 $mainblock = $quiz->get_main_block();
-$canpreview = has_capability('mod/adaptivequiz:preview', $context);
-$canattempt = has_capability('mod/adaptivequiz:attempt', $context);
+$canpreview = has_capability('mod/ddtaquiz:preview', $context);
+$canattempt = has_capability('mod/ddtaquiz:attempt', $context);
 
 $canattempt = attempt::may_start_new_attempt($quiz, $USER->id);
 
-$viewobj = new mod_adaptivequiz_view_object();
+$viewobj = new mod_ddtaquiz_view_object();
 
 $viewobj->cmid = $id;
 $viewobj->quizhasquestions = $mainblock->has_questions();
 $viewobj->preventmessages = array();
-$viewobj->canmanage = has_capability('mod/adaptivequiz:manage', $context);
-$attempts = attempt::get_user_attempts($adaptivequiz->id, $USER->id);
+$viewobj->canmanage = has_capability('mod/ddtaquiz:manage', $context);
+$attempts = attempt::get_user_attempts($ddtaquiz->id, $USER->id);
 $viewobj->attempts = $attempts;
 $viewobj->numattempts = count($attempts);
 
-$unfinishedattempts = attempt::get_user_attempts($adaptivequiz->id, $USER->id, 'inprogress');
+$unfinishedattempts = attempt::get_user_attempts($ddtaquiz->id, $USER->id, 'inprogress');
 $unfinished = end($unfinishedattempts);
 
 if (!$viewobj->quizhasquestions) {
@@ -80,38 +80,31 @@ if (!$viewobj->quizhasquestions) {
     if ($unfinished) {
         $viewobj->unfinishedattempt = $unfinished->get_id();
         if ($canattempt) {
-            $viewobj->buttontext = get_string('continueattemptquiz', 'adaptivequiz');
+            $viewobj->buttontext = get_string('continueattemptquiz', 'ddtaquiz');
         } else if ($canpreview) {
-            $viewobj->buttontext = get_string('continuepreview', 'adaptivequiz');
+            $viewobj->buttontext = get_string('continuepreview', 'ddtaquiz');
         }
 
     } else {
         if ($canattempt) {
             if ($viewobj->numattempts == 0) {
-                $viewobj->buttontext = get_string('attemptquiznow', 'adaptivequiz');
+                $viewobj->buttontext = get_string('attemptquiznow', 'ddtaquiz');
             } else {
-                $viewobj->buttontext = get_string('reattemptquiz', 'adaptivequiz');
+                $viewobj->buttontext = get_string('reattemptquiz', 'ddtaquiz');
             }
 
         } else if ($canpreview) {
-            $viewobj->buttontext = get_string('previewquiznow', 'adaptivequiz');
+            $viewobj->buttontext = get_string('previewquiznow', 'ddtaquiz');
         }
     }
 }
 
 // Print the page header.
 
-$PAGE->set_url('/mod/adaptivequiz/view.php', array('id' => $cm->id));
-$PAGE->set_title(format_string($adaptivequiz->name));
+$PAGE->set_url('/mod/ddtaquiz/view.php', array('id' => $cm->id));
+$PAGE->set_title(format_string($ddtaquiz->name));
 $PAGE->set_heading(format_string($course->fullname));
-$output = $PAGE->get_renderer('mod_adaptivequiz');
-
-/*
- * Other things you may want to set - remove if not needed.
- * $PAGE->set_cacheable(false);
- * $PAGE->set_focuscontrol('some-html-id');
- * $PAGE->add_body_class('adaptivequiz-'.$somevar);
- */
+$output = $PAGE->get_renderer('mod_ddtaquiz');
 
 // Output starts here.
 echo $OUTPUT->header();

@@ -18,13 +18,13 @@
 /**
  * Defines the custom question bank view used on the Edit block page.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @category   external
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\question\bank;
+namespace mod_ddtaquiz\question\bank;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -58,8 +58,8 @@ class custom_view extends \core_question\bank\view {
 
         foreach ($questionbankcolumns as $fullname) {
             if (! class_exists($fullname)) {
-                if (class_exists('mod_adaptivequiz\\question\\bank\\' . $fullname)) {
-                    $fullname = 'mod_adaptivequiz\\question\\bank\\' . $fullname;
+                if (class_exists('mod_ddtaquiz\\question\\bank\\' . $fullname)) {
+                    $fullname = 'mod_ddtaquiz\\question\\bank\\' . $fullname;
                 } else if (class_exists('core_question\\bank\\' . $fullname)) {
                     $fullname = 'core_question\\bank\\' . $fullname;
                 } else {
@@ -90,7 +90,7 @@ class custom_view extends \core_question\bank\view {
     }
 
     // Do not display this.
-    protected function display_options_form($showquestiontext, $scriptpath = '/mod/adaptivequiz/edit.php',
+    protected function display_options_form($showquestiontext, $scriptpath = '/mod/ddtaquiz/edit.php',
         $showtextoption = false) {
         foreach ($this->searchconditions as $searchcondition) {
             echo $searchcondition->display_options($this);
@@ -111,7 +111,7 @@ class custom_view extends \core_question\bank\view {
                 'type' => 'submit',
                 'id' => 'addselected',
                 'name' => 'add',
-                'value' => get_string('addselectedquestionstoquiz', 'adaptivequiz'),
+                'value' => get_string('addselectedquestionstoquiz', 'ddtaquiz'),
             );
             echo \html_writer::empty_tag('input', $params);
         }

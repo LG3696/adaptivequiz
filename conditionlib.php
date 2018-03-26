@@ -17,7 +17,7 @@
 /**
  * Back-end code for handling conditions on blocks and feedback.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -64,9 +64,9 @@ class condition {
         global $DB;
 
         if ($id) {
-            $useand = $DB->get_field('adaptivequiz_condition', 'useand', array('id' => $id), MUST_EXIST);
+            $useand = $DB->get_field('ddtaquiz_condition', 'useand', array('id' => $id), MUST_EXIST);
 
-            $parts = $DB->get_records('adaptivequiz_condition_part', array('conditionid' => $id));
+            $parts = $DB->get_records('ddtaquiz_condition_part', array('conditionid' => $id));
             $partobjs = array_map(function($part) {
                 return new condition_part($part->id, $part->type, $part->on_qinstance, $part->grade);
             },
@@ -89,7 +89,7 @@ class condition {
         $record = new stdClass();
         $record->useand = true;
 
-        $id = $DB->insert_record('adaptivequiz_condition', $record);
+        $id = $DB->insert_record('ddtaquiz_condition', $record);
 
         return new condition($id, array(), $record->useand);
     }
@@ -145,7 +145,7 @@ class condition {
             $record = new stdClass();
             $record->id = $this->id;
             $record->useand = $this->useand;
-            $DB->update_record('adaptivequiz_condition', $record);
+            $DB->update_record('ddtaquiz_condition', $record);
         }
     }
 
@@ -192,7 +192,7 @@ class condition {
             }
             if ($deleted) {
                 global $DB;
-                $DB->delete_records('adaptivequiz_condition_part', array('id' => $existingpart->get_id()));
+                $DB->delete_records('ddtaquiz_condition_part', array('id' => $existingpart->get_id()));
             }
         }
         foreach ($conditionparts as $part) {
@@ -281,7 +281,7 @@ class condition_part {
         $record->type = $type;
         $record->grade = $grade;
 
-        $id = $DB->insert_record('adaptivequiz_condition_part', $record);
+        $id = $DB->insert_record('ddtaquiz_condition_part', $record);
 
         return new condition_part($id, $type, $elementid, $grade);
     }
@@ -377,7 +377,7 @@ class condition_part {
             $record->elementid = $this->elementid;
             $record->grade = $this->grade;
 
-            $DB->update_record('adaptivequiz_condition_part', $record);
+            $DB->update_record('ddtaquiz_condition_part', $record);
         }
     }
 }

@@ -17,12 +17,12 @@
 /**
  * Base class used by the reports.
  *
- * @package    mod_adaptivequiz
+ * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_adaptivequiz\report;
+namespace mod_ddtaquiz\report;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -49,7 +49,7 @@ abstract class attempts_table extends \table_sql {
      */
     protected $lateststeps = null;
 
-    /** @var \adaptivequiz the quiz we are reporting on. */
+    /** @var \ddtaquiz the quiz we are reporting on. */
     protected $quiz;
 
     /** @var \context the quiz context. */
@@ -73,7 +73,7 @@ abstract class attempts_table extends \table_sql {
     /**
      * Constructor
      * @param string $uniqueid
-     * @param \adaptivequiz $quiz
+     * @param \ddtaquiz $quiz
      * @param \context $context
      * @param string $qmsubselect
      * @param attempts_options $options
@@ -82,7 +82,7 @@ abstract class attempts_table extends \table_sql {
      * @param array $questions
      * @param \moodle_url $reporturl
      */
-    public function __construct($uniqueid, \adaptivequiz $quiz, $context, $qmsubselect,
+    public function __construct($uniqueid, \ddtaquiz $quiz, $context, $qmsubselect,
         attempts_options $options, $groupstudents, $students,
         $questions, $reporturl) {
             parent::__construct($uniqueid);
@@ -124,8 +124,8 @@ abstract class attempts_table extends \table_sql {
         }
 
         return $html . \html_writer::empty_tag('br') . \html_writer::link(
-            new \moodle_url('/mod/adaptivequiz/review.php', array('attempt' => $attempt->attempt)),
-            get_string('reviewattempt', 'adaptivequiz'), array('class' => 'reviewlink'));
+            new \moodle_url('/mod/ddtaquiz/review.php', array('attempt' => $attempt->attempt)),
+            get_string('reviewattempt', 'ddtaquiz'), array('class' => 'reviewlink'));
     }
 
     /**
@@ -238,11 +238,11 @@ abstract class attempts_table extends \table_sql {
             $data, array('class' => $state->get_state_class(true))) . $flag, array('class' => 'que'));
 
         $reviewparams = array('attempt' => $attempt->attempt, 'slot' => $slot);
-        $url = new \moodle_url('/mod/adaptivequiz/reviewquestion.php', $reviewparams);
+        $url = new \moodle_url('/mod/ddtaquiz/reviewquestion.php', $reviewparams);
         $output = $OUTPUT->action_link($url, $output,
             new \popup_action('click', $url, 'reviewquestion',
                 array('height' => 450, 'width' => 650)),
-            array('title' => get_string('reviewresponse', 'adaptivequiz')));
+            array('title' => get_string('reviewresponse', 'ddtaquiz')));
 
         return $output;
     }
@@ -409,9 +409,9 @@ abstract class attempts_table extends \table_sql {
             // than timestart when you have two load-balanced servers with very
             // badly synchronised clocks, and a student does a really quick attempt.
 
-            // This part is the same for all cases. Join the users and adaptivequiz_attempts tables.
+            // This part is the same for all cases. Join the users and ddtaquiz_attempts tables.
             $from = "\n{user} u";
-            $from .= "\nLEFT JOIN {adaptivequiz_attempts} quiza ON
+            $from .= "\nLEFT JOIN {ddtaquiz_attempts} quiza ON
                                     quiza.userid = u.id AND quiza.quiz = :quizid";
             $params = array('quizid' => $this->quiz->get_id());
 
@@ -479,7 +479,7 @@ abstract class attempts_table extends \table_sql {
         // It is only used in a subselect to help crappy databases (see MDL-30122)
         // therefore, it is better to use a very simple join, which may include
         // too many records, than to do a super-accurate join.
-        $qubaids = new \qubaid_join("{adaptivequiz_attempts} {$alias}quiza", "{$alias}quiza.quba",
+        $qubaids = new \qubaid_join("{ddtaquiz_attempts} {$alias}quiza", "{$alias}quiza.quba",
         "{$alias}quiza.quiz = :{$alias}quizid", array("{$alias}quizid" => $this->sql->params['quizid']));
 
         $dm = new \question_engine_data_mapper();
