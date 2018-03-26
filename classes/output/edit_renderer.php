@@ -410,7 +410,6 @@ class edit_renderer extends \plugin_renderer_base {
         $conditionpart = '';
         switch ($part->get_type()) {
             case \condition_part::WAS_DISPLAYED:
-                // TODO: .
                 break;
             default:
                 $conditionpart = $this->points_condition($candidates, 'part' . $index, $part);

@@ -105,72 +105,16 @@ class block {
 
         return new block($blockid, $quiz, $block->name, null, $condition);
     }
-
+    
     /**
-     * Loads the children for the block.
-     */
-    protected function load_children() {
-        global $DB;
-
-        // If the children are already loaded we dont need to do anything.
-        if ($this->children !== null) {
-            return;
-        }
-
-        $children = $DB->get_records('ddtaquiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
-
-        $this->children = array_map(function($id) {
-                                        return block_element::load($this->quiz, $id->id);
-        },
-                                    array_values($children));
-    }
-
-    /**
-     * Adds a new question to the block.
+     * Returns the id of the block.
      *
-     * @param int $questionid the id of the question to be added.
+     * @return int the id of this block.
      */
-    public function add_question($questionid) {
-        if (!$this->get_quiz()->has_attempts()) {
-            global $DB;
-    
-            $qinstance = new stdClass();
-            $qinstance->blockid = $this->id;
-            $qinstance->blockelement = $questionid;
-            $qinstance->type = 0;
-            $qinstance->grade = 0;
-            $qinstance->slot = count($this->get_children());
-    
-            $id = $DB->insert_record('ddtaquiz_qinstance', $qinstance);
-    
-            $this->load_children();
-            array_push($this->children, block_element::load($this->quiz, $id));
-        }
+    public function get_id() {
+        return $this->id;
     }
-
-    /**
-     * Adds a new subblock to the block.
-     *
-     * @param block $block the block to be added as a subblock.
-     */
-    public function add_subblock(block $block) {
-        if (!$this->get_quiz()->has_attempts()) {
-            global $DB;
     
-            $qinstance = new stdClass();
-            $qinstance->blockid = $this->id;
-            $qinstance->blockelement = $block->get_id();
-            $qinstance->type = 1;
-            $qinstance->grade = 0;
-            $qinstance->slot = count($this->get_children());
-    
-            $id = $DB->insert_record('ddtaquiz_qinstance', $qinstance);
-    
-            $this->load_children();
-            array_push($this->children, block_element::load($this->quiz, $id));
-        }
-    }
-
     /**
      * Checks whether this is the main block of the quiz.
      *
@@ -179,7 +123,86 @@ class block {
     public function is_main_block() {
         return $this->id == $this->quiz->get_main_block()->get_id();
     }
-
+    
+    /**
+     * Returns the quiz of the block.
+     *
+     * @return ddtaquiz the quiz, this block belongs to.
+     */
+    public function get_quiz() {
+        return $this->quiz;
+    }
+    
+    /**
+     * Returns the name of the block.
+     *
+     * @return string the name of this block.
+     */
+    public function get_name() {
+        return $this->name;
+    }
+    
+    /**
+     * Sets the name of the block.
+     *
+     * @param string $name new name of the block.
+     */
+    public function set_name($name) {
+        global $DB;
+        
+        $this->name = $name;
+        
+        $record = new stdClass();
+        $record->id = $this->id;
+        $record->name = $name;
+        $DB->update_record('ddtaquiz_block', $record);
+    }
+    
+    /**
+     * Returns the children block.
+     *
+     * @return array an array of {@link block_element}, which represents the children of this block.
+     */
+    public function get_children() {
+        $this->load_children();
+        return $this->children;
+    }
+    
+    /**
+     * Loads the children for the block.
+     */
+    protected function load_children() {
+        global $DB;
+        
+        // If the children are already loaded we dont need to do anything.
+        if ($this->children !== null) {
+            return;
+        }
+        
+        $children = $DB->get_records('ddtaquiz_qinstance', array('blockid' => $this->id), 'slot', 'id');
+        
+        $this->children = array_map(function($id) {
+            return block_element::load($this->quiz, $id->id);
+        },
+        array_values($children));
+    }
+    
+    /**
+     * Removes the child with the given ddtaquiz_qinstance id.
+     *
+     * @param int $id the id of the child to remove.
+     */
+    public function remove_child($id) {
+        if (!$this->get_quiz()->has_attempts()) {
+            global $DB;
+            
+            $DB->delete_records('ddtaquiz_qinstance', array('id' => $id));
+            
+            // Necessary because now the loaded children information is outdated.
+            $this->children = null;
+        }
+    }
+    
     /**
      * Checks whether the block or subblock has any questions.
      *
@@ -195,6 +218,167 @@ class block {
         }
         return false;
     }
+    
+    /**
+     * Adds the questions of this block to a question usage.
+     *
+     * @param question_usage_by_activity $quba the question usage to add the questions to.
+     */
+    public function add_questions_to_quba(question_usage_by_activity $quba) {
+        foreach ($this->get_children() as $element) {
+            $element->add_questions_to_quba($quba);
+        }
+    }
+    
+    /**
+     * Returns all questions of this block and its descendants.
+     *
+     * @return array the block_elements representing the questions.
+     */
+    public function get_questions() {
+        $questions = array();
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                array_push($questions, $child);
+            } else if ($child->is_block()) {
+                $questions = array_merge($questions, $child->get_element()->get_questions());
+            }
+        }
+        return $questions;
+    }
+    
+    /**
+     * Returns all blocks of this block and its descendants.
+     *
+     * @return array the block_elements representing the blocks.
+     */
+    public function get_blocks() {
+        $blocks = array();
+        foreach ($this->get_children() as $child) {
+            if ($child->is_block()) {
+                array_push($blocks, $child);
+                $blocks = array_merge($blocks, $child->get_element()->get_blocks());
+            }
+        }
+        return $blocks;
+    }
+    
+    /**
+     * Returns all elements of this block and its descendants.
+     *
+     * @return array the block_elements representing the elements.
+     */
+    public function get_elements() {
+        $elements = array();
+        foreach ($this->get_children() as $child) {
+            array_push($elements, $child);
+            if ($child->is_block()) {
+                $elements = array_merge($elements, $child->get_element()->get_elements());
+            }
+        }
+        return $elements;
+    }
+    
+    /**
+     * Returns the id of the parent block or false, if this block has no parent block.
+     *
+     * @return bool|int the the id of the parent block or false.
+     */
+    public function get_parentid() {
+        // If this is the main block, there is no parent block.
+        if ($this->is_main_block()) {
+            return false;
+        } else {
+            // Top down search in the block-tree to find the parent.
+            return $this->quiz->get_main_block()->search_parent($this->id)->get_id();
+        }
+        return false;
+    }
+    
+    /**
+     * Finds the parent of a block.
+     *
+     * @param int $childid the id of the child to find the parent for.
+     * @return bool|block the parent block or fals, if the parent can not be found.
+     */
+    protected function search_parent($childid) {
+        foreach ($this->get_children() as $element) {
+            if ($element->is_block()) {
+                $block = $element->get_element();
+                if ($block->get_id() == $childid) {
+                    return $this;
+                }
+                if ($parent = $block->search_parent($childid)) {
+                    return $parent;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Gets the condition under which this block should be shown to a student.
+     *
+     * @return condition the condition under which to show this block.
+     */
+    public function get_condition() {
+        return $this->condition;
+    }
+    
+    /**
+     * Returns the number of the last slot in this block.
+     *
+     * @return int the number of the last slot in this block.
+     */
+    public function get_last_slot() {
+        return $this->startingslot + $this->slotcount - 1;
+    }
+    
+    /**
+     * Adds a new question to the block.
+     *
+     * @param int $questionid the id of the question to be added.
+     */
+    public function add_question($questionid) {
+        if (!$this->get_quiz()->has_attempts()) {
+            global $DB;
+            
+            $qinstance = new stdClass();
+            $qinstance->blockid = $this->id;
+            $qinstance->blockelement = $questionid;
+            $qinstance->type = 0;
+            $qinstance->grade = 0;
+            $qinstance->slot = count($this->get_children());
+            
+            $id = $DB->insert_record('ddtaquiz_qinstance', $qinstance);
+            
+            $this->load_children();
+            array_push($this->children, block_element::load($this->quiz, $id));
+        }
+    }
+    
+    /**
+     * Adds a new subblock to the block.
+     *
+     * @param block $block the block to be added as a subblock.
+     */
+    public function add_subblock(block $block) {
+        if (!$this->get_quiz()->has_attempts()) {
+            global $DB;
+            
+            $qinstance = new stdClass();
+            $qinstance->blockid = $this->id;
+            $qinstance->blockelement = $block->get_id();
+            $qinstance->type = 1;
+            $qinstance->grade = 0;
+            $qinstance->slot = count($this->get_children());
+            
+            $id = $DB->insert_record('ddtaquiz_qinstance', $qinstance);
+            
+            $this->load_children();
+            array_push($this->children, block_element::load($this->quiz, $id));
+        }
+    }
 
     /**
      * Returns all block_elements that can be used for a condition on this block.
@@ -203,18 +387,8 @@ class block {
      */
     public function get_condition_candidates() {
         return $this->get_previous_questions();
-        /* Old implementation just returning questions of the parent block
-        $parent = $this->quiz->get_main_block()->search_parent($this->id);
-        $candidates = array();
-        foreach ($parent->get_children() as $element) {
-            if ($element->is_block() && $element->get_element()->get_id() == $this->id) {
-                break;
-            }
-            array_push($candidates, $element);
-        }
-        return $candidates;*/
     }
-
+    
     /**
      * Returns all questions that might be asked ahead of this block. Used to find adequate questions for use in conditions.
      *
@@ -232,115 +406,12 @@ class block {
         if (is_null($thisblockelement)) {
             return array();
         }
-
+        
         $questions = $this->quiz->get_questions();
         $count = $this->quiz->get_slot_for_element($thisblockelement->get_id());
         return array_slice($questions, 0, $count, true);
     }
-
-    /**
-     * Removes the child with the given ddtaquiz_qinstance id.
-     *
-     * @param int $id the id of the child to remove.
-     */
-    public function remove_child($id) {
-        if (!$this->get_quiz()->has_attempts()) {
-            global $DB;
     
-            $DB->delete_records('ddtaquiz_qinstance', array('id' => $id));
-    
-            // Necessary because now the loaded children information is outdated.
-            $this->children = null;
-        }
-    }
-
-    /**
-     * Returns the children block.
-     *
-     * @return array an array of {@link block_element}, which represents the children of this block.
-     */
-    public function get_children() {
-        $this->load_children();
-        return $this->children;
-    }
-
-    /**
-     * Returns the name of the block.
-     *
-     * @return string the name of this block.
-     */
-    public function get_name() {
-        return $this->name;
-    }
-
-    /**
-     * Sets the name of the block.
-     *
-     * @param string $name new name of the block.
-     */
-    public function set_name($name) {
-        global $DB;
-
-        $this->name = $name;
-
-        $record = new stdClass();
-        $record->id = $this->id;
-        $record->name = $name;
-        $DB->update_record('ddtaquiz_block', $record);
-    }
-
-    /**
-     * Returns the id of the block.
-     *
-     * @return int the id of this block.
-     */
-    public function get_id() {
-        return $this->id;
-    }
-
-    /**
-     * Returns the quiz of the block.
-     *
-     * @return ddtaquiz the quiz, this block belongs to.
-     */
-    public function get_quiz() {
-        return $this->quiz;
-    }
-
-    /**
-     * Returns the id of the parent block or false, if this block has no parent block.
-     *
-     * @return bool|int the the id of the parent block or false.
-     */
-    public function get_parentid() {
-        // If this is the main block, there is no parent block.
-        if ($this->is_main_block()) {
-            return false;
-        } else {
-            // Top down search in the block-tree to find the parent.
-            return $this->quiz->get_main_block()->search_parent($this->id)->get_id();
-        }
-        return false;
-    }
-
-    /**
-     * Gets the condition under which this block should be shown to a student.
-     *
-     * @return condition the condition under which to show this block.
-     */
-    public function get_condition() {
-        return $this->condition;
-    }
-
-    /**
-     * Returns the number of the last slot in this block.
-     *
-     * @return int the number of the last slot in this block.
-     */
-    public function get_last_slot() {
-        return $this->startingslot + $this->slotcount - 1;
-    }
-
     /**
      * Returns the number of slots in this block. Requires a prior call to enumerate.
      *
@@ -349,7 +420,7 @@ class block {
     public function get_slotcount() {
         return $this->slotcount;
     }
-
+    
     /**
      * Returns the slot number for an element id. Requires a prior call to enumerate.
      *
@@ -378,43 +449,7 @@ class block {
         }
         return null;
     }
-
-    /**
-     * Returns the achieved grade for this block in a certain attempt.
-     *
-     * @param attempt $attempt the attempt for which to return the grade_grade.
-     * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
-     */
-    public function get_grade(attempt $attempt) {
-        $sum = 0;
-        foreach ($this->get_children() as $child) {
-            $grade = $child->get_grade($attempt);
-            if (is_null($grade)) {
-                return null;
-            }
-            $sum += $grade;
-        }
-        return $sum;
-    }
-
-    /**
-     * Returns the maximum attainable grade for this block.
-     *
-     * @return int the maximum attainable grade.
-     */
-    public function get_maxgrade() {
-        $sum = 0;
-        foreach ($this->get_children() as $child) {
-            if ($child->is_question()) {
-                $question = question_bank::load_question($child->get_element()->id);
-                $sum += $question->defaultmark;
-            } else if ($child->is_block()) {
-                $sum += $child->get_element()->get_maxgrade();
-            }
-        }
-        return $sum;
-    }
-
+    
     /**
      * Enumerates the questions in this block.
      *
@@ -434,7 +469,7 @@ class block {
         $this->slotcount = $count;
         return $count;
     }
-
+    
     /**
      * Returns the next slot that a student should work on for a certain attempt.
      *
@@ -464,88 +499,7 @@ class block {
         }
         return null;
     }
-
-    /**
-     * Finds the parent of a block.
-     *
-     * @param int $childid the id of the child to find the parent for.
-     * @return bool|block the parent block or fals, if the parent can not be found.
-     */
-    protected function search_parent($childid) {
-        foreach ($this->get_children() as $element) {
-            if ($element->is_block()) {
-                $block = $element->get_element();
-                if ($block->get_id() == $childid) {
-                    return $this;
-                }
-                if ($parent = $block->search_parent($childid)) {
-                    return $parent;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Adds the questions of this block to a question usage.
-     *
-     * @param question_usage_by_activity $quba the question usage to add the questions to.
-     */
-    public function add_questions_to_quba(question_usage_by_activity $quba) {
-        foreach ($this->get_children() as $element) {
-            $element->add_questions_to_quba($quba);
-        }
-    }
-
-    /**
-     * Returns all questions of this block and its descendants.
-     *
-     * @return array the block_elements representing the questions.
-     */
-    public function get_questions() {
-        $questions = array();
-        foreach ($this->get_children() as $child) {
-            if ($child->is_question()) {
-                array_push($questions, $child);
-            } else if ($child->is_block()) {
-                $questions = array_merge($questions, $child->get_element()->get_questions());
-            }
-        }
-        return $questions;
-    }
-
-    /**
-     * Returns all blocks of this block and its descendants.
-     *
-     * @return array the block_elements representing the blocks.
-     */
-    public function get_blocks() {
-        $blocks = array();
-        foreach ($this->get_children() as $child) {
-            if ($child->is_block()) {
-                array_push($blocks, $child);
-                $blocks = array_merge($blocks, $child->get_element()->get_blocks());
-            }
-        }
-        return $blocks;
-    }
-
-    /**
-     * Returns all elements of this block and its descendants.
-     *
-     * @return array the block_elements representing the elements.
-     */
-    public function get_elements() {
-        $elements = array();
-        foreach ($this->get_children() as $child) {
-            array_push($elements, $child);
-            if ($child->is_block()) {
-                $elements = array_merge($elements, $child->get_element()->get_elements());
-            }
-        }
-        return $elements;
-    }
-
+    
     /**
      * Updates the elements of this block to match a given order.
      *
@@ -561,6 +515,42 @@ class block {
                 }
             }
         }
+    }
+    
+    /**
+     * Returns the achieved grade for this block in a certain attempt.
+     *
+     * @param attempt $attempt the attempt for which to return the grade_grade.
+     * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
+     */
+    public function get_grade(attempt $attempt) {
+        $sum = 0;
+        foreach ($this->get_children() as $child) {
+            $grade = $child->get_grade($attempt);
+            if (is_null($grade)) {
+                return null;
+            }
+            $sum += $grade;
+        }
+        return $sum;
+    }
+    
+    /**
+     * Returns the maximum attainable grade for this block.
+     *
+     * @return int the maximum attainable grade.
+     */
+    public function get_maxgrade() {
+        $sum = 0;
+        foreach ($this->get_children() as $child) {
+            if ($child->is_question()) {
+                $question = question_bank::load_question($child->get_element()->id);
+                $sum += $question->defaultmark;
+            } else if ($child->is_block()) {
+                $sum += $child->get_element()->get_maxgrade();
+            }
+        }
+        return $sum;
     }
 }
 
@@ -631,6 +621,24 @@ class block_element {
         return new block_element($blockelementid, $quiz, (int)$questioninstance->type,
             (int)$questioninstance->blockelement, $element, $questioninstance->slot);
     }
+    
+    /**
+     * Returns the id of the qinstance database row.
+     *
+     * @return int the row id.
+     */
+    public function get_id() {
+        return $this->id;
+    }
+    
+    /**
+     * Returns the quiz this block element belongs to.
+     *
+     * @return ddtaquiz the quiz.
+     */
+    public function get_quiz() {
+        return $this->quiz;
+    }
 
     /**
      * Return whether this element is a question.
@@ -650,21 +658,6 @@ class block_element {
         return $this->type === 1;
     }
 
-    /**
-     * Returns the name of the element.
-     * The format is: #. name
-     *
-     * @return string The name of the element.
-     */
-    public function get_name() {
-        if ($this->is_question()) {
-            return $this->quiz->get_slot_for_element($this->id) . '. ' . $this->element->name;
-        }
-        if ($this->is_block()) {
-            return $this->quiz->get_slot_for_element($this->id) . '. ' . $this->element->get_name();
-        }
-    }
-
 
     /**
      * Return the element.
@@ -673,6 +666,23 @@ class block_element {
      */
     public function get_element() {
         return $this->element;
+    }
+    
+    /**
+     * Updates this element to reside at a new slot.
+     *
+     * @param int $slot the new slot for this element.
+     */
+    public function update_slot($slot) {
+        if ($slot != $this->slot) {
+            global $DB;
+            
+            $record = new stdClass();
+            $record->id = $this->id;
+            $record->slot = $slot;
+            
+            $DB->update_record('ddtaquiz_qinstance', $record);
+        }
     }
 
     /**
@@ -690,6 +700,21 @@ class block_element {
         } else {
             debugging('Unsupported element type: ' . $this->type);
             return 0;
+        }
+    }
+    
+    /**
+     * Returns the name of the element.
+     * The format is: #. name
+     *
+     * @return string The name of the element.
+     */
+    public function get_name() {
+        if ($this->is_question()) {
+            return $this->quiz->get_slot_for_element($this->id) . '. ' . $this->element->name;
+        }
+        if ($this->is_block()) {
+            return $this->quiz->get_slot_for_element($this->id) . '. ' . $this->element->get_name();
         }
     }
 
@@ -747,24 +772,6 @@ class block_element {
     }
 
     /**
-     * Returns the id of the qinstance database row.
-     *
-     * @return int the row id.
-     */
-    public function get_id() {
-        return $this->id;
-    }
-
-    /**
-     * Returns the quiz this block element belongs to.
-     *
-     * @return ddtaquiz the quiz.
-     */
-    public function get_quiz() {
-        return $this->quiz;
-    }
-
-    /**
      * Adds the question(s) of this element to a question usage.
      *
      * @param question_usage_by_activity $quba the question usage to add the questions to.
@@ -775,23 +782,6 @@ class block_element {
             $quba->add_question($question);
         } else if ($this->is_block()) {
             $this->get_element()->add_questions_to_quba($quba);
-        }
-    }
-
-    /**
-     * Updates this element to reside at a new slot.
-     *
-     * @param int $slot the new slot for this element.
-     */
-    public function update_slot($slot) {
-        if ($slot != $this->slot) {
-            global $DB;
-
-            $record = new stdClass();
-            $record->id = $this->id;
-            $record->slot = $slot;
-
-            $DB->update_record('ddtaquiz_qinstance', $record);
         }
     }
 }
