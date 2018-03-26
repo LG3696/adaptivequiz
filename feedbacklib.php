@@ -497,7 +497,7 @@ class specialized_feedback {
      */
     protected function is_relevant($part) {
         $tmp = trim(str_replace("&nbsp;", "", strip_tags($part)));
-        if (ctype_print($tmp)) {
+        if ($tmp != null) {
             return true;
         } else {
             return false;
