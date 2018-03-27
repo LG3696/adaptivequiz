@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Displays a page to edit an ddta quiz.
+ * Displays a page to edit a ddta quiz.
  *
  * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>

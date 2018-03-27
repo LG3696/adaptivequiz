@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * A class encapsulating the specialized feedback of an ddtaquiz.
+ * A class encapsulating the specialized feedback of a ddtaquiz.
  *
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -47,7 +47,7 @@ class feedback {
     }
 
     /**
-     * Gets the specialized feedback for an ddtaquiz.
+     * Gets the specialized feedback for a ddtaquiz.
      *
      * @param ddtaquiz $quiz the ddtaquiz to get the feedback for.
      * @return feedback the feedback for this quiz.

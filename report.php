@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Displays a report for an ddta quiz.
+ * Displays a report for a ddta quiz.
  *
  * @package    mod_ddtaquiz
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
