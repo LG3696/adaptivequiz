@@ -49,7 +49,7 @@ class attempt_reviewed extends \core\event\base {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
-    
+
     /**
      * Returns description of what happened.
      *
@@ -59,7 +59,7 @@ class attempt_reviewed extends \core\event\base {
         return "The user with id '$this->userid' has had their attempt with id '$this->objectid' reviewed by the user " .
         "with id '$this->relateduserid' for the quiz with course module id '$this->contextinstanceid'.";
     }
-    
+
     /**
      * Returns localised general event name.
      *
@@ -68,7 +68,7 @@ class attempt_reviewed extends \core\event\base {
     public static function get_name() {
         return get_string('eventattemptreviewed', 'ddtaquiz');
     }
-    
+
     /**
      * Returns relevant URL.
      *

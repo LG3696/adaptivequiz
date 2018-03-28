@@ -82,6 +82,11 @@ abstract class attempts {
      * @param object $quiz
      * @param object $cm
      * @param object $course
+     * @return array with four elements:
+     * 0 => integer the current group id (0 for none).
+     * 1 => array ids of all the students in this course.
+     * 2 => array ids of all the students in the current group.
+     * 3 => array ids of all the students to show in the report.
      */
     protected function init($formclass, $quiz, $cm, $course) {
         $this->context = \context_module::instance($cm->id);

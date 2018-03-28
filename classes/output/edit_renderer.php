@@ -74,7 +74,7 @@ class edit_renderer extends \plugin_renderer_base {
         }
 
         $container = '';
-        
+
         $container .= \html_writer::tag('h3', get_string('questions', 'ddtaquiz'), array('class' => 'questionheader'));
         $container .= html_writer::start_tag('ul', array('id' => 'block-children-list'));
 
@@ -90,7 +90,7 @@ class edit_renderer extends \plugin_renderer_base {
             $container .= html_writer::tag('li', $addmenu);
         }
         $container .= html_writer::end_tag('ul');
-        
+
         $output .= \html_writer::div($container, 'questionblock');
 
         if ($block->is_main_block()) {
@@ -566,7 +566,7 @@ class edit_renderer extends \plugin_renderer_base {
         $conjunction = \html_writer::div(get_string('mustfullfill', 'ddtaquiz') . ' ' . $option . ' ' . get_string('oftheconditions', 'ddtaquiz'), 'conjunction');
         $conditionlist = \html_writer::div($this->show_condition($condition, $candidates));
         $end = \html_writer::end_tag('ul');
-        
+
         $container = $header . $start . $conjunction . $conditionlist . $end;
         return html_writer::div($container, 'conditionblock');
     }
@@ -736,17 +736,17 @@ class edit_renderer extends \plugin_renderer_base {
      * Outputs the HTML for a element whose feedback is replaced by the feedback block.
      *
      * @param \feedback_block $block the block for which to generate the HTML.
-     * @param null|\block_element $selected the question for which to generate the HTML.
+     * @param null|\block_element $question the question for which to generate the HTML.
      * @return string HTML to output.
      */
     public function uses_element(\feedback_block $block, \block_element $question = null) {
-        static $index = 64; // ... 'A' - 1
+        static $index = 64; // ... 'A' - 1.
         $index += 1;
 
         $content = '';
         $content .= \html_writer::div(chr($index), 'usesquestionletter');
         $content .= $this->uses_selector($block, $question);
-        
+
         $strdelete = get_string('delete');
         $image = $this->pix_icon('t/delete', $strdelete);
         $content .= $this->action_link('#', $image, null, array('title' => $strdelete,

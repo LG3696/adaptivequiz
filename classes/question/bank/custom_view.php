@@ -77,7 +77,7 @@ class custom_view extends \core_question\bank\view {
      * Note that you can only output this rendered result once per page, as
      * it contains IDs which must be unique.
      *
-     * @return string HTML code for the form
+     * @return string HTML code for the form.
      */
     public function render($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext) {
         ob_start();
@@ -103,7 +103,7 @@ class custom_view extends \core_question\bank\view {
 
     protected function display_bottom_controls($totalnumber, $recurse, $category, \context $catcontext, array $addcontexts) {
         $canuseall = has_capability('moodle/question:useall', $catcontext);
-        
+
         echo '<div class="modulespecificbuttonscontainer">';
         if ($canuseall) {
             // Add selected questions to the quiz.
