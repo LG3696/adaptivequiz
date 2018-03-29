@@ -70,25 +70,26 @@ class mod_ddtaquiz_external extends external_api {
     public static function get_questionbank($cmid, $bid, $page, $qperpage, $qbs1, $category) {
         global $PAGE, $DB;
         $params = self::validate_parameters(self::get_questionbank_parameters(),
-            array('cmid' => $cmid, 'bid' => $bid, 'page' => $page, 'qperpage' => $qperpage, 'qbs1' => $qbs1, 'category' => $category));
+            array('cmid' => $cmid, 'bid' => $bid, 'page' => $page, 'qperpage' => $qperpage,
+                'qbs1' => $qbs1, 'category' => $category));
 
         $context = context_module::instance($params['cmid']);
         external_api::validate_context($context);
 
         $cmid = $params['cmid'];
         $thispageurl = new moodle_url('/mod/ddtaquiz/edit.php', array('cmid' => $params['cmid'], 'bid' => $params['bid']));
-        
+
         list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
         $contexts = new question_edit_contexts($context);
         $contexts->require_one_edit_tab_cap('editq');
-        
+
         $category = $params['category'];
         if (!$category) {
             $defaultcategory = question_make_default_categories($contexts->all());
             $category = "{$defaultcategory->id},{$defaultcategory->contextid}";
         }
-        
+
         $pagevars = array();
         $pagevars['cat'] = $category;
 
@@ -108,7 +109,7 @@ class mod_ddtaquiz_external extends external_api {
 
         // Output.
         $content = $output->question_bank_contents($questionbank, $pagevars);
-        return external_api::clean_returnvalue(mod_ddtaquiz_external::get_questionbank_returns(),
+        return external_api::clean_returnvalue(self::get_questionbank_returns(),
             $content);
     }
 

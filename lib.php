@@ -124,7 +124,7 @@ function ddtaquiz_update_instance(stdClass $ddtaquiz, mod_ddtaquiz_mod_form $mfo
  * @param int $courseid the Course ID.
  * @return bool
  */
- function ddtaquiz_refresh_events($courseid = 0) {
+function ddtaquiz_refresh_events($courseid = 0) {
     global $DB;
 
     if ($courseid == 0) {
@@ -135,11 +135,6 @@ function ddtaquiz_update_instance(stdClass $ddtaquiz, mod_ddtaquiz_mod_form $mfo
         if (!$ddtaquizs = $DB->get_records('ddtaquiz', array('course' => $courseid))) {
             return true;
         }
-    }
-
-    foreach ($ddtaquizs as $ddtaquiz) {
-        // Create a function such as the one below to deal with updating calendar events.
-        // ddtaquiz_update_events($ddtaquiz); .
     }
 
     return true;

@@ -43,16 +43,14 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 
 // Collect the necessary.
-if ($mode == 'responses') {
-} else { // $mode = 'overview' as default
-}
 
 $PAGE->set_title($ddtaquiz->get_name());
 $PAGE->set_heading($course->fullname);
 
 if ($mode == 'responses') {
     $report = new mod_ddtaquiz\report\responses();
-} else { // $mode = 'overview' as default
+} else {
+    // ... $mode = 'overview' as default.
     $report = new mod_ddtaquiz\report\overview();
 }
 
