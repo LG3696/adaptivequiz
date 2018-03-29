@@ -521,14 +521,14 @@ class block {
      * Returns the achieved grade for this block in a certain attempt.
      *
      * @param attempt $attempt the attempt for which to return the grade_grade.
-     * @return null|int the achieved grade in the attempt or null, if it has no (complete) mark yet.
+     * @return int the achieved grade in the attempt.
      */
     public function get_grade(attempt $attempt) {
         $sum = 0;
         foreach ($this->get_children() as $child) {
             $grade = $child->get_grade($attempt);
             if (is_null($grade)) {
-                return null;
+                $grade = 0;
             }
             $sum += $grade;
         }
