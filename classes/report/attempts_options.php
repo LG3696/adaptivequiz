@@ -80,14 +80,11 @@ class attempts_options {
     /** @var string whether the data should be downloaded in some format, or '' to display it. */
     public $download = '';
 
-    // /** @var bool whether the report table should have a column of checkboxes. */
-    // public $checkboxcolumn = false;
-
     /**
      * Constructor.
      * @param object $quiz the settings for the quiz being reported on.
      * @param object $cm the course module objects for the quiz being reported on.
-     * @param object $coures the course settings for the coures this quiz is in.
+     * @param object $course the course settings for the coures this quiz is in.
      */
     public function __construct($quiz, $cm, $course) {
         $this->quiz   = $quiz;

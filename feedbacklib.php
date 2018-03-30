@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * A class encapsulating the specialized feedback of an ddtaquiz.
+ * A class encapsulating the specialized feedback of a ddtaquiz.
  *
  * @copyright  2017 Luca Gladiator <lucamarius.gladiator@stud.tu-darmstadt.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -47,7 +47,7 @@ class feedback {
     }
 
     /**
-     * Gets the specialized feedback for an ddtaquiz.
+     * Gets the specialized feedback for a ddtaquiz.
      *
      * @param ddtaquiz $quiz the ddtaquiz to get the feedback for.
      * @return feedback the feedback for this quiz.
@@ -353,7 +353,7 @@ class feedback_block {
                     return $obj;
                 }
             }, $records);
-            
+
             // Delete references for block_elements that do not exist anymore.
             $records = array_filter($records, function($element) {
                 if ($element instanceof block_element) {
@@ -384,7 +384,7 @@ class feedback_block {
 
         array_push($this->uses, $questioninstanceid);
     }
-    
+
     /**
      * Adds a question instance to the ones used by this feedback.
      *
@@ -456,19 +456,11 @@ class specialized_feedback {
                 if ($this->is_relevant($tmp)) {
                     array_push($ret, $tmp);
                 }
-            } else if ($this->is_relevant($part)){
+            } else if ($this->is_relevant($part)) {
                 array_push($ret, $part);
             }
         }
 
-        /*return array_map(function ($part) {
-            if (substr($part, 0, 2) == '[[') {
-                return $this->block_element_from_char(substr($part, 2, 1));
-            } else {
-                return $part;
-            }
-        }, $parts);
-        return array($raw);*/
         return $ret;
     }
 
@@ -488,7 +480,7 @@ class specialized_feedback {
             return null;
         }
     }
-    
+
     /**
      * Checks whether this part is relevant for the special feedback or not.
      *

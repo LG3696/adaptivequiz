@@ -16,6 +16,7 @@
 
 /**
  * This page allows the teacher to enter a manual grade for a particular question.
+ *
  * This page is expected to only be used in a popup window.
  *
  * @package    mod_ddtaquiz

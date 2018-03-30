@@ -24,7 +24,6 @@
 
 namespace mod_ddtaquiz\report;
 
-
 defined('MOODLE_INTERNAL') || die();
 
 

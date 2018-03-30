@@ -85,9 +85,6 @@ class attempt {
     /** @var boolean preview was previewed. */
     protected $preview;
 
-    // ... /** @var int time of last modification of this attempt. */
-    // ... protected $timemodified;
-
 
     // Constructor =============================================================
     /**

@@ -67,7 +67,7 @@ class attempt_started extends \core\event\base {
     public static function get_name() {
         return get_string('eventddtaquizattemptstarted', 'ddtaquiz');
     }
-    
+
     /**
      * Returns relevant URL.
      *

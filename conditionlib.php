@@ -299,7 +299,7 @@ class condition_part {
         }
         $achievedgrade = $referencedelement->get_grade($attempt);
         if (is_null($achievedgrade)) {
-            return false;
+            $achievedgrade = 0;
         }
         switch ($this->type) {
             case self::LESS:
